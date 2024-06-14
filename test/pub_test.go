@@ -1,12 +1,12 @@
 package test
 
 import (
+	"testing"
+
 	"github.com/legendaryum-metaverse/saga"
 	"github.com/legendaryum-metaverse/saga/event"
 	"github.com/legendaryum-metaverse/saga/micro"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
-	"testing"
 )
 
 type EventsTestSuite struct {
@@ -49,19 +49,19 @@ func (suite *EventsTestSuite) TestSubscribedEvents() {
 	err := saga.PublishEvent(&event.SocialNewUserPayload{
 		UserID: "1234",
 	})
-	assert.Nil(suite.T(), err)
+	suite.Require().NoError(err)
 	err = saga.PublishEvent(&event.SocialBlockChatPayload{
 		UserID:        "1234",
 		UserToBlockID: "4321",
 	})
-	assert.Nil(suite.T(), err)
+	suite.Require().NoError(err)
 
 	p1 := <-eventSocialNewUserReceived
-	assert.Equal(suite.T(), "1234", p1.UserID)
+	suite.Equal(suite.T(), p1.UserID, "1234")
 
 	p2 := <-eventSocialBlockChatReceived
-	assert.Equal(suite.T(), "1234", p2.UserID)
-	assert.Equal(suite.T(), "4321", p2.UserToBlockID)
+	suite.Equal(suite.T(), p2.UserID, "1234")
+	suite.Equal(suite.T(), p2.UserToBlockID, "4321")
 }
 
 func TestEventsTestSuite(t *testing.T) {
