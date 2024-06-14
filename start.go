@@ -64,6 +64,7 @@ type Transactional struct {
 	isReady      bool
 }
 
+// ConnectToSagaCommandEmitter connects to the saga commands exchange and returns an emitter.
 func (t *Transactional) ConnectToSagaCommandEmitter() *Emitter[CommandHandler, micro.StepCommand] {
 	t.prepare()
 	q := getQueueConsumer(t.Microservice)
