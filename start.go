@@ -84,6 +84,7 @@ func (t *Transactional) ConnectToSagaCommandEmitter() *Emitter[CommandHandler, m
 	return e
 }
 
+// ConnectToEvents connects to the events exchange and returns an emitter.
 func (t *Transactional) ConnectToEvents() *Emitter[EventHandler, event.MicroserviceEvent] {
 	t.prepare()
 	queueName := fmt.Sprintf("%s_match_commands", t.Microservice)
