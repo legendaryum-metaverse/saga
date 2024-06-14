@@ -1,6 +1,5 @@
 # `saga`
 
-<hr />
  
 [![Go Report Card](https://goreportcard.com/badge/github.com/legendaryum-metaverse/saga)](https://goreportcard.com/report/github.com/legendaryum-metaverse/saga)
 [![Go Reference](https://pkg.go.dev/badge/github.com/legendaryum-metaverse/saga?status.svg)](https://pkg.go.dev/github.com/legendaryum-metaverse/saga?tab=doc)
