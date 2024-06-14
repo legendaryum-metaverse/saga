@@ -1,17 +1,10 @@
 # `saga`
 
-<div style="text-align: center;">
-  <br/>
-  <br/>
-<img src="https://raw.githubusercontent.com/legendaryum-metaverse/legend-transactional/main/.github/assets/legend.jpg" alt="legendaryum" style="width: 30%;"/>
-</div>
-
 <hr />
  
 [![Go Report Card](https://goreportcard.com/badge/github.com/legendaryum-metaverse/saga)](https://goreportcard.com/report/github.com/legendaryum-metaverse/saga)
 [![Go Reference](https://pkg.go.dev/badge/github.com/legendaryum-metaverse/saga?status.svg)](https://pkg.go.dev/github.com/legendaryum-metaverse/saga?tab=doc)
 [![Sourcegraph](https://sourcegraph.com/github.com/legendaryum-metaverse/saga/-/badge.svg)](https://sourcegraph.com/github.com/legendaryum-metaverse/saga?badge)
-[![Open Source Helpers](https://www.codetriage.com/legendaryum-metaverse/saga/badges/users.svg)](https://www.codetriage.com/legendaryum-metaverse/saga)
 [![Release](https://img.shields.io/github/release/legendaryum-metaverse/saga.svg?style=flat-square)](https://github.com/legendaryum-metaverse/saga/releases)
 [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/legendaryum-metaverse/saga/release.yml?branch=main)](https://github.com/legendaryum-metaverse/saga/tree/main)
 [![GitHub](https://img.shields.io/github/license/legendaryum-metaverse/saga)](https://github.com/legendaryum-metaverse/saga/blob/main/LICENSE)
