@@ -1,0 +1,40 @@
+name: pull_request_to_dev
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - '**/*.go'
+      - 'go.mod'
+      - 'go.sum'
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+env:
+  FORCE_COLOR: 3
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  code_quality_check:
+    permissions:
+      contents: write
+      pull-requests: write
+    uses: ./.github/workflows/code-quality-check.yml
+    secrets: inherit
+
+#  comment_to_pr_image_size:
+#    needs: code_quality_check
+#    secrets: inherit
+#    permissions:
+#      contents: read
+#      pull-requests: write
+#    uses: ./.github/workflows/comment_to_pr_image_size.yaml
+#    with:
+#      image-size: ${{ fromJSON(needs.code_quality_check.outputs.image-size) }}
+#      MAX_IMAGE_SIZE: 75

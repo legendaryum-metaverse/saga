@@ -1,0 +1,50 @@
+name: check_minor_dependencies
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '30 17 * * 1' # 5:30 PM UTC every Monday, 2:30 PM Argentina
+
+env:
+  FORCE_COLOR: 3
+  GO_VERSION: 1.22
+
+defaults:
+  run:
+    shell: bash
+
+# *************************   TRIGGERING FURTHER WORKFLOW RUNS ***************************
+# https://github.com/peter-evans/create-pull-request/blob/main/docs/concepts-guidelines.md#triggering-further-workflow-runs
+
+jobs:
+  update_minor_dependencies:
+    timeout-minutes: 5
+    if: github.event.repository.full_name == github.repository
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: dev
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+      - name: Update dependencies
+        run: |
+          go get -u ./...
+          go mod tidy
+          go mod verify
+
+      - name: Create PR
+        uses: peter-evans/create-pull-request@v5
+        with:
+          title: 'dependencies: Upgrade GO packages (automated)'
+          branch: 'upgrade-go-packages'
+          base: 'dev'
+          commit-message: 'dependencies: Upgrade GO packages (automated)'
+          body: |
+            ### ⚠ Importante leer antes de hacer merge a dev
+            >Cerrar esta **PR** y abrirla de nuevo para que corran las **actions**
+            de **code-quality-check**.
+
+            >Luego _merge_ a **dev**.
