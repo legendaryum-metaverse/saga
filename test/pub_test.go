@@ -57,11 +57,11 @@ func (suite *EventsTestSuite) TestSubscribedEvents() {
 	suite.Require().NoError(err)
 
 	p1 := <-eventSocialNewUserReceived
-	suite.Equal(suite.T(), p1.UserID, "1234")
+	suite.Equal("1234", p1.UserID)
 
 	p2 := <-eventSocialBlockChatReceived
-	suite.Equal(suite.T(), p2.UserID, "1234")
-	suite.Equal(suite.T(), p2.UserToBlockID, "4321")
+	suite.Equal("1234", p2.UserID)
+	suite.Equal("4321", p2.UserToBlockID)
 }
 
 func TestEventsTestSuite(t *testing.T) {
