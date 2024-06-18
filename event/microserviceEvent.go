@@ -11,6 +11,7 @@ const (
 	TestMintEvent  MicroserviceEvent = "test.mint"
 
 	PaymentsNotifyClientEvent      MicroserviceEvent = "payments.notify_client"
+	RoomCreatorUpdatedRoom         MicroserviceEvent = "room_creator.updated_room"
 	RoomSnapshotFirstSnapshotEvent MicroserviceEvent = "room_snapshot.first_snapshot"
 	SocialBlockChatEvent           MicroserviceEvent = "social.block_chat"
 	SocialNewUserEvent             MicroserviceEvent = "social.new_user"
@@ -56,6 +57,28 @@ type PaymentsNotifyClientPayload struct {
 
 func (PaymentsNotifyClientPayload) Type() MicroserviceEvent {
 	return PaymentsNotifyClientEvent
+}
+
+// RoomCreatorUpdatedRoomPayload is the payload for the room_creator.updated_room event.
+type RoomCreatorUpdatedRoomPayload struct {
+	Room Room `json:"room"`
+}
+type Room struct {
+	Id         string `json:"Id"`
+	CreateAt   string `json:"CreateAt"`
+	UpdateAt   string `json:"UpdateAt"`
+	RoomType   string `json:"type"`
+	Name       string `json:"name"`
+	OwnerId    string `json:"ownerId"`
+	OwnerEmail string `json:"ownerEmail"`
+	MaxPlayers int    `json:"maxPlayers"`
+	MaxLayers  int    `json:"maxLayers"`
+	TemplateId string `json:"templateId"`
+	HaveEditor bool   `json:"haveEditor"`
+}
+
+func (RoomCreatorUpdatedRoomPayload) Type() MicroserviceEvent {
+	return RoomCreatorUpdatedRoom
 }
 
 // RoomSnapshotFirstSnapshotPayload is the payload for the social.block_chat event.
