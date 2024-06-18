@@ -61,6 +61,9 @@ func (PaymentsNotifyClientPayload) Type() MicroserviceEvent {
 
 // RoomCreatorUpdatedRoomPayload is the payload for the room_creator.updated_room event.
 type RoomCreatorUpdatedRoomPayload struct {
+	Room Room `json:"room"`
+}
+type Room struct {
 	Id         string `json:"Id"`
 	CreateAt   string `json:"CreateAt"`
 	UpdateAt   string `json:"UpdateAt"`
