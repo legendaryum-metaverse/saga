@@ -11,6 +11,8 @@ const (
 	TestMintEvent  MicroserviceEvent = "test.mint"
 
 	PaymentsNotifyClientEvent      MicroserviceEvent = "payments.notify_client"
+	RoomCreatorRoomCreatedEvent    MicroserviceEvent = "room_creator.room_created"
+	RoomCreatorRoomUpdatedEvent    MicroserviceEvent = "room_creator.room_updated"
 	RoomSnapshotFirstSnapshotEvent MicroserviceEvent = "room_snapshot.first_snapshot"
 	SocialBlockChatEvent           MicroserviceEvent = "social.block_chat"
 	SocialNewUserEvent             MicroserviceEvent = "social.new_user"
@@ -23,6 +25,8 @@ func MicroserviceEventValues() []MicroserviceEvent {
 		TestMintEvent,
 
 		PaymentsNotifyClientEvent,
+		RoomCreatorRoomCreatedEvent,
+		RoomCreatorRoomUpdatedEvent,
 		RoomSnapshotFirstSnapshotEvent,
 		SocialBlockChatEvent,
 		SocialNewUserEvent,
@@ -56,6 +60,27 @@ type PaymentsNotifyClientPayload struct {
 
 func (PaymentsNotifyClientPayload) Type() MicroserviceEvent {
 	return PaymentsNotifyClientEvent
+}
+
+// RoomCreatorRoomCreatedPayload is the payload for the room_creator.room_created event.
+type RoomCreatorRoomCreatedPayload struct {
+	Name    string                 `json:"name"`
+	Id      string                 `json:"id"`
+	Product map[string]interface{} `json:"product"`
+}
+
+func (RoomCreatorRoomCreatedPayload) Type() MicroserviceEvent {
+	return RoomCreatorRoomCreatedEvent
+}
+
+// RoomCreatorRoomUpdatedPayload is the payload for the room_creator.room_updated event.
+type RoomCreatorRoomUpdatedPayload struct {
+	Id      string                 `json:"id"`
+	Product map[string]interface{} `json:"product"`
+}
+
+func (RoomCreatorRoomUpdatedPayload) Type() MicroserviceEvent {
+	return RoomCreatorRoomUpdatedEvent
 }
 
 // RoomSnapshotFirstSnapshotPayload is the payload for the social.block_chat event.
