@@ -17,7 +17,7 @@ defaults:
 
 jobs:
   update_minor_dependencies:
-    timeout-minutes: 5
+    timeout-minutes: 2
     if: github.event.repository.full_name == github.repository
     runs-on: ubuntu-latest
 
@@ -40,11 +40,10 @@ jobs:
         with:
           title: 'dependencies: Upgrade GO packages (automated)'
           branch: 'upgrade-go-packages'
-          base: 'dev'
           commit-message: 'dependencies: Upgrade GO packages (automated)'
           body: |
-            ### ⚠ Importante leer antes de hacer merge a dev
+            ### ⚠ Importante leer antes de hacer merge a main
             >Cerrar esta **PR** y abrirla de nuevo para que corran las **actions**
             de **code-quality-check**.
 
-            >Luego _merge_ a **dev**.
+            >Luego _merge_ a **main**.
