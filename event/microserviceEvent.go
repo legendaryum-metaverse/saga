@@ -11,7 +11,7 @@ const (
 	TestMintEvent  MicroserviceEvent = "test.mint"
 
 	PaymentsNotifyClientEvent      MicroserviceEvent = "payments.notify_client"
-	RoomCreatorUpdateUserRoom      MicroserviceEvent = "room_creator.update_user_room"
+	RoomCreatorUpdatedRoom         MicroserviceEvent = "room_creator.updated_room"
 	RoomSnapshotFirstSnapshotEvent MicroserviceEvent = "room_snapshot.first_snapshot"
 	SocialBlockChatEvent           MicroserviceEvent = "social.block_chat"
 	SocialNewUserEvent             MicroserviceEvent = "social.new_user"
@@ -59,8 +59,8 @@ func (PaymentsNotifyClientPayload) Type() MicroserviceEvent {
 	return PaymentsNotifyClientEvent
 }
 
-// RoomCreatorUpdateUserRoomPayload is the payload for the room_creator.change_template_id event.
-type RoomCreatorUpdateUserRoomPayload struct {
+// RoomCreatorUpdatedRoomPayload is the payload for the room_creator.updated_room event.
+type RoomCreatorUpdatedRoomPayload struct {
 	Id         string `json:"Id"`
 	CreateAt   string `json:"CreateAt"`
 	UpdateAt   string `json:"UpdateAt"`
@@ -74,8 +74,8 @@ type RoomCreatorUpdateUserRoomPayload struct {
 	HaveEditor bool   `json:"haveEditor"`
 }
 
-func (RoomCreatorUpdateUserRoomPayload) Type() MicroserviceEvent {
-	return RoomCreatorUpdateUserRoom
+func (RoomCreatorUpdatedRoomPayload) Type() MicroserviceEvent {
+	return RoomCreatorUpdatedRoom
 }
 
 // RoomSnapshotFirstSnapshotPayload is the payload for the social.block_chat event.
