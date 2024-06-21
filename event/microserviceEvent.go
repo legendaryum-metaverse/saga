@@ -36,17 +36,6 @@ func MicroserviceEventValues() []MicroserviceEvent {
 	}
 }
 
-// RoomType.
-type RoomType string
-
-// Types of rooms.
-const (
-	Normal     RoomType = "normal"
-	Island     RoomType = "island"
-	HallOfFame RoomType = "hallOfFame"
-	House      RoomType = "house"
-)
-
 // TestImagePayload is the payload for the test.image event.
 type TestImagePayload struct {
 	Image string `json:"image"`
@@ -109,8 +98,9 @@ func (RoomCreatorUpdatedRoomPayload) Type() MicroserviceEvent {
 
 // RoomSnapshotBuildingChangeInIslandPayload is the payload for the room_snapshot.building_change_in_island event.
 type RoomSnapshotBuildingChangeInIslandPayload struct {
-	Building string   `json:"building"`
-	RoomType RoomType `json:"roomType"`
+	Building string `json:"building"`
+	UserID   string `json:"userId"`
+	RoomID   string `json:"roomId"`
 }
 
 func (RoomSnapshotBuildingChangeInIslandPayload) Type() MicroserviceEvent {
