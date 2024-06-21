@@ -10,13 +10,14 @@ const (
 	TestImageEvent MicroserviceEvent = "test.image"
 	TestMintEvent  MicroserviceEvent = "test.mint"
 
-	PaymentsNotifyClientEvent      MicroserviceEvent = "payments.notify_client"
-	RoomCreatorCreatedRoomEvent    MicroserviceEvent = "room_creator.created_room"
-	RoomCreatorUpdatedRoomEvent    MicroserviceEvent = "room_creator.updated_room"
-	RoomSnapshotFirstSnapshotEvent MicroserviceEvent = "room_snapshot.first_snapshot"
-	SocialBlockChatEvent           MicroserviceEvent = "social.block_chat"
-	SocialNewUserEvent             MicroserviceEvent = "social.new_user"
-	SocialUnblockChatEvent         MicroserviceEvent = "social.unblock_chat"
+	PaymentsNotifyClientEvent               MicroserviceEvent = "payments.notify_client"
+	RoomCreatorCreatedRoomEvent             MicroserviceEvent = "room_creator.created_room"
+	RoomCreatorUpdatedRoomEvent             MicroserviceEvent = "room_creator.updated_room"
+	RoomSnapshotBuildingChangeInIslandEvent MicroserviceEvent = "room_snapshot.building_change_in_island"
+	RoomSnapshotFirstSnapshotEvent          MicroserviceEvent = "room_snapshot.first_snapshot"
+	SocialBlockChatEvent                    MicroserviceEvent = "social.block_chat"
+	SocialNewUserEvent                      MicroserviceEvent = "social.new_user"
+	SocialUnblockChatEvent                  MicroserviceEvent = "social.unblock_chat"
 )
 
 func MicroserviceEventValues() []MicroserviceEvent {
@@ -27,12 +28,24 @@ func MicroserviceEventValues() []MicroserviceEvent {
 		PaymentsNotifyClientEvent,
 		RoomCreatorCreatedRoomEvent,
 		RoomCreatorUpdatedRoomEvent,
+		RoomSnapshotBuildingChangeInIslandEvent,
 		RoomSnapshotFirstSnapshotEvent,
 		SocialBlockChatEvent,
 		SocialNewUserEvent,
 		SocialUnblockChatEvent,
 	}
 }
+
+// RoomType.
+type RoomType string
+
+// Types of rooms.
+const (
+	Normal     RoomType = "normal"
+	Island     RoomType = "island"
+	HallOfFame RoomType = "hallOfFame"
+	House      RoomType = "house"
+)
 
 // TestImagePayload is the payload for the test.image event.
 type TestImagePayload struct {
@@ -94,7 +107,17 @@ func (RoomCreatorUpdatedRoomPayload) Type() MicroserviceEvent {
 	return RoomCreatorUpdatedRoomEvent
 }
 
-// RoomSnapshotFirstSnapshotPayload is the payload for the social.block_chat event.
+// RoomSnapshotBuildingChangeInIslandPayload is the payload for the room_snapshot.building_change_in_island event.
+type RoomSnapshotBuildingChangeInIslandPayload struct {
+	Building string   `json:"building"`
+	RoomType RoomType `json:"roomType"`
+}
+
+func (RoomSnapshotBuildingChangeInIslandPayload) Type() MicroserviceEvent {
+	return RoomSnapshotBuildingChangeInIslandEvent
+}
+
+// RoomSnapshotFirstSnapshotPayload is the payload for the room_snapshot.first_snapshot event.
 type RoomSnapshotFirstSnapshotPayload struct {
 	Slug string `json:"slug"`
 }
