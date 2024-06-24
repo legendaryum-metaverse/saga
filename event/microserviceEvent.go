@@ -111,7 +111,6 @@ func (RoomInventoryUpdateVpBuildingImagePayload) Type() MicroserviceEvent {
 type RoomSnapshotBuildingChangeInIslandPayload struct {
 	Building string `json:"building"`
 	UserID   string `json:"userId"`
-	RoomID   string `json:"roomId"`
 }
 
 func (RoomSnapshotBuildingChangeInIslandPayload) Type() MicroserviceEvent {
