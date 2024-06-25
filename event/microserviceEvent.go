@@ -111,8 +111,9 @@ func (RoomCreatorUpdatedRoomPayload) Type() MicroserviceEvent {
 
 // RoomInventoryUpdateVpBuildingImagePayload is the payload for the room_snapshot.room_inventory.update_vp_building_image event.
 type RoomInventoryUpdateVpBuildingImagePayload struct {
-	Images []string `json:"images"`
-	RoomID string   `json:"roomId"`
+	Images   []string `json:"images"`
+	RoomType string   `json:"roomType"`
+	UserID   string   `json:"userId"`
 }
 
 func (RoomInventoryUpdateVpBuildingImagePayload) Type() MicroserviceEvent {
