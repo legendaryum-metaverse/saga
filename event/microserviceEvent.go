@@ -10,7 +10,7 @@ const (
 	TestImageEvent MicroserviceEvent = "test.image"
 	TestMintEvent  MicroserviceEvent = "test.mint"
 
-	AuthDletedUserEvent            MicroserviceEvent = "auth.deleted_user"
+	AuthDeletedUserEvent           MicroserviceEvent = "auth.deleted_user"
 	PaymentsNotifyClientEvent      MicroserviceEvent = "payments.notify_client"
 	RoomCreatorCreatedRoomEvent    MicroserviceEvent = "room_creator.created_room"
 	RoomCreatorUpdatedRoomEvent    MicroserviceEvent = "room_creator.updated_room"
@@ -25,7 +25,7 @@ func MicroserviceEventValues() []MicroserviceEvent {
 		TestImageEvent,
 		TestMintEvent,
 
-		AuthDletedUserEvent,
+		AuthDeletedUserEvent,
 		PaymentsNotifyClientEvent,
 		RoomCreatorCreatedRoomEvent,
 		RoomCreatorUpdatedRoomEvent,
@@ -60,7 +60,7 @@ type AuthDletedUserPayload struct {
 }
 
 func (AuthDletedUserPayload) Type() MicroserviceEvent {
-	return AuthDletedUserEvent
+	return AuthDeletedUserEvent
 }
 
 // PaymentsNotifyClientPayload is the payload for the payments.notify_client event.
