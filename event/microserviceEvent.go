@@ -58,12 +58,12 @@ func (TestMintPayload) Type() MicroserviceEvent {
 	return TestMintEvent
 }
 
-// AuthDletedUserPayload is the payload for the auth.deleted_user event.
-type AuthDletedUserPayload struct {
+// AuthDeletedUserPayload is the payload for the auth.deleted_user event.
+type AuthDeletedUserPayload struct {
 	UserID string `json:"userId"`
 }
 
-func (AuthDletedUserPayload) Type() MicroserviceEvent {
+func (AuthDeletedUserPayload) Type() MicroserviceEvent {
 	return AuthDeletedUserEvent
 }
 
