@@ -14,6 +14,7 @@ const (
 	PaymentsNotifyClientEvent               MicroserviceEvent = "payments.notify_client"
 	RoomCreatorCreatedRoomEvent             MicroserviceEvent = "room_creator.created_room"
 	RoomCreatorUpdatedRoomEvent             MicroserviceEvent = "room_creator.updated_room"
+	RoomInventoryUpdateRoomTemplateEvent    MicroserviceEvent = "room_inventory.update_room_template"
 	RoomInventoryUpdateVpBuildingImageEvent MicroserviceEvent = "room_inventory.update_vp_building_image"
 	RoomSnapshotBuildingChangeInIslandEvent MicroserviceEvent = "room_snapshot.building_change_in_island"
 	RoomSnapshotFirstSnapshotEvent          MicroserviceEvent = "room_snapshot.first_snapshot"
@@ -31,6 +32,7 @@ func MicroserviceEventValues() []MicroserviceEvent {
 		PaymentsNotifyClientEvent,
 		RoomCreatorCreatedRoomEvent,
 		RoomCreatorUpdatedRoomEvent,
+		RoomInventoryUpdateRoomTemplateEvent,
 		RoomInventoryUpdateVpBuildingImageEvent,
 		RoomSnapshotBuildingChangeInIslandEvent,
 		RoomSnapshotFirstSnapshotEvent,
@@ -102,12 +104,21 @@ func (RoomCreatorCreatedRoomPayload) Type() MicroserviceEvent {
 
 // RoomCreatorUpdatedRoomPayload is the payload for the room_creator.updated_room event.
 type RoomCreatorUpdatedRoomPayload struct {
-	Room   Room     `json:"room"`
-	Images []string `json:"images"`
+	Room Room `json:"room"`
 }
 
 func (RoomCreatorUpdatedRoomPayload) Type() MicroserviceEvent {
 	return RoomCreatorUpdatedRoomEvent
+}
+
+// RoomInventoryUpdateRoomTemplatePayload is the payload for the room_inventory.update_room_template event.
+type RoomInventoryUpdateRoomTemplatePayload struct {
+	Images []string `json:"images"`
+	RoomId string   `json:"roomId"`
+}
+
+func (RoomInventoryUpdateRoomTemplatePayload) Type() MicroserviceEvent {
+	return RoomInventoryUpdateRoomTemplateEvent
 }
 
 // RoomInventoryUpdateVpBuildingImagePayload is the payload for the room_snapshot.room_inventory.update_vp_building_image event.
