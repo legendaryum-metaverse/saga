@@ -102,7 +102,8 @@ func (RoomCreatorCreatedRoomPayload) Type() MicroserviceEvent {
 
 // RoomCreatorUpdatedRoomPayload is the payload for the room_creator.updated_room event.
 type RoomCreatorUpdatedRoomPayload struct {
-	Room Room `json:"room"`
+	Room   Room     `json:"room"`
+	Images []string `json:"images"`
 }
 
 func (RoomCreatorUpdatedRoomPayload) Type() MicroserviceEvent {
