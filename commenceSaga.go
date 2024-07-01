@@ -7,8 +7,9 @@ const (
 type SagaTitle string
 
 const (
-	UpdateUserImage      SagaTitle = "update_user:image"
-	PurchaseResourceFlow SagaTitle = "purchase_resource_flow"
+	UpdateUserImage          SagaTitle = "update_user:image"
+	PurchaseResourceFlow     SagaTitle = "purchase_resource_flow"
+	UpdateIslandRoomTemplate SagaTitle = "update_island_room_template"
 )
 
 type CommencePayload interface {
@@ -36,6 +37,18 @@ type PurchaseResourceFlowPayload struct {
 
 func (PurchaseResourceFlowPayload) Type() SagaTitle {
 	return PurchaseResourceFlow
+}
+
+// UpdateIslandRoomTemplatePayload is the payload for the update_island_room_template event.
+type UpdateIslandRoomTemplatePayload struct {
+	Images     []string `json:"images"`
+	UserID     string   `json:"userId"`
+	TemplateId string   `json:"templateId"`
+	RoomId     string   `json:"roomId"`
+}
+
+func (UpdateIslandRoomTemplatePayload) Type() SagaTitle {
+	return UpdateIslandRoomTemplate
 }
 
 type commenceSaga struct {
