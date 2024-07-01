@@ -41,14 +41,14 @@ const (
 
 // room-creator.
 const (
-	RoomCreator               AvailableMicroservices = "room-creator"
-	UpdateRoomTemplateCommand StepCommand            = "update_room_template"
+	RoomCreator              AvailableMicroservices = "room-creator"
+	UpdateIslandRoomTemplate StepCommand            = "update_island_room_template"
 )
 
 // legend-showcase.
 const (
-	Showcase                    AvailableMicroservices = "legend-showcase"
-	UpdateProductVirtualCommand StepCommand            = "update_product_virtual"
+	Showcase                      AvailableMicroservices = "legend-showcase"
+	RandomizeIslandPvImageCommand StepCommand            = "randomize_island_pv_image"
 )
 
 // social.
