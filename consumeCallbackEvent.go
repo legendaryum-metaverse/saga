@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"slices"
 
+	"github.com/go-playground/validator/v10"
+
 	"github.com/legendaryum-metaverse/saga/event"
 
 	amqp "github.com/rabbitmq/amqp091-go"
@@ -15,26 +17,35 @@ type EventHandler struct {
 	Payload map[string]interface{} `json:"payload"`
 }
 
-func ParseEventPayload[T any](handlerPayload map[string]interface{}, data *T) *T {
-	body, err := json.Marshal(handlerPayload)
+var validate *validator.Validate
+
+func init() {
+	validate = validator.New()
+}
+
+func ParsePayload[T any](handlerPayload map[string]interface{}, data *T) *T {
+	jsonData, err := json.Marshal(handlerPayload)
 	if err != nil {
-		panic(err)
+		panic(fmt.Errorf("failed to marshal payload: %w", err))
 	}
-	if err = json.Unmarshal(body, &data); err != nil {
-		panic(err)
+	if err = json.Unmarshal(jsonData, &data); err != nil {
+		panic(fmt.Errorf("failed to unmarshal payload: %w", err))
+	}
+	if err = validate.Struct(data); err != nil {
+		panic(fmt.Errorf("invalid payload: %w", err))
 	}
 	return data
 }
 
-// ParseEventPayload (this) It also works, but you need to pass a reference to the variable
+// ParsePayload (this) It also works, but you need to pass a reference to the variable
 // and is not type safe to assure that, as the type is: any
 // Works:
 // var eventPayload1 saga.SocialNewUserPayload   // or a pointer *saga.SocialNewUserPayload
 // ------------------------->key, pass the reference<-----------------//
-// handler.ParseEventPayload(&eventPayload1)
+// handler.ParsePayload(&eventPayload1)
 //
 // It does not work:
-// handler.ParseEventPayload(eventPayload1).
+// handler.ParsePayload(eventPayload1).
 func (e *EventHandler) ParseEventPayload(data any) {
 	body, err := json.Marshal(e.Payload)
 	if err != nil {

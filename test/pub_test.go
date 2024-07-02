@@ -32,14 +32,14 @@ func (suite *EventsTestSuite) TestSubscribedEvents() {
 	eventSocialBlockChatReceived := make(chan *event.SocialBlockChatPayload)
 
 	suite.e.On(event.SocialNewUserEvent, func(handler saga.EventHandler) {
-		eventPayload := saga.ParseEventPayload(handler.Payload, &event.SocialNewUserPayload{})
+		eventPayload := saga.ParsePayload(handler.Payload, &event.SocialNewUserPayload{})
 		defer func(eventPayload *event.SocialNewUserPayload) {
 			eventSocialNewUserReceived <- eventPayload
 		}(eventPayload)
 		handler.Channel.AckMessage()
 	})
 	suite.e.On(event.SocialBlockChatEvent, func(handler saga.EventHandler) {
-		eventPayload := saga.ParseEventPayload(handler.Payload, &event.SocialBlockChatPayload{})
+		eventPayload := saga.ParsePayload(handler.Payload, &event.SocialBlockChatPayload{})
 		defer func(eventPayload *event.SocialBlockChatPayload) {
 			eventSocialBlockChatReceived <- eventPayload
 		}(eventPayload)
