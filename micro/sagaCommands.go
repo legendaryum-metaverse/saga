@@ -41,8 +41,8 @@ const (
 
 // room-creator.
 const (
-	RoomCreator              AvailableMicroservices = "room-creator"
-	UpdateIslandRoomTemplate StepCommand            = "update_island_room_template"
+	RoomCreator                     AvailableMicroservices = "room-creator"
+	UpdateIslandRoomTemplateCommand StepCommand            = "update_island_room_template"
 )
 
 // legend-showcase.
