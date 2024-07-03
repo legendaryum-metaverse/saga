@@ -14,7 +14,9 @@ type MicroserviceConsumeChannel struct {
 	step SagaStep
 }
 
-func (m *MicroserviceConsumeChannel) AckMessage(payloadForNextStep map[string]interface{}) {
+type NextStepPayload = map[string]interface{}
+
+func (m *MicroserviceConsumeChannel) AckMessage(payloadForNextStep NextStepPayload) {
 	m.step.Status = Success
 	previousPayload := m.step.PreviousPayload
 	metaData := make(map[string]interface{})
