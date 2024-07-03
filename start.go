@@ -3,13 +3,17 @@ package saga
 import (
 	"fmt"
 
+	"github.com/go-playground/validator/v10"
+
+	"go.uber.org/zap"
+
 	"github.com/legendaryum-metaverse/saga/event"
 	"github.com/legendaryum-metaverse/saga/micro"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 // consume consumes messages from the queue and processes them.
-func consume[T any, U comparable](e *Emitter[T, U], queueName string, cb func(*amqp.Delivery, *amqp.Channel, *Emitter[T, U], string)) error {
+func consume[T any, U comparable](e *Emitter[T, U], queueName string, logger *zap.Logger, cb func(*amqp.Delivery, *amqp.Channel, *Emitter[T, U], string, *zap.Logger)) error {
 	channel, err := getConsumeChannel()
 	if err != nil {
 		return fmt.Errorf("failed to get channel: %w", err)
@@ -40,7 +44,7 @@ func consume[T any, U comparable](e *Emitter[T, U], queueName string, cb func(*a
 	}
 
 	for msg := range channelQ {
-		cb(&msg, channel, e, queueName)
+		cb(&msg, channel, e, queueName, logger)
 	}
 
 	return nil
@@ -62,6 +66,45 @@ type Transactional struct {
 	Microservice micro.AvailableMicroservices
 	Events       []event.MicroserviceEvent
 	isReady      bool
+	Logger       *zap.Logger
+}
+
+var validate *validator.Validate
+
+func init() {
+	validate = validator.New()
+	err := validate.RegisterValidation("microservice", func(fl validator.FieldLevel) bool {
+		ms := fl.Field().String()
+		return micro.AvailableMicroservices(ms).IsValid()
+	})
+	if err != nil {
+		panic(err)
+	}
+}
+
+type Opts struct {
+	RabbitUri    string                       `validate:"required,url"`
+	Microservice micro.AvailableMicroservices `validate:"required,microservice"`
+	Events       []event.MicroserviceEvent    `validate:"-"`
+	Logger       *zap.Logger                  `validate:"required"`
+}
+
+func Config(opts *Opts) *Transactional {
+	err := validate.Struct(opts)
+	if err != nil {
+		panic(fmt.Sprintf("Invalid options: %v", err))
+	}
+
+	if opts.Events == nil {
+		opts.Events = []event.MicroserviceEvent{}
+	}
+
+	return &Transactional{
+		RabbitUri:    opts.RabbitUri,
+		Microservice: opts.Microservice,
+		Events:       opts.Events,
+		Logger:       opts.Logger,
+	}
 }
 
 // ConnectToSagaCommandEmitter connects to the saga commands exchange and returns an emitter.
@@ -76,7 +119,7 @@ func (t *Transactional) ConnectToSagaCommandEmitter() *Emitter[CommandHandler, m
 	}
 
 	go func() {
-		err = consume(e, q.QueueName, sagaCommandCallback)
+		err = consume(e, q.QueueName, t.Logger, sagaCommandCallback)
 		if err != nil {
 			fmt.Println("Error consuming messages:", err)
 		}
@@ -97,7 +140,7 @@ func (t *Transactional) ConnectToEvents() *Emitter[EventHandler, event.Microserv
 	}
 
 	go func() {
-		err = consume(e, queueName, eventCallback)
+		err = consume(e, queueName, t.Logger, eventCallback)
 		if err != nil {
 			fmt.Println("Error consuming messages:", err)
 		}
