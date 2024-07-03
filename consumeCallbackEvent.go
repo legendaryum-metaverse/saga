@@ -15,7 +15,7 @@ import (
 type EventHandler struct {
 	Channel *EventsConsumeChannel  `json:"channel"`
 	Payload map[string]interface{} `json:"payload"`
-	logger  *zap.Logger
+	Logger  *zap.Logger
 }
 
 func ParsePayload[T any](handlerPayload map[string]interface{}, data *T) *T {
@@ -94,7 +94,7 @@ func eventCallback(msg *amqp.Delivery, channel *amqp.Channel, emitter *Emitter[E
 	emitter.Emit(eventKey[0], EventHandler{
 		Payload: eventPayload,
 		Channel: responseChannel,
-		logger:  logger,
+		Logger:  logger,
 	})
 }
 
