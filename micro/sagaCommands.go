@@ -4,6 +4,15 @@ type StepCommand = string
 
 type AvailableMicroservices string
 
+// IsValid checks if the provided value is a valid AvailableMicroservices.
+func (m AvailableMicroservices) IsValid() bool {
+	switch m {
+	case Auth, RapidMessaging, TestImage, TestMint, Payments, RoomInventory, RoomSnapshot, RoomCreator, Showcase, Social, Storage:
+		return true
+	}
+	return false
+}
+
 const (
 	Auth           AvailableMicroservices = "auth"
 	RapidMessaging AvailableMicroservices = "rapid-messaging"

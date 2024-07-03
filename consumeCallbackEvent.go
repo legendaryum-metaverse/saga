@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"slices"
 
-	"github.com/go-playground/validator/v10"
+	"go.uber.org/zap"
 
 	"github.com/legendaryum-metaverse/saga/event"
 
@@ -15,12 +15,7 @@ import (
 type EventHandler struct {
 	Channel *EventsConsumeChannel  `json:"channel"`
 	Payload map[string]interface{} `json:"payload"`
-}
-
-var validate *validator.Validate
-
-func init() {
-	validate = validator.New()
+	logger  *zap.Logger
 }
 
 func ParsePayload[T any](handlerPayload map[string]interface{}, data *T) *T {
@@ -37,7 +32,7 @@ func ParsePayload[T any](handlerPayload map[string]interface{}, data *T) *T {
 	return data
 }
 
-// ParsePayload (this) It also works, but you need to pass a reference to the variable
+// ParseEventPayload also works, but you need to pass a reference to the variable
 // and is not type safe to assure that, as the type is: any
 // Works:
 // var eventPayload1 saga.SocialNewUserPayload   // or a pointer *saga.SocialNewUserPayload
@@ -57,7 +52,7 @@ func (e *EventHandler) ParseEventPayload(data any) {
 }
 
 // eventCallback handles the consumption and processing of microservice events.
-func eventCallback(msg *amqp.Delivery, channel *amqp.Channel, emitter *Emitter[EventHandler, event.MicroserviceEvent], queueName string) {
+func eventCallback(msg *amqp.Delivery, channel *amqp.Channel, emitter *Emitter[EventHandler, event.MicroserviceEvent], queueName string, logger *zap.Logger) {
 	if msg == nil {
 		fmt.Println("Message not available")
 		return
@@ -99,6 +94,7 @@ func eventCallback(msg *amqp.Delivery, channel *amqp.Channel, emitter *Emitter[E
 	emitter.Emit(eventKey[0], EventHandler{
 		Payload: eventPayload,
 		Channel: responseChannel,
+		logger:  logger,
 	})
 }
 

@@ -1,6 +1,6 @@
 # Makefile
 
-all: format lint-fix
+all: format lint-fix test
 .PHONY: all
 
 format:
