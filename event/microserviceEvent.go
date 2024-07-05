@@ -10,16 +10,17 @@ const (
 	TestImageEvent MicroserviceEvent = "test.image"
 	TestMintEvent  MicroserviceEvent = "test.mint"
 
-	AuthDeletedUserEvent                    MicroserviceEvent = "auth.deleted_user"
-	PaymentsNotifyClientEvent               MicroserviceEvent = "payments.notify_client"
-	RoomCreatorCreatedRoomEvent             MicroserviceEvent = "room_creator.created_room"
-	RoomCreatorUpdatedRoomEvent             MicroserviceEvent = "room_creator.updated_room"
-	RoomInventoryUpdateVpBuildingImageEvent MicroserviceEvent = "room_inventory.update_vp_building_image"
-	RoomSnapshotBuildingChangeInIslandEvent MicroserviceEvent = "room_snapshot.building_change_in_island"
-	RoomSnapshotFirstSnapshotEvent          MicroserviceEvent = "room_snapshot.first_snapshot"
-	SocialBlockChatEvent                    MicroserviceEvent = "social.block_chat"
-	SocialNewUserEvent                      MicroserviceEvent = "social.new_user"
-	SocialUnblockChatEvent                  MicroserviceEvent = "social.unblock_chat"
+	AuthDeletedUserEvent                      MicroserviceEvent = "auth.deleted_user"
+	LegendMissionsCompletedMissionRewardEvent MicroserviceEvent = "legend_missions.completed_mission_reward"
+	PaymentsNotifyClientEvent                 MicroserviceEvent = "payments.notify_client"
+	RoomCreatorCreatedRoomEvent               MicroserviceEvent = "room_creator.created_room"
+	RoomCreatorUpdatedRoomEvent               MicroserviceEvent = "room_creator.updated_room"
+	RoomInventoryUpdateVpBuildingImageEvent   MicroserviceEvent = "room_inventory.update_vp_building_image"
+	RoomSnapshotBuildingChangeInIslandEvent   MicroserviceEvent = "room_snapshot.building_change_in_island"
+	RoomSnapshotFirstSnapshotEvent            MicroserviceEvent = "room_snapshot.first_snapshot"
+	SocialBlockChatEvent                      MicroserviceEvent = "social.block_chat"
+	SocialNewUserEvent                        MicroserviceEvent = "social.new_user"
+	SocialUnblockChatEvent                    MicroserviceEvent = "social.unblock_chat"
 )
 
 func MicroserviceEventValues() []MicroserviceEvent {
@@ -28,6 +29,7 @@ func MicroserviceEventValues() []MicroserviceEvent {
 		TestMintEvent,
 
 		AuthDeletedUserEvent,
+		LegendMissionsCompletedMissionRewardEvent,
 		PaymentsNotifyClientEvent,
 		RoomCreatorCreatedRoomEvent,
 		RoomCreatorUpdatedRoomEvent,
@@ -65,6 +67,16 @@ type AuthDeletedUserPayload struct {
 
 func (AuthDeletedUserPayload) Type() MicroserviceEvent {
 	return AuthDeletedUserEvent
+}
+
+// LegendMissionsCompletedMissionRewardEvent is the payload for the legend_missions.completed_mission_reward event.
+type LegendMissionsCompletedMissionRewardEventPayload struct {
+	UserID string `json:"userId"`
+	Coins  int    `json:"coins"`
+}
+
+func (LegendMissionsCompletedMissionRewardEventPayload) Type() MicroserviceEvent {
+	return LegendMissionsCompletedMissionRewardEvent
 }
 
 // PaymentsNotifyClientPayload is the payload for the payments.notify_client event.
