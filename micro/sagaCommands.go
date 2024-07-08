@@ -7,7 +7,7 @@ type AvailableMicroservices string
 // IsValid checks if the provided value is a valid AvailableMicroservices.
 func (m AvailableMicroservices) IsValid() bool {
 	switch m {
-	case Auth, RapidMessaging, TestImage, TestMint, Payments, RoomInventory, RoomSnapshot, RoomCreator, Showcase, Social, Storage:
+	case Auth, RapidMessaging, TestImage, TestMint, Payments, RoomInventory, RoomSnapshot, RoomCreator, Showcase, Social, Storage, Missions:
 		return true
 	}
 	return false
@@ -71,4 +71,9 @@ const (
 const (
 	Storage           AvailableMicroservices = "legend-storage"
 	UpdateFileCommand StepCommand            = "update_file"
+)
+
+// legend-missions.
+const (
+	Missions AvailableMicroservices = "legend-missions"
 )
