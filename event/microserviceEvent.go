@@ -31,6 +31,7 @@ func MicroserviceEventValues() []MicroserviceEvent {
 
 		AuthDeletedUserEvent,
 		LegendMissionsCompletedMissionRewardEvent,
+		LegendMissionsOngoingMissionEvent,
 		PaymentsNotifyClientEvent,
 		RoomCreatorCreatedRoomEvent,
 		RoomCreatorUpdatedRoomEvent,
