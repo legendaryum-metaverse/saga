@@ -12,6 +12,7 @@ const (
 
 	AuthDeletedUserEvent                      MicroserviceEvent = "auth.deleted_user"
 	LegendMissionsCompletedMissionRewardEvent MicroserviceEvent = "legend_missions.completed_mission_reward"
+	LegendMissionsOngoingMissionEvent         MicroserviceEvent = "legend_missions.ongoing_mission"
 	PaymentsNotifyClientEvent                 MicroserviceEvent = "payments.notify_client"
 	RoomCreatorCreatedRoomEvent               MicroserviceEvent = "room_creator.created_room"
 	RoomCreatorUpdatedRoomEvent               MicroserviceEvent = "room_creator.updated_room"
@@ -77,6 +78,15 @@ type LegendMissionsCompletedMissionRewardEventPayload struct {
 
 func (LegendMissionsCompletedMissionRewardEventPayload) Type() MicroserviceEvent {
 	return LegendMissionsCompletedMissionRewardEvent
+}
+
+// LegendMissionsOngoingMissionEventPayload is the payload for the legend_missions.ongoin_mission.
+type LegendMissionsOngoingMissionEventPayload struct {
+	RedisKey string `json:"redisKey"`
+}
+
+func (LegendMissionsOngoingMissionEventPayload) Type() MicroserviceEvent {
+	return LegendMissionsOngoingMissionEvent
 }
 
 // PaymentsNotifyClientPayload is the payload for the payments.notify_client event.
