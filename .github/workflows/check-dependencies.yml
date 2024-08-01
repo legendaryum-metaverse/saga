@@ -2,8 +2,7 @@ name: check_minor_dependencies
 on:
   workflow_dispatch:
   schedule:
-    - cron: '30 17 * * 1' # 5:30 PM UTC every Monday, 2:30 PM Argentina
-
+    - cron: '30 17 1,15 * *' # 5:30 PM UTC on the 1st and 15th of every month
 env:
   FORCE_COLOR: 3
   GO_VERSION: 1.22
