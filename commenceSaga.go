@@ -7,23 +7,11 @@ const (
 type SagaTitle string
 
 const (
-	UpdateUserImage      SagaTitle = "update_user:image"
 	PurchaseResourceFlow SagaTitle = "purchase_resource_flow"
 )
 
 type CommencePayload interface {
 	Type() SagaTitle
-}
-
-// UpdateUserImagePayload is the payload for the update_user:image event.
-type UpdateUserImagePayload struct {
-	UserId     string `json:"userId"`
-	FolderName string `json:"folderName"`
-	BucketName string `json:"bucketName"`
-}
-
-func (UpdateUserImagePayload) Type() SagaTitle {
-	return UpdateUserImage
 }
 
 // PurchaseResourceFlowPayload is the payload for the purchase_resource_flow event.
