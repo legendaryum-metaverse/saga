@@ -66,7 +66,6 @@ const (
 const (
 	Social                 AvailableMicroservices = "social"
 	UpdateUserImageCommand StepCommand            = "update_user:image"
-	NotifyClientCommand    StepCommand            = "notify_client"
 )
 
 const (
