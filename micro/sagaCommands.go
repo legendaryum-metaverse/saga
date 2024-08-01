@@ -13,67 +13,63 @@ func (m AvailableMicroservices) IsValid() bool {
 	return false
 }
 
-const (
-	Auth           AvailableMicroservices = "auth"
-	RapidMessaging AvailableMicroservices = "rapid-messaging"
-)
-
-// image.
+// image mock microservice.
 const (
 	TestImage          AvailableMicroservices = "test-image"
 	CreateImageCommand StepCommand            = "create_image"
 	UpdateTokenCommand StepCommand            = "update_token"
 )
 
-// mint.
+// mint mock microservice.
 const (
 	TestMint         AvailableMicroservices = "test-mint"
 	MintImageCommand StepCommand            = "mint_image"
 )
 
-// payments.
+const (
+	Auth                     AvailableMicroservices = "auth"
+	UpdateUserPictureCommand StepCommand            = "update_user:picture"
+)
+
+const (
+	Missions AvailableMicroservices = "legend-missions"
+)
+
 const (
 	Payments                            AvailableMicroservices = "payments"
 	ResourcePurchasedDeductCoinsCommand StepCommand            = "resource_purchased:deduct_coins"
 )
 
-// room-inventory.
+const (
+	RapidMessaging AvailableMicroservices = "rapid-messaging"
+)
+
 const (
 	RoomInventory                AvailableMicroservices = "room-inventory"
 	SavePurchasedResourceCommand StepCommand            = "resource_purchased:save_purchased_resource"
 )
 
-// room-snapshot.
 const (
 	RoomSnapshot AvailableMicroservices = "room-snapshot"
 )
 
-// room-creator.
 const (
 	RoomCreator                     AvailableMicroservices = "room-creator"
 	UpdateIslandRoomTemplateCommand StepCommand            = "update_island_room_template"
 )
 
-// legend-showcase.
 const (
 	Showcase                      AvailableMicroservices = "legend-showcase"
 	RandomizeIslandPvImageCommand StepCommand            = "randomize_island_pv_image"
 )
 
-// social.
 const (
 	Social                 AvailableMicroservices = "social"
 	UpdateUserImageCommand StepCommand            = "update_user:image"
 	NotifyClientCommand    StepCommand            = "notify_client"
 )
 
-// storage.
 const (
 	Storage           AvailableMicroservices = "legend-storage"
 	UpdateFileCommand StepCommand            = "update_file"
-)
-
-// legend-missions.
-const (
-	Missions AvailableMicroservices = "legend-missions"
 )
