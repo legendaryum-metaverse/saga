@@ -27,8 +27,7 @@ const (
 )
 
 const (
-	Auth                     AvailableMicroservices = "auth"
-	UpdateUserPictureCommand StepCommand            = "update_user:picture"
+	Auth AvailableMicroservices = "auth"
 )
 
 const (
@@ -70,5 +69,5 @@ const (
 
 const (
 	Storage           AvailableMicroservices = "legend-storage"
-	UpdateFileCommand StepCommand            = "update_file"
+	UploadFileCommand StepCommand            = "upload_file"
 )
