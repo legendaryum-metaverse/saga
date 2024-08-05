@@ -12,6 +12,7 @@ const (
 
 	AuthDeletedUserEvent                      MicroserviceEvent = "auth.deleted_user"
 	AuthLogoutUserEvent                       MicroserviceEvent = "auth.logout_user"
+	CoinsUpdateSubscription                   MicroserviceEvent = "coins.update_subscription"
 	LegendMissionsCompletedMissionRewardEvent MicroserviceEvent = "legend_missions.completed_mission_reward"
 	LegendMissionsOngoingMissionEvent         MicroserviceEvent = "legend_missions.ongoing_mission"
 	PaymentsNotifyClientEvent                 MicroserviceEvent = "payments.notify_client"
@@ -32,6 +33,7 @@ func MicroserviceEventValues() []MicroserviceEvent {
 
 		AuthDeletedUserEvent,
 		AuthLogoutUserEvent,
+		CoinsUpdateSubscription,
 		LegendMissionsCompletedMissionRewardEvent,
 		LegendMissionsOngoingMissionEvent,
 		PaymentsNotifyClientEvent,
@@ -80,6 +82,16 @@ type AuthLogoutUserPayload struct {
 
 func (AuthLogoutUserPayload) Type() MicroserviceEvent {
 	return AuthLogoutUserEvent
+}
+
+// CoinsUpdateSubscriptionPayload is the payload for the coins.update_subscription event.
+type CoinsUpdateSubscriptionPayload struct {
+	UserID      string `json:"userId"`
+	PaidPriceId string `json:"paidPriceId"`
+}
+
+func (CoinsUpdateSubscriptionPayload) Type() MicroserviceEvent {
+	return CoinsUpdateSubscription
 }
 
 // LegendMissionsCompletedMissionRewardEventPayload is the payload for the legend_missions.completed_mission_reward event.
