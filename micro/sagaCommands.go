@@ -7,7 +7,11 @@ type AvailableMicroservices string
 // IsValid checks if the provided value is a valid AvailableMicroservices.
 func (m AvailableMicroservices) IsValid() bool {
 	switch m {
-	case Auth, RapidMessaging, TestImage, TestMint, Payments, RoomInventory, RoomSnapshot, RoomCreator, Showcase, Social, Storage, Missions, SocialMediaRooms:
+	case Auth, TestImage, TestMint,
+		Missions,
+		Payments,
+		RapidMessaging, RoomCreator, RoomInventory, RoomSnapshot,
+		Showcase, Social, SocialMediaRooms, Storage:
 		return true
 	}
 	return false
