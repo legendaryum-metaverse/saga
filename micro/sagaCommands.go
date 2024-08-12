@@ -11,7 +11,7 @@ func (m AvailableMicroservices) IsValid() bool {
 		Missions,
 		Payments,
 		RapidMessaging, RoomCreator, RoomInventory, RoomSnapshot,
-		Showcase, Social, SocialMediaRooms, Storage, SendEmail:
+		SendEmail, Showcase, Social, SocialMediaRooms, Storage:
 		return true
 	}
 	return false
