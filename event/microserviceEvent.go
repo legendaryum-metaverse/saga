@@ -16,6 +16,7 @@ const (
 	LegendMissionsCompletedMissionRewardEvent MicroserviceEvent = "legend_missions.completed_mission_reward"
 	LegendMissionsOngoingMissionEvent         MicroserviceEvent = "legend_missions.ongoing_mission"
 	PaymentsNotifyClientEvent                 MicroserviceEvent = "payments.notify_client"
+	PaymentsSendEmail                         MicroserviceEvent = "payments.send_email"
 	RoomCreatorCreatedRoomEvent               MicroserviceEvent = "room_creator.created_room"
 	RoomCreatorUpdatedRoomEvent               MicroserviceEvent = "room_creator.updated_room"
 	RoomInventoryUpdateVpBuildingImageEvent   MicroserviceEvent = "room_inventory.update_vp_building_image"
@@ -37,6 +38,7 @@ func MicroserviceEventValues() []MicroserviceEvent {
 		LegendMissionsCompletedMissionRewardEvent,
 		LegendMissionsOngoingMissionEvent,
 		PaymentsNotifyClientEvent,
+		PaymentsSendEmail,
 		RoomCreatorCreatedRoomEvent,
 		RoomCreatorUpdatedRoomEvent,
 		RoomInventoryUpdateVpBuildingImageEvent,
@@ -121,6 +123,17 @@ type PaymentsNotifyClientPayload struct {
 
 func (PaymentsNotifyClientPayload) Type() MicroserviceEvent {
 	return PaymentsNotifyClientEvent
+}
+
+// PaymentsSendEmailPayload is the payload for the payments.send_email event.
+type PaymentsSendEmailPayload struct {
+	UserId    string `json:"userId"`
+	EmailType string `json:"emailType"`
+	Coins     int    `json:"coins"`
+}
+
+func (PaymentsSendEmailPayload) Type() MicroserviceEvent {
+	return PaymentsSendEmail
 }
 
 type Room struct {
