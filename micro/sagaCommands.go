@@ -11,7 +11,7 @@ func (m AvailableMicroservices) IsValid() bool {
 		Missions,
 		Payments,
 		RapidMessaging, RoomCreator, RoomInventory, RoomSnapshot,
-		Showcase, Social, SocialMediaRooms, Storage:
+		SendEmail, Showcase, Social, SocialMediaRooms, Storage:
 		return true
 	}
 	return false
@@ -59,6 +59,10 @@ const (
 const (
 	RoomCreator                     AvailableMicroservices = "room-creator"
 	UpdateIslandRoomTemplateCommand StepCommand            = "update_island_room_template"
+)
+
+const (
+	SendEmail AvailableMicroservices = "legend-send-email"
 )
 
 const (
