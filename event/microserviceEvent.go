@@ -23,6 +23,7 @@ const (
 	RoomSnapshotBuildingChangeInIslandEvent   MicroserviceEvent = "room_snapshot.building_change_in_island"
 	RoomSnapshotFirstSnapshotEvent            MicroserviceEvent = "room_snapshot.first_snapshot"
 	SocialBlockChatEvent                      MicroserviceEvent = "social.block_chat"
+	SocialMediaRoomsDeleteInBatchEvent        MicroserviceEvent = "social_media_rooms.delete_in_batch"
 	SocialNewUserEvent                        MicroserviceEvent = "social.new_user"
 	SocialUnblockChatEvent                    MicroserviceEvent = "social.unblock_chat"
 )
@@ -45,6 +46,7 @@ func MicroserviceEventValues() []MicroserviceEvent {
 		RoomSnapshotBuildingChangeInIslandEvent,
 		RoomSnapshotFirstSnapshotEvent,
 		SocialBlockChatEvent,
+		SocialMediaRoomsDeleteInBatchEvent,
 		SocialNewUserEvent,
 		SocialUnblockChatEvent,
 	}
@@ -206,6 +208,16 @@ type SocialBlockChatPayload struct {
 
 func (SocialBlockChatPayload) Type() MicroserviceEvent {
 	return SocialBlockChatEvent
+}
+
+// SocialMediaRoomsDeleteInBatchPayload is the payload for the social_media_rooms.delete_in_batch event.
+type SocialMediaRoomsDeleteInBatchPayload struct {
+	BucketName string   `json:"bucketName"`
+	FilePaths  []string `json:"filePaths"`
+}
+
+func (SocialMediaRoomsDeleteInBatchPayload) Type() MicroserviceEvent {
+	return SocialMediaRoomsDeleteInBatchEvent
 }
 
 // SocialNewUserPayload is the payload for the social.new_user event.
