@@ -1,6 +1,5 @@
 # `saga`
 
- 
 [![Go Report Card](https://goreportcard.com/badge/github.com/legendaryum-metaverse/saga)](https://goreportcard.com/report/github.com/legendaryum-metaverse/saga)
 [![Go Reference](https://pkg.go.dev/badge/github.com/legendaryum-metaverse/saga?status.svg)](https://pkg.go.dev/github.com/legendaryum-metaverse/saga?tab=doc)
 [![Sourcegraph](https://sourcegraph.com/github.com/legendaryum-metaverse/saga/-/badge.svg)](https://sourcegraph.com/github.com/legendaryum-metaverse/saga?badge)
@@ -17,10 +16,10 @@ between microservices using RabbitMQ. It enables easy implementation of event-dr
 
 **Core Communication:**
 
--   **Publish/Subscribe Messaging:** Exchange messages between microservices using a
-    publish-subscribe pattern.
--   **Headers-Based Routing:** Leverage the power of RabbitMQ's headers exchange for flexible and dynamic routing of messages based on custom headers.
--   **Durable Exchanges and Queues:** Ensure message persistence and reliability with durable RabbitMQ components.
+- **Publish/Subscribe Messaging:** Exchange messages between microservices using a
+  publish-subscribe pattern.
+- **Headers-Based Routing:** Leverage the power of RabbitMQ's headers exchange for flexible and dynamic routing of messages based on custom headers.
+- **Durable Exchanges and Queues:** Ensure message persistence and reliability with durable RabbitMQ components.
 
 **Saga Management:**
 
@@ -28,10 +27,10 @@ between microservices using RabbitMQ. It enables easy implementation of event-dr
 <img src="https://raw.githubusercontent.com/legendaryum-metaverse/legend-transactional/main/.github/assets/saga.png" alt="legendaryum" style="width: 90%;"/>
 </div>
 
--   **Saga Orchestration:** Coordinate complex, multi-step transactions across multiple microservices with saga orchestration.
--   **Saga Step Handlers:** Implement step-by-step saga logic in your microservices using callbacks.
--   **Compensation Logic:** Define compensating actions for saga steps to handle failures
-    gracefully and maintain data consistency.
+- **Saga Orchestration:** Coordinate complex, multi-step transactions across multiple microservices with saga orchestration.
+- **Saga Step Handlers:** Implement step-by-step saga logic in your microservices using callbacks.
+- **Compensation Logic:** Define compensating actions for saga steps to handle failures
+  gracefully and maintain data consistency.
 
 ## Contributors
 

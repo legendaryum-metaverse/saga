@@ -23,7 +23,7 @@ linters:
     - nolintlint
     - revive
     - wastedassign
-#    - depguard
+    #    - depguard
     - gocritic
     - godot
     - predeclared
@@ -58,16 +58,16 @@ issues:
     - linters:
         - structcheck
         - unused
-      text: "`data` is unused"
-#    - linters:
-#        - staticcheck
-#      text: "SA1019:"
+      text: '`data` is unused'
+    #    - linters:
+    #        - staticcheck
+    #      text: "SA1019:"
     - linters:
         - revive
-      text: "var-naming:"
+      text: 'var-naming:'
     - linters:
         - revive
-      text: "exported:"
+      text: 'exported:'
     - path: _test\.go
       linters:
         - gosec # security is not make sense in tests

@@ -3,12 +3,11 @@ on:
   workflow_call:
     outputs:
       image-size:
-        description: "The image size"
+        description: 'The image size'
         value: ${{ jobs.smoke-test.outputs.image-size }}
 
 env:
   FORCE_COLOR: 3
-  GO_VERSION: 1.22
 defaults:
   run:
     shell: bash
@@ -25,7 +24,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.ref }}
       - uses: actions/setup-go@v5
         with:
-          go-version: ${{ env.GO_VERSION }}
+          go-version-file: ${{ github.workspace }}/go.mod
           cache: false # golangci-lint ya usa cache
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v4
@@ -34,7 +33,10 @@ jobs:
           args: --verbose --config=.golangci-gin.yml --timeout 2m --fix
       - name: gofmt
         run: |
-            make format
+          make format
+      - name: Prettier
+        run: |
+          make prettier
       - name: Check if files changed
         id: check-if-files-changed
         continue-on-error: true
@@ -61,19 +63,19 @@ jobs:
           pathspec_error_handling: ignore
           push: true
 
-#  build-check:
-#    timeout-minutes: 2
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Checkout code
-#        uses: actions/checkout@v4
-#      - uses: actions/setup-go@v5
-#        with:
-#          go-version: ${{ env.GO_VERSION }}
-#      - name: Build the app
-#        run: |
-#          make build-app
-#
+  #  build-check:
+  #    timeout-minutes: 2
+  #    runs-on: ubuntu-latest
+  #    steps:
+  #      - name: Checkout code
+  #        uses: actions/checkout@v4
+  #      - uses: actions/setup-go@v5
+  #        with:
+  #          go-version: ${{ env.GO_VERSION }}
+  #      - name: Build the app
+  #        run: |
+  #          make build-app
+  #
   unit-test:
     needs: [lint]
     timeout-minutes: 2
@@ -84,14 +86,15 @@ jobs:
         uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
-          go-version: ${{ env.GO_VERSION }}
+          go-version-file: ${{ github.workspace }}/go.mod
       - name: Prepare rabbit
-        run: | 
+        run: |
           docker compose up -d
       - name: Run tests
         id: run-tests
         run: |
           make test
+
 #
 #
 #  smoke-test:
