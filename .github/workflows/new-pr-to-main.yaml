@@ -27,7 +27,6 @@ jobs:
       pull-requests: write
     uses: ./.github/workflows/code-quality-check.yml
     secrets: inherit
-
 #  comment_to_pr_image_size:
 #    needs: code_quality_check
 #    secrets: inherit

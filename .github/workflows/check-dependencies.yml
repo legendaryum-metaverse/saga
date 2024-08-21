@@ -5,7 +5,6 @@ on:
     - cron: '30 17 1,15 * *' # 5:30 PM UTC on the 1st and 15th of every month
 env:
   FORCE_COLOR: 3
-  GO_VERSION: 1.22
 
 defaults:
   run:
@@ -27,7 +26,7 @@ jobs:
           ref: main
       - uses: actions/setup-go@v5
         with:
-          go-version: ${{ env.GO_VERSION }}
+          go-version-file: ${{ github.workspace }}/go.mod
       - name: Update dependencies
         run: |
           go get -u ./...

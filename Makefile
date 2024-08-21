@@ -1,6 +1,6 @@
 # Makefile
 
-all: format lint-fix test
+all: format lint-fix prettier test
 .PHONY: all
 
 format:
@@ -10,6 +10,10 @@ format:
 lint:
 	@golangci-lint run -c .golangci-gin.yml
 .PHONY: lint
+
+prettier:
+	@docker compose -f compose.prettier.yml run prettier
+.PHONY: prettier
 
 test:
 	@GO_ENV=test go test -count=1  ./test/...

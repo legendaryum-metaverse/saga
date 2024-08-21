@@ -2,7 +2,7 @@
 
 ### `Changes`
 
--   What has changed?
+- What has changed?
 
 ### `docs`
 
