@@ -12,11 +12,11 @@ const (
 
 	AuthDeletedUserEvent                      MicroserviceEvent = "auth.deleted_user"
 	AuthLogoutUserEvent                       MicroserviceEvent = "auth.logout_user"
+	CoinsNotifyClientEvent                    MicroserviceEvent = "coins.notify_client"
+	CoinsSendEmail                            MicroserviceEvent = "coins.send_email"
 	CoinsUpdateSubscription                   MicroserviceEvent = "coins.update_subscription"
 	LegendMissionsCompletedMissionRewardEvent MicroserviceEvent = "legend_missions.completed_mission_reward"
 	LegendMissionsOngoingMissionEvent         MicroserviceEvent = "legend_missions.ongoing_mission"
-	PaymentsNotifyClientEvent                 MicroserviceEvent = "payments.notify_client"
-	PaymentsSendEmail                         MicroserviceEvent = "payments.send_email"
 	RoomCreatorCreatedRoomEvent               MicroserviceEvent = "room_creator.created_room"
 	RoomCreatorUpdatedRoomEvent               MicroserviceEvent = "room_creator.updated_room"
 	RoomInventoryUpdateVpBuildingImageEvent   MicroserviceEvent = "room_inventory.update_vp_building_image"
@@ -38,8 +38,8 @@ func MicroserviceEventValues() []MicroserviceEvent {
 		CoinsUpdateSubscription,
 		LegendMissionsCompletedMissionRewardEvent,
 		LegendMissionsOngoingMissionEvent,
-		PaymentsNotifyClientEvent,
-		PaymentsSendEmail,
+		CoinsNotifyClientEvent,
+		CoinsSendEmail,
 		RoomCreatorCreatedRoomEvent,
 		RoomCreatorUpdatedRoomEvent,
 		RoomInventoryUpdateVpBuildingImageEvent,
@@ -117,25 +117,25 @@ func (LegendMissionsOngoingMissionEventPayload) Type() MicroserviceEvent {
 	return LegendMissionsOngoingMissionEvent
 }
 
-// PaymentsNotifyClientPayload is the payload for the payments.notify_client event.
-type PaymentsNotifyClientPayload struct {
+// CoinsNotifyClientPayload is the payload for the coins.notify_client event.
+type CoinsNotifyClientPayload struct {
 	Room    string                 `json:"room"`
 	Message map[string]interface{} `json:"message"`
 }
 
-func (PaymentsNotifyClientPayload) Type() MicroserviceEvent {
-	return PaymentsNotifyClientEvent
+func (CoinsNotifyClientPayload) Type() MicroserviceEvent {
+	return CoinsNotifyClientEvent
 }
 
-// PaymentsSendEmailPayload is the payload for the payments.send_email event.
-type PaymentsSendEmailPayload struct {
+// CoinsSendEmailPayload is the payload for the coins.send_email event.
+type CoinsSendEmailPayload struct {
 	UserId    string `json:"userId"`
 	EmailType string `json:"emailType"`
 	Coins     int    `json:"coins"`
 }
 
-func (PaymentsSendEmailPayload) Type() MicroserviceEvent {
-	return PaymentsSendEmail
+func (CoinsSendEmailPayload) Type() MicroserviceEvent {
+	return CoinsSendEmail
 }
 
 type Room struct {

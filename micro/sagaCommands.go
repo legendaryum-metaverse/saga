@@ -8,8 +8,8 @@ type AvailableMicroservices string
 func (m AvailableMicroservices) IsValid() bool {
 	switch m {
 	case Auth, TestImage, TestMint,
+		Coins,
 		Missions,
-		Payments,
 		RapidMessaging, RoomCreator, RoomInventory, RoomSnapshot,
 		SendEmail, Showcase, Social, SocialMediaRooms, Storage:
 		return true
@@ -35,12 +35,12 @@ const (
 )
 
 const (
-	Missions AvailableMicroservices = "legend-missions"
+	Coins                               AvailableMicroservices = "coins"
+	ResourcePurchasedDeductCoinsCommand StepCommand            = "resource_purchased:deduct_coins"
 )
 
 const (
-	Payments                            AvailableMicroservices = "payments"
-	ResourcePurchasedDeductCoinsCommand StepCommand            = "resource_purchased:deduct_coins"
+	Missions AvailableMicroservices = "legend-missions"
 )
 
 const (
