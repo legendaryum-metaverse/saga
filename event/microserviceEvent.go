@@ -132,6 +132,7 @@ type CoinsSendEmailPayload struct {
 	UserId    string `json:"userId"`
 	EmailType string `json:"emailType"`
 	Coins     int    `json:"coins"`
+	Email     string `json:"email"`
 }
 
 func (CoinsSendEmailPayload) Type() MicroserviceEvent {
