@@ -15,7 +15,7 @@ type EventsTestSuite struct {
 	t *saga.Transactional
 }
 
-func (suite *EventsTestSuite) SetupTest() {
+func (suite *EventsTestSuite) SetupSuite() {
 	transactional := saga.Config(&saga.Opts{
 		RabbitUri:    "amqp://rabbit:1234@localhost:5672",
 		Microservice: micro.RoomInventory,
