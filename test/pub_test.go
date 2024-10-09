@@ -12,19 +12,27 @@ import (
 type EventsTestSuite struct {
 	suite.Suite
 	e *saga.Emitter[saga.EventHandler, event.MicroserviceEvent]
+	t *saga.Transactional
 }
 
-func (suite *EventsTestSuite) SetupTest() {
-	transactional := saga.Transactional{
+func (suite *EventsTestSuite) SetupSuite() {
+	transactional := saga.Config(&saga.Opts{
 		RabbitUri:    "amqp://rabbit:1234@localhost:5672",
 		Microservice: micro.RoomInventory,
 		Events: []event.MicroserviceEvent{
 			event.SocialNewUserEvent,
 			event.SocialBlockChatEvent,
 		},
-	}
+	},
+	)
 	eventEmitter := transactional.ConnectToEvents()
 	suite.e = eventEmitter
+	suite.t = transactional
+}
+
+func (suite *EventsTestSuite) TestHealthCheck() {
+	err := suite.t.HealthCheck()
+	suite.Require().NoError(err)
 }
 
 func (suite *EventsTestSuite) TestSubscribedEvents() {
@@ -46,11 +54,11 @@ func (suite *EventsTestSuite) TestSubscribedEvents() {
 		handler.Channel.AckMessage()
 	})
 
-	err := saga.PublishEvent(&event.SocialNewUserPayload{
+	err := suite.t.PublishEvent(&event.SocialNewUserPayload{
 		UserID: "1234",
 	})
 	suite.Require().NoError(err)
-	err = saga.PublishEvent(&event.SocialBlockChatPayload{
+	err = suite.t.PublishEvent(&event.SocialBlockChatPayload{
 		UserID:        "1234",
 		UserToBlockID: "4321",
 	})

@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"slices"
 
-	"go.uber.org/zap"
-
 	"github.com/legendaryum-metaverse/saga/event"
 
 	amqp "github.com/rabbitmq/amqp091-go"
@@ -15,7 +13,6 @@ import (
 type EventHandler struct {
 	Channel *EventsConsumeChannel  `json:"channel"`
 	Payload map[string]interface{} `json:"payload"`
-	Logger  *zap.Logger
 }
 
 func ParsePayload[T any](handlerPayload map[string]interface{}, data *T) *T {
@@ -52,7 +49,7 @@ func (e *EventHandler) ParseEventPayload(data any) {
 }
 
 // eventCallback handles the consumption and processing of microservice events.
-func eventCallback(msg *amqp.Delivery, channel *amqp.Channel, emitter *Emitter[EventHandler, event.MicroserviceEvent], queueName string, logger *zap.Logger) {
+func eventCallback(msg *amqp.Delivery, channel *amqp.Channel, emitter *Emitter[EventHandler, event.MicroserviceEvent], queueName string) {
 	if msg == nil {
 		fmt.Println("Message not available")
 		return
@@ -94,7 +91,6 @@ func eventCallback(msg *amqp.Delivery, channel *amqp.Channel, emitter *Emitter[E
 	emitter.Emit(eventKey[0], EventHandler{
 		Payload: eventPayload,
 		Channel: responseChannel,
-		Logger:  logger,
 	})
 }
 

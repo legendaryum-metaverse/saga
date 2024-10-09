@@ -16,7 +16,7 @@ prettier:
 .PHONY: prettier
 
 test:
-	@GO_ENV=test go test -count=1  ./test/...
+	@GO_ENV=test go test -count=1 -v  ./test/...
 .PHONY: test
 
 lint-fix:

@@ -31,9 +31,9 @@ type commenceSaga struct {
 	Payload interface{} `json:"payload"`
 }
 
-func CommenceSaga(payload CommencePayload) error {
+func (t *Transactional) CommenceSaga(payload CommencePayload) error {
 	title := payload.Type()
-	err := send(string(CommenceSagaQueue), commenceSaga{
+	err := send(t.sendChannel, string(CommenceSagaQueue), commenceSaga{
 		Title:   title,
 		Payload: payload,
 	})

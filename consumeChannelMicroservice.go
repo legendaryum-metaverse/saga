@@ -33,7 +33,7 @@ func (m *MicroserviceConsumeChannel) AckMessage(payloadForNextStep NextStepPaylo
 
 	m.step.Payload = metaData
 
-	err := sendToQueue(ReplyToSagaQ, m.step)
+	err := m.sendToQueue(ReplyToSagaQ, m.step)
 	if err != nil {
 		// TODO: reenqueue message o manejar mejor el error
 		return

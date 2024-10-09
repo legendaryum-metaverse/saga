@@ -8,37 +8,16 @@ import (
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-var sendChannel *amqp.Channel
-
-func getSendChannel() (*amqp.Channel, error) {
-	if sendChannel == nil {
-		conn, err := getRabbitMQConn()
-		if err != nil {
-			return nil, err
-		}
-		sendChannel, err = conn.Channel()
-		if err != nil {
-			return nil, err
-		}
-	}
-	return sendChannel, nil
-}
-
-func sendToQueue(queueName Queue, step SagaStep) error {
-	err := send(string(queueName), step)
+func (m *MicroserviceConsumeChannel) sendToQueue(queueName Queue, step SagaStep) error {
+	err := send(m.channel, string(queueName), step)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func send(queueName string, payload interface{}) error {
-	channel, err := getSendChannel()
-	if err != nil {
-		return err
-	}
-
-	_, err = channel.QueueDeclare(queueName, true, false, false, false, nil)
+func send(channel *amqp.Channel, queueName string, payload interface{}) error {
+	_, err := channel.QueueDeclare(queueName, true, false, false, false, nil)
 	if err != nil {
 		return err
 	}
@@ -59,14 +38,5 @@ func send(queueName string, payload interface{}) error {
 		return err
 	}
 
-	return nil
-}
-
-func closeSendChannel() error {
-	if sendChannel != nil {
-		err := sendChannel.Close()
-		sendChannel = nil
-		return err
-	}
 	return nil
 }
