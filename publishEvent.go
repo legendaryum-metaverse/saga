@@ -10,12 +10,7 @@ import (
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-func PublishEvent(payload event.PayloadEvent) error {
-	channel, err := getSendChannel()
-	if err != nil {
-		return fmt.Errorf("error getting send channel: %w", err)
-	}
-
+func (t *Transactional) PublishEvent(payload event.PayloadEvent) error {
 	headerEvent := getEventObject(payload.Type())
 	headersArgs := amqp.Table{
 		"all-micro": "yes",
@@ -24,7 +19,7 @@ func PublishEvent(payload event.PayloadEvent) error {
 		headersArgs[k] = v
 	}
 
-	err = channel.ExchangeDeclare(string(MatchingExchange), "headers", true, false, false, false, nil)
+	err := t.sendChannel.ExchangeDeclare(string(MatchingExchange), "headers", true, false, false, false, nil)
 	if err != nil {
 		return fmt.Errorf("failed to declare exchange %s: %w", string(MatchingExchange), err)
 	}
@@ -36,7 +31,7 @@ func PublishEvent(payload event.PayloadEvent) error {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	err = channel.PublishWithContext(
+	err = t.sendChannel.PublishWithContext(
 		ctx,
 		string(MatchingExchange),
 		"",

@@ -5,11 +5,9 @@ import (
 
 	"github.com/legendaryum-metaverse/saga"
 
-	"github.com/stretchr/testify/assert"
-	"go.uber.org/zap"
-
 	"github.com/legendaryum-metaverse/saga/event"
 	"github.com/legendaryum-metaverse/saga/micro"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestConfig(t *testing.T) {
@@ -22,19 +20,17 @@ func TestConfig(t *testing.T) {
 		{
 			name: "Valid options",
 			opts: &saga.Opts{
-				RabbitUri:    "amqp://guest:guest@localhost:5672/",
+				RabbitUri:    "amqp://rabbit:1234@localhost:5672",
 				Microservice: micro.Auth,
 				Events:       []event.MicroserviceEvent{},
-				Logger:       zap.NewNop(),
 			},
 			shouldPanic: false,
 		},
 		{
 			name: "Valid options without Events",
 			opts: &saga.Opts{
-				RabbitUri:    "amqp://guest:guest@localhost:5672/",
+				RabbitUri:    "amqp://rabbit:1234@localhost:5672",
 				Microservice: micro.Auth,
-				Logger:       zap.NewNop(),
 			},
 			shouldPanic: false,
 		},
@@ -43,7 +39,6 @@ func TestConfig(t *testing.T) {
 			opts: &saga.Opts{
 				Microservice: micro.Auth,
 				Events:       []event.MicroserviceEvent{},
-				Logger:       zap.NewNop(),
 			},
 			shouldPanic:  true,
 			panicMessage: "Invalid options: Key: 'Opts.RabbitUri' Error:Field validation for 'RabbitUri' failed on the 'required' tag",
@@ -54,7 +49,6 @@ func TestConfig(t *testing.T) {
 				RabbitUri:    "invalid-uri",
 				Microservice: micro.Auth,
 				Events:       []event.MicroserviceEvent{},
-				Logger:       zap.NewNop(),
 			},
 			shouldPanic:  true,
 			panicMessage: "Invalid options: Key: 'Opts.RabbitUri' Error:Field validation for 'RabbitUri' failed on the 'url' tag",
@@ -62,9 +56,8 @@ func TestConfig(t *testing.T) {
 		{
 			name: "Missing Microservice",
 			opts: &saga.Opts{
-				RabbitUri: "amqp://guest:guest@localhost:5672/",
+				RabbitUri: "amqp://rabbit:1234@localhost:5672",
 				Events:    []event.MicroserviceEvent{},
-				Logger:    zap.NewNop(),
 			},
 			shouldPanic:  true,
 			panicMessage: "Invalid options: Key: 'Opts.Microservice' Error:Field validation for 'Microservice' failed on the 'required' tag",
@@ -72,23 +65,12 @@ func TestConfig(t *testing.T) {
 		{
 			name: "Invalid Microservice",
 			opts: &saga.Opts{
-				RabbitUri:    "amqp://guest:guest@localhost:5672/",
+				RabbitUri:    "amqp://rabbit:1234@localhost:5672",
 				Microservice: micro.AvailableMicroservices("invalid-service"),
 				Events:       []event.MicroserviceEvent{},
-				Logger:       zap.NewNop(),
 			},
 			shouldPanic:  true,
 			panicMessage: "Invalid options: Key: 'Opts.Microservice' Error:Field validation for 'Microservice' failed on the 'microservice' tag",
-		},
-		{
-			name: "Missing Logger",
-			opts: &saga.Opts{
-				RabbitUri:    "amqp://guest:guest@localhost:5672/",
-				Microservice: micro.Auth,
-				Events:       []event.MicroserviceEvent{},
-			},
-			shouldPanic:  true,
-			panicMessage: "Invalid options: Key: 'Opts.Logger' Error:Field validation for 'Logger' failed on the 'required' tag",
 		},
 	}
 
@@ -100,10 +82,8 @@ func TestConfig(t *testing.T) {
 				assert.NotPanics(t, func() {
 					tr := saga.Config(tt.opts)
 					assert.NotNil(t, tr)
-					assert.Equal(t, tt.opts.RabbitUri, tr.RabbitUri)
 					assert.Equal(t, tt.opts.Microservice, tr.Microservice)
 					assert.Equal(t, tt.opts.Events, tr.Events)
-					assert.Equal(t, tt.opts.Logger, tr.Logger)
 				})
 			}
 		})
