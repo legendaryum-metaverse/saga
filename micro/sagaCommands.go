@@ -10,6 +10,7 @@ func (m AvailableMicroservices) IsValid() bool {
 	case Auth, TestImage, TestMint,
 		Coins,
 		Missions,
+		Rankings,
 		RapidMessaging, RoomCreator, RoomInventory, RoomSnapshot,
 		SendEmail, Showcase, Social, SocialMediaRooms, Storage:
 		return true
@@ -41,6 +42,10 @@ const (
 
 const (
 	Missions AvailableMicroservices = "legend-missions"
+)
+
+const (
+	Rankings AvailableMicroservices = "rankings"
 )
 
 const (
