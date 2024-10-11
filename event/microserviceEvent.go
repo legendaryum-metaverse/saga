@@ -11,6 +11,7 @@ const (
 	TestMintEvent  MicroserviceEvent = "test.mint"
 
 	AuthDeletedUserEvent                      MicroserviceEvent = "auth.deleted_user"
+	AuthDuplicateMinimalUserDataEvent         MicroserviceEvent = "auth.duplicate_minimal_user_data"
 	AuthLogoutUserEvent                       MicroserviceEvent = "auth.logout_user"
 	CoinsNotifyClientEvent                    MicroserviceEvent = "coins.notify_client"
 	CoinsSendEmail                            MicroserviceEvent = "coins.send_email"
@@ -34,6 +35,7 @@ func MicroserviceEventValues() []MicroserviceEvent {
 		TestMintEvent,
 
 		AuthDeletedUserEvent,
+		AuthDuplicateMinimalUserDataEvent,
 		AuthLogoutUserEvent,
 		CoinsUpdateSubscription,
 		LegendMissionsCompletedMissionRewardEvent,
@@ -77,6 +79,16 @@ type AuthDeletedUserPayload struct {
 
 func (AuthDeletedUserPayload) Type() MicroserviceEvent {
 	return AuthDeletedUserEvent
+}
+
+// AuthDuplicateMinimalUserDataPayload is the payload for the auth.duplicate_minimal_user_data event.
+type AuthDuplicateMinimalUserDataPayload struct {
+	ID    string `json:"id"`
+	Email string `json:"email"`
+}
+
+func (AuthDuplicateMinimalUserDataPayload) Type() MicroserviceEvent {
+	return AuthDuplicateMinimalUserDataEvent
 }
 
 // AuthLogoutUserPayload is the payload for the auth.logout_user event.
