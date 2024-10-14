@@ -79,7 +79,7 @@ const (
 const (
 	Social                  AvailableMicroservices = "social"
 	UpdateUserImageCommand  StepCommand            = "update_user:image"
-	CreateSocialUserCommand StepCommand            = "create_user"
+	CreateSocialUserCommand StepCommand            = "create_social_user"
 )
 
 const (
