@@ -11,8 +11,8 @@ const (
 	TestMintEvent  MicroserviceEvent = "test.mint"
 
 	AuthDeletedUserEvent                      MicroserviceEvent = "auth.deleted_user"
-	AuthDuplicateMinimalUserDataEvent         MicroserviceEvent = "auth.duplicate_minimal_user_data"
 	AuthLogoutUserEvent                       MicroserviceEvent = "auth.logout_user"
+	AuthNewUserEvent                          MicroserviceEvent = "auth.new_user"
 	CoinsNotifyClientEvent                    MicroserviceEvent = "coins.notify_client"
 	CoinsSendEmail                            MicroserviceEvent = "coins.send_email"
 	CoinsUpdateSubscription                   MicroserviceEvent = "coins.update_subscription"
@@ -35,8 +35,8 @@ func MicroserviceEventValues() []MicroserviceEvent {
 		TestMintEvent,
 
 		AuthDeletedUserEvent,
-		AuthDuplicateMinimalUserDataEvent,
 		AuthLogoutUserEvent,
+		AuthNewUserEvent,
 		CoinsUpdateSubscription,
 		LegendMissionsCompletedMissionRewardEvent,
 		LegendMissionsOngoingMissionEvent,
@@ -81,16 +81,6 @@ func (AuthDeletedUserPayload) Type() MicroserviceEvent {
 	return AuthDeletedUserEvent
 }
 
-// AuthDuplicateMinimalUserDataPayload is the payload for the auth.duplicate_minimal_user_data event.
-type AuthDuplicateMinimalUserDataPayload struct {
-	ID    string `json:"id"`
-	Email string `json:"email"`
-}
-
-func (AuthDuplicateMinimalUserDataPayload) Type() MicroserviceEvent {
-	return AuthDuplicateMinimalUserDataEvent
-}
-
 // AuthLogoutUserPayload is the payload for the auth.logout_user event.
 type AuthLogoutUserPayload struct {
 	UserID string `json:"userId"`
@@ -98,6 +88,18 @@ type AuthLogoutUserPayload struct {
 
 func (AuthLogoutUserPayload) Type() MicroserviceEvent {
 	return AuthLogoutUserEvent
+}
+
+// AuthNewUserPayload is the payload for the auth.new_user event.
+type AuthNewUserPayload struct {
+	ID           string `json:"id"`
+	Email        string `json:"email"`
+	Username     string `json:"username"`
+	Userlastname string `json:"userlastname"`
+}
+
+func (AuthNewUserPayload) Type() MicroserviceEvent {
+	return AuthNewUserEvent
 }
 
 // CoinsUpdateSubscriptionPayload is the payload for the coins.update_subscription event.
