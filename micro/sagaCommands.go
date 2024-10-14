@@ -32,7 +32,8 @@ const (
 )
 
 const (
-	Auth AvailableMicroservices = "auth"
+	Auth              AvailableMicroservices = "auth"
+	CreateUserCommand StepCommand            = "create_user"
 )
 
 const (
@@ -76,8 +77,9 @@ const (
 )
 
 const (
-	Social                 AvailableMicroservices = "social"
-	UpdateUserImageCommand StepCommand            = "update_user:image"
+	Social                  AvailableMicroservices = "social"
+	UpdateUserImageCommand  StepCommand            = "update_user:image"
+	CreateSocialUserCommand StepCommand            = "create_user"
 )
 
 const (
