@@ -18,6 +18,7 @@ const (
 	CoinsUpdateSubscription                   MicroserviceEvent = "coins.update_subscription"
 	LegendMissionsCompletedMissionRewardEvent MicroserviceEvent = "legend_missions.completed_mission_reward"
 	LegendMissionsOngoingMissionEvent         MicroserviceEvent = "legend_missions.ongoing_mission"
+	LegendRankingsRankingsFinishedEvent       MicroserviceEvent = "legend_rankings.rankings_finished"
 	RoomCreatorCreatedRoomEvent               MicroserviceEvent = "room_creator.created_room"
 	RoomCreatorUpdatedRoomEvent               MicroserviceEvent = "room_creator.updated_room"
 	RoomInventoryUpdateVpBuildingImageEvent   MicroserviceEvent = "room_inventory.update_vp_building_image"
@@ -38,10 +39,11 @@ func MicroserviceEventValues() []MicroserviceEvent {
 		AuthLogoutUserEvent,
 		AuthNewUserEvent,
 		CoinsUpdateSubscription,
-		LegendMissionsCompletedMissionRewardEvent,
-		LegendMissionsOngoingMissionEvent,
 		CoinsNotifyClientEvent,
 		CoinsSendEmail,
+		LegendMissionsCompletedMissionRewardEvent,
+		LegendMissionsOngoingMissionEvent,
+		LegendRankingsRankingsFinishedEvent,
 		RoomCreatorCreatedRoomEvent,
 		RoomCreatorUpdatedRoomEvent,
 		RoomInventoryUpdateVpBuildingImageEvent,
@@ -112,6 +114,16 @@ func (CoinsUpdateSubscriptionPayload) Type() MicroserviceEvent {
 	return CoinsUpdateSubscription
 }
 
+// CoinsNotifyClientPayload is the payload for the coins.notify_client event.
+type CoinsNotifyClientPayload struct {
+	Room    string                 `json:"room"`
+	Message map[string]interface{} `json:"message"`
+}
+
+func (CoinsNotifyClientPayload) Type() MicroserviceEvent {
+	return CoinsNotifyClientEvent
+}
+
 // LegendMissionsCompletedMissionRewardEventPayload is the payload for the legend_missions.completed_mission_reward event.
 type LegendMissionsCompletedMissionRewardEventPayload struct {
 	UserID string `json:"userId"`
@@ -131,14 +143,27 @@ func (LegendMissionsOngoingMissionEventPayload) Type() MicroserviceEvent {
 	return LegendMissionsOngoingMissionEvent
 }
 
-// CoinsNotifyClientPayload is the payload for the coins.notify_client event.
-type CoinsNotifyClientPayload struct {
-	Room    string                 `json:"room"`
-	Message map[string]interface{} `json:"message"`
+type RewardType string
+
+const (
+	Legends      RewardType = "Legends"
+	CodeExchange RewardType = "CodeExchange"
+)
+
+type RankingWinners struct {
+	UserID string `json:"userId"`
+	Reward int    `json:"reward"`
 }
 
-func (CoinsNotifyClientPayload) Type() MicroserviceEvent {
-	return CoinsNotifyClientEvent
+type CompletedRanking struct {
+	Title      string           `json:"title"`
+	RewardType RewardType       `json:"rewardType"`
+	Winners    []RankingWinners `json:"winners"`
+}
+
+// LegendRankingsRankingsFinishedEventPayload is the payload for the legend_rankings.rankings_finished.
+type LegendRankingsRankingsFinishedEventPayload struct {
+	CompletedRankings []CompletedRanking `json:"completedRankings"`
 }
 
 // CoinsSendEmailPayload is the payload for the coins.send_email event.
