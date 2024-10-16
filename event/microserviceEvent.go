@@ -124,6 +124,18 @@ func (CoinsNotifyClientPayload) Type() MicroserviceEvent {
 	return CoinsNotifyClientEvent
 }
 
+// CoinsSendEmailPayload is the payload for the coins.send_email event.
+type CoinsSendEmailPayload struct {
+	UserId    string `json:"userId"`
+	EmailType string `json:"emailType"`
+	Coins     int    `json:"coins"`
+	Email     string `json:"email"`
+}
+
+func (CoinsSendEmailPayload) Type() MicroserviceEvent {
+	return CoinsSendEmail
+}
+
 // LegendMissionsCompletedMissionRewardEventPayload is the payload for the legend_missions.completed_mission_reward event.
 type LegendMissionsCompletedMissionRewardEventPayload struct {
 	UserID string `json:"userId"`
@@ -164,18 +176,6 @@ type CompletedRanking struct {
 // LegendRankingsRankingsFinishedEventPayload is the payload for the legend_rankings.rankings_finished.
 type LegendRankingsRankingsFinishedEventPayload struct {
 	CompletedRankings []CompletedRanking `json:"completedRankings"`
-}
-
-// CoinsSendEmailPayload is the payload for the coins.send_email event.
-type CoinsSendEmailPayload struct {
-	UserId    string `json:"userId"`
-	EmailType string `json:"emailType"`
-	Coins     int    `json:"coins"`
-	Email     string `json:"email"`
-}
-
-func (CoinsSendEmailPayload) Type() MicroserviceEvent {
-	return CoinsSendEmail
 }
 
 type Room struct {
