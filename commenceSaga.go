@@ -8,6 +8,7 @@ type SagaTitle string
 
 const (
 	PurchaseResourceFlow SagaTitle = "purchase_resource_flow"
+	RankingsUsersReward  SagaTitle = "rankings_users_reward"
 )
 
 type CommencePayload interface {
@@ -24,6 +25,20 @@ type PurchaseResourceFlowPayload struct {
 
 func (PurchaseResourceFlowPayload) Type() SagaTitle {
 	return PurchaseResourceFlow
+}
+
+type UserReward struct {
+	UserId string `json:"userId"`
+	Reward string `json:"coins"`
+}
+
+// RankingsUsersRewardPayload is the payload for the rankings_users_reward event.
+type RankingsUsersRewardPayload struct {
+	Rewards []UserReward `json:"rewards"`
+}
+
+func (RankingsUsersRewardPayload) Type() SagaTitle {
+	return RankingsUsersReward
 }
 
 type commenceSaga struct {
