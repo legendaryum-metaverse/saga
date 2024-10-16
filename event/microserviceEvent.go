@@ -178,6 +178,10 @@ type LegendRankingsRankingsFinishedEventPayload struct {
 	CompletedRankings []CompletedRanking `json:"completedRankings"`
 }
 
+func (LegendRankingsRankingsFinishedEventPayload) Type() MicroserviceEvent {
+	return LegendRankingsRankingsFinishedEvent
+}
+
 type Room struct {
 	Id         string `json:"Id"`
 	CreateAt   string `json:"CreateAt"`
