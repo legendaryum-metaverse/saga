@@ -39,6 +39,7 @@ const (
 const (
 	Coins                               AvailableMicroservices = "coins"
 	ResourcePurchasedDeductCoinsCommand StepCommand            = "resource_purchased:deduct_coins"
+	RankingsRewardCoinsCommand          StepCommand            = "rankings_users_reward:reward_coins"
 )
 
 const (
