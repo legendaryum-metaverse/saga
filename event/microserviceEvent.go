@@ -168,7 +168,13 @@ type RankingWinners struct {
 }
 
 type CompletedRanking struct {
-	Title      string           `json:"title"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	AuthorEmail string `json:"authorEmail"`
+	// End date converted to string
+	EndsAt string `json:"endsAt"`
+	// JSON stringified with each user's rewards
+	Reward     string           `json:"reward"`
 	RewardType RewardType       `json:"rewardType"`
 	Winners    []RankingWinners `json:"winners"`
 }
