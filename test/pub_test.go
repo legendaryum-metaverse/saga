@@ -54,11 +54,11 @@ func (suite *EventsTestSuite) TestSubscribedEvents() {
 		handler.Channel.AckMessage()
 	})
 
-	err := suite.t.PublishEvent(&event.SocialNewUserPayload{
+	err := saga.PublishEvent(&event.SocialNewUserPayload{
 		UserID: "1234",
 	})
 	suite.Require().NoError(err)
-	err = suite.t.PublishEvent(&event.SocialBlockChatPayload{
+	err = saga.PublishEvent(&event.SocialBlockChatPayload{
 		UserID:        "1234",
 		UserToBlockID: "4321",
 	})

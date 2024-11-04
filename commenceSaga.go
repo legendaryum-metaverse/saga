@@ -1,5 +1,7 @@
 package saga
 
+import "fmt"
+
 const (
 	CommenceSagaQueue Queue = "commence_saga"
 )
@@ -46,9 +48,13 @@ type commenceSaga struct {
 	Payload interface{} `json:"payload"`
 }
 
-func (t *Transactional) CommenceSaga(payload CommencePayload) error {
+func CommenceSaga(payload CommencePayload) error {
+	channel, err := getSendChannel()
+	if err != nil {
+		return fmt.Errorf("error getting send channel: %w", err)
+	}
 	title := payload.Type()
-	err := send(t.sendChannel, string(CommenceSagaQueue), commenceSaga{
+	err = send(channel, string(CommenceSagaQueue), commenceSaga{
 		Title:   title,
 		Payload: payload,
 	})

@@ -12,8 +12,12 @@ lint:
 .PHONY: lint
 
 prettier:
-	@docker compose -f compose.prettier.yml run prettier
+	@COMPOSE_PROJECT_NAME=golib-prettier docker compose -f compose.prettier.yml run prettier
 .PHONY: prettier
+
+prettier-build:
+	@COMPOSE_PROJECT_NAME=golib-prettier docker compose -f compose.prettier.yml --progress=plain build prettier
+.PHONY: prettier-build
 
 test:
 	@GO_ENV=test go test -count=1 -v  ./test/...

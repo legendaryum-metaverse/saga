@@ -50,7 +50,6 @@ type Transactional struct {
 	conn          *amqp.Connection
 	eventsChannel *amqp.Channel
 	sagaChannel   *amqp.Channel
-	sendChannel   *amqp.Channel
 	isConnected   bool
 	// healthCheckQueue is the queue to check if the rabbitmq connection is alive.
 	// This queue is set in the creation of resources, consumers, queues, and exchanges.
@@ -76,6 +75,9 @@ type Opts struct {
 	Events       []event.MicroserviceEvent    `validate:"-"`
 }
 
+// RabbitUri is used for send channel connection.
+var RabbitUri string
+
 func Config(opts *Opts) *Transactional {
 	err := validate.Struct(opts)
 	if err != nil {
@@ -91,19 +93,14 @@ func Config(opts *Opts) *Transactional {
 		panic(fmt.Sprintf("Failed to connect to RabbitMQ: %v", err))
 	}
 
-	sendChannel, err := conn.Channel()
-	if err != nil {
-		panic(fmt.Sprintf("Failed to create sendChannel: %v", err))
-	}
-
 	t := &Transactional{
 		Microservice: opts.Microservice,
 		Events:       opts.Events,
 		conn:         conn,
-		sendChannel:  sendChannel,
 	}
 	t.notifyClose()
 	t.isConnected = true
+	RabbitUri = opts.RabbitUri
 	return t
 }
 
@@ -218,9 +215,6 @@ func (t *Transactional) StopRabbitMQ() error {
 	}
 	if t.sagaChannel != nil {
 		err = t.sagaChannel.Close()
-	}
-	if t.sendChannel != nil {
-		err = t.sendChannel.Close()
 	}
 	if t.conn != nil {
 		err = t.conn.Close()
