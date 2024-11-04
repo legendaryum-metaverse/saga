@@ -5,6 +5,6 @@ WORKDIR /app
 FROM base AS runner
 
 RUN bun init -y
-RUN bun add prettier
+RUN bun add -g prettier
 
 ENTRYPOINT ["bunx", "prettier", "--", "\"**/*.{md,yml,yaml,json,mdx}\"", "--single-quote=true", "--write"]
