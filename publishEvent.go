@@ -17,6 +17,10 @@ var (
 
 func getPublishConnection() (*amqp.Connection, error) {
 	if publishConnection != nil {
+		if publishConnection.IsClosed() {
+			publishConnection = nil
+			return getPublishConnection()
+		}
 		return publishConnection, nil
 	}
 	if RabbitUri == "" {
@@ -32,6 +36,10 @@ func getPublishConnection() (*amqp.Connection, error) {
 
 func getSendChannel() (*amqp.Channel, error) {
 	if sendChannel != nil {
+		if sendChannel.IsClosed() {
+			sendChannel = nil
+			return getSendChannel()
+		}
 		return sendChannel, nil
 	}
 	conn, err := getPublishConnection()

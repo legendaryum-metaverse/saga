@@ -7,7 +7,9 @@ type AvailableMicroservices string
 // IsValid checks if the provided value is a valid AvailableMicroservices.
 func (m AvailableMicroservices) IsValid() bool {
 	switch m {
-	case Auth, TestImage, TestMint,
+	case TestImage, TestMint,
+		Auth,
+		Blockchain,
 		Coins,
 		Missions,
 		Rankings,
@@ -34,6 +36,10 @@ const (
 const (
 	Auth              AvailableMicroservices = "auth"
 	CreateUserCommand StepCommand            = "create_user"
+)
+
+const (
+	Blockchain AvailableMicroservices = "blockchain"
 )
 
 const (
