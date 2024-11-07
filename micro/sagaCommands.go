@@ -57,7 +57,8 @@ const (
 )
 
 const (
-	RapidMessaging AvailableMicroservices = "rapid-messaging"
+	RapidMessaging               AvailableMicroservices = "rapid-messaging"
+	ReplicateMinimizedSocialUser StepCommand            = "replicate_minimized_social_user"
 )
 
 const (
