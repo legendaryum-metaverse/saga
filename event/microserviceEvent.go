@@ -1,5 +1,7 @@
 package event
 
+import "time"
+
 type MicroserviceEvent string
 
 type PayloadEvent interface {
@@ -270,9 +272,56 @@ func (SocialMediaRoomsDeleteInBatchPayload) Type() MicroserviceEvent {
 	return SocialMediaRoomsDeleteInBatchEvent
 }
 
+// Gender represents the possible genders a social user can have.
+type Gender string
+
+const (
+	GenderMale      Gender = "MALE"
+	GenderFemale    Gender = "FEMALE"
+	GenderUndefined Gender = "UNDEFINED"
+)
+
+// UserLocation represents the geographical location of a user.
+type UserLocation struct {
+	Continent string `json:"continent" bson:"continent"`
+	Country   string `json:"country" bson:"country"`
+	Region    string `json:"region" bson:"region"`
+	City      string `json:"city" bson:"city"`
+}
+
+// SocialMedia represents social media links as a map.
+type SocialMedia map[string]string
+
+// SocialUser represents the main user model.
+type SocialUser struct {
+	ID               string        `json:"_id" bson:"_id"`
+	Username         string        `json:"username" bson:"username"`
+	FirstName        *string       `json:"firstName,omitempty" bson:"firstName,omitempty"`
+	LastName         *string       `json:"lastName,omitempty" bson:"lastName,omitempty"`
+	Gender           Gender        `json:"gender" bson:"gender"`
+	IsPublicProfile  bool          `json:"isPublicProfile,omitempty" bson:"isPublicProfile,omitempty"`
+	Followers        []string      `json:"followers" bson:"followers"`
+	Following        []string      `json:"following" bson:"following"`
+	Email            string        `json:"email" bson:"email"`
+	Birthday         *time.Time    `json:"birthday,omitempty" bson:"birthday,omitempty"`
+	Location         *UserLocation `json:"location,omitempty" bson:"location,omitempty"`
+	Avatar           *string       `json:"avatar,omitempty" bson:"avatar,omitempty"`
+	AvatarScreenshot *string       `json:"avatarScreenshot,omitempty" bson:"avatarScreenshot,omitempty"`
+	UserImage        *string       `json:"userImage,omitempty" bson:"userImage,omitempty"`
+	GlbURL           *string       `json:"glbUrl,omitempty" bson:"glbUrl,omitempty"`
+	Description      *string       `json:"description,omitempty" bson:"description,omitempty"`
+	SocialMedia      *SocialMedia  `json:"socialMedia,omitempty" bson:"socialMedia,omitempty"`
+	Preferences      []string      `json:"preferences" bson:"preferences"`
+	BlockedUsers     []string      `json:"blockedUsers" bson:"blockedUsers"`
+	RPMAvatarID      *string       `json:"rpmAvatarId,omitempty" bson:"rpmAvatarId,omitempty"`
+	RPMUserID        *string       `json:"rpmUserId,omitempty" bson:"rpmUserId,omitempty"`
+	PaidPriceID      *string       `json:"paidPriceId,omitempty" bson:"paidPriceId,omitempty"`
+	CreatedAt        time.Time     `json:"createdAt" bson:"createdAt"`
+}
+
 // SocialNewUserPayload is the payload for the social.new_user event.
 type SocialNewUserPayload struct {
-	UserID string `json:"userId"`
+	SocialUser SocialUser `json:"socialUser"`
 }
 
 func (SocialNewUserPayload) Type() MicroserviceEvent {
