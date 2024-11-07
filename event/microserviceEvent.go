@@ -1,5 +1,7 @@
 package event
 
+import "time"
+
 type MicroserviceEvent string
 
 type PayloadEvent interface {
@@ -270,9 +272,53 @@ func (SocialMediaRoomsDeleteInBatchPayload) Type() MicroserviceEvent {
 	return SocialMediaRoomsDeleteInBatchEvent
 }
 
+// Gender represents the possible genders a social user can have.
+type Gender string
+
+const (
+	GenderMale      Gender = "MALE"
+	GenderFemale    Gender = "FEMALE"
+	GenderUndefined Gender = "UNDEFINED"
+)
+
+// UserLocation represents the user's location.
+type UserLocation struct {
+	Continent string `json:"continent"`
+	Country   string `json:"country"`
+	Region    string `json:"region"`
+	City      string `json:"city"`
+}
+
+// SocialUser represents the social user model.
+type SocialUser struct {
+	ID               string            `json:"_id"`
+	Username         string            `json:"username"`
+	FirstName        string            `json:"firstName"`
+	LastName         string            `json:"lastName"`
+	Gender           Gender            `json:"gender"`
+	IsPublicProfile  bool              `json:"isPublicProfile"`
+	Followers        []string          `json:"followers"`
+	Following        []string          `json:"following"`
+	Email            string            `json:"email"`
+	Birthday         time.Time         `json:"birthday"`
+	Location         UserLocation      `json:"location"`
+	Avatar           string            `json:"avatar"`
+	AvatarScreenshot string            `json:"avatarScreenshot"`
+	UserImage        string            `json:"userImage"`
+	GlbUrl           string            `json:"glbUrl"`
+	Description      string            `json:"description"`
+	SocialMedia      map[string]string `json:"socialMedia"`
+	Preferences      []string          `json:"preferences"`
+	BlockedUsers     []string          `json:"blockedUsers"`
+	RPMAvatarID      string            `json:"RPMAvatarId"`
+	RPMUserID        string            `json:"RPMUserId"`
+	PaidPriceID      string            `json:"paidPriceId"`
+	CreatedAt        time.Time         `json:"createdAt"`
+}
+
 // SocialNewUserPayload is the payload for the social.new_user event.
 type SocialNewUserPayload struct {
-	UserID string `json:"userId"`
+	SocialUser SocialUser `json:"socialUser"`
 }
 
 func (SocialNewUserPayload) Type() MicroserviceEvent {
