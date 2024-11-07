@@ -291,29 +291,29 @@ type UserLocation struct {
 
 // SocialUser represents the social user model.
 type SocialUser struct {
-	ID               string            `json:"_id"`
-	Username         string            `json:"username"`
-	FirstName        string            `json:"firstName"`
-	LastName         string            `json:"lastName"`
-	Gender           Gender            `json:"gender"`
-	IsPublicProfile  bool              `json:"isPublicProfile"`
-	Followers        []string          `json:"followers"`
-	Following        []string          `json:"following"`
-	Email            string            `json:"email"`
-	Birthday         time.Time         `json:"birthday"`
-	Location         UserLocation      `json:"location"`
-	Avatar           string            `json:"avatar"`
-	AvatarScreenshot string            `json:"avatarScreenshot"`
-	UserImage        string            `json:"userImage"`
-	GlbUrl           string            `json:"glbUrl"`
-	Description      string            `json:"description"`
-	SocialMedia      map[string]string `json:"socialMedia"`
-	Preferences      []string          `json:"preferences"`
-	BlockedUsers     []string          `json:"blockedUsers"`
-	RPMAvatarID      string            `json:"RPMAvatarId"`
-	RPMUserID        string            `json:"RPMUserId"`
-	PaidPriceID      string            `json:"paidPriceId"`
-	CreatedAt        time.Time         `json:"createdAt"`
+	ID               string             `json:"_id"`
+	Username         string             `json:"username"`
+	FirstName        *string            `json:"firstName"`
+	LastName         *string            `json:"lastName"`
+	Gender           Gender             `json:"gender"`
+	IsPublicProfile  bool               `json:"isPublicProfile"`
+	Followers        []string           `json:"followers"`
+	Following        []string           `json:"following"`
+	Email            string             `json:"email"`
+	Birthday         *time.Time         `json:"birthday"`
+	Location         *UserLocation      `json:"location"`
+	Avatar           *string            `json:"avatar"`
+	AvatarScreenshot *string            `json:"avatarScreenshot"`
+	UserImage        *string            `json:"userImage"`
+	GlbUrl           *string            `json:"glbUrl"`
+	Description      *string            `json:"description"`
+	SocialMedia      *map[string]string `json:"socialMedia"`
+	Preferences      []string           `json:"preferences"`
+	BlockedUsers     []string           `json:"blockedUsers"`
+	RPMAvatarID      *string            `json:"RPMAvatarId"`
+	RPMUserID        *string            `json:"RPMUserId"`
+	PaidPriceID      *string            `json:"paidPriceId"`
+	CreatedAt        time.Time          `json:"createdAt"`
 }
 
 // SocialNewUserPayload is the payload for the social.new_user event.
