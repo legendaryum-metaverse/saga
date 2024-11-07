@@ -281,39 +281,42 @@ const (
 	GenderUndefined Gender = "UNDEFINED"
 )
 
-// UserLocation represents the user's location.
+// UserLocation represents the geographical location of a user.
 type UserLocation struct {
-	Continent string `json:"continent"`
-	Country   string `json:"country"`
-	Region    string `json:"region"`
-	City      string `json:"city"`
+	Continent string `json:"continent" bson:"continent"`
+	Country   string `json:"country" bson:"country"`
+	Region    string `json:"region" bson:"region"`
+	City      string `json:"city" bson:"city"`
 }
 
-// SocialUser represents the social user model.
+// SocialMedia represents social media links as a map.
+type SocialMedia map[string]string
+
+// SocialUser represents the main user model.
 type SocialUser struct {
-	ID               string             `json:"_id"`
-	Username         string             `json:"username"`
-	FirstName        *string            `json:"firstName"`
-	LastName         *string            `json:"lastName"`
-	Gender           Gender             `json:"gender"`
-	IsPublicProfile  bool               `json:"isPublicProfile"`
-	Followers        []string           `json:"followers"`
-	Following        []string           `json:"following"`
-	Email            string             `json:"email"`
-	Birthday         *time.Time         `json:"birthday"`
-	Location         *UserLocation      `json:"location"`
-	Avatar           *string            `json:"avatar"`
-	AvatarScreenshot *string            `json:"avatarScreenshot"`
-	UserImage        *string            `json:"userImage"`
-	GlbUrl           *string            `json:"glbUrl"`
-	Description      *string            `json:"description"`
-	SocialMedia      *map[string]string `json:"socialMedia"`
-	Preferences      []string           `json:"preferences"`
-	BlockedUsers     []string           `json:"blockedUsers"`
-	RPMAvatarID      *string            `json:"RPMAvatarId"`
-	RPMUserID        *string            `json:"RPMUserId"`
-	PaidPriceID      *string            `json:"paidPriceId"`
-	CreatedAt        time.Time          `json:"createdAt"`
+	ID               string        `json:"_id" bson:"_id"`
+	Username         string        `json:"username" bson:"username"`
+	FirstName        *string       `json:"firstName,omitempty" bson:"firstName,omitempty"`
+	LastName         *string       `json:"lastName,omitempty" bson:"lastName,omitempty"`
+	Gender           Gender        `json:"gender" bson:"gender"`
+	IsPublicProfile  bool          `json:"isPublicProfile,omitempty" bson:"isPublicProfile,omitempty"`
+	Followers        []string      `json:"followers" bson:"followers"`
+	Following        []string      `json:"following" bson:"following"`
+	Email            string        `json:"email" bson:"email"`
+	Birthday         *time.Time    `json:"birthday,omitempty" bson:"birthday,omitempty"`
+	Location         *UserLocation `json:"location,omitempty" bson:"location,omitempty"`
+	Avatar           *string       `json:"avatar,omitempty" bson:"avatar,omitempty"`
+	AvatarScreenshot *string       `json:"avatarScreenshot,omitempty" bson:"avatarScreenshot,omitempty"`
+	UserImage        *string       `json:"userImage,omitempty" bson:"userImage,omitempty"`
+	GlbURL           *string       `json:"glbUrl,omitempty" bson:"glbUrl,omitempty"`
+	Description      *string       `json:"description,omitempty" bson:"description,omitempty"`
+	SocialMedia      *SocialMedia  `json:"socialMedia,omitempty" bson:"socialMedia,omitempty"`
+	Preferences      []string      `json:"preferences" bson:"preferences"`
+	BlockedUsers     []string      `json:"blockedUsers" bson:"blockedUsers"`
+	RPMAvatarID      *string       `json:"rpmAvatarId,omitempty" bson:"rpmAvatarId,omitempty"`
+	RPMUserID        *string       `json:"rpmUserId,omitempty" bson:"rpmUserId,omitempty"`
+	PaidPriceID      *string       `json:"paidPriceId,omitempty" bson:"paidPriceId,omitempty"`
+	CreatedAt        time.Time     `json:"createdAt" bson:"createdAt"`
 }
 
 // SocialNewUserPayload is the payload for the social.new_user event.

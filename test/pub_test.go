@@ -63,7 +63,7 @@ func (suite *EventsTestSuite) TestSubscribedEvents() {
 			City:      "San Francisco",
 		},
 		Avatar:       stringPtr("https://example.com/avatar.png"),
-		SocialMedia:  &map[string]string{"Twitter": "@testuser"},
+		SocialMedia:  &event.SocialMedia{"Twitter": "@testuser"},
 		Preferences:  []string{"640d91b7e6d3f9c2b4e8a3c5", "65e8c7f4b3a2d5f9c1e0a4b6"},
 		BlockedUsers: []string{"00000020f51bb4362eee2a4d"},
 		RPMAvatarID:  stringPtr("979dc0f8b1dbf41a0638067f"),
