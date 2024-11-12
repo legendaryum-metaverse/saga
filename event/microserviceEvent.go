@@ -30,6 +30,7 @@ const (
 	SocialMediaRoomsDeleteInBatchEvent        MicroserviceEvent = "social_media_rooms.delete_in_batch"
 	SocialNewUserEvent                        MicroserviceEvent = "social.new_user"
 	SocialUnblockChatEvent                    MicroserviceEvent = "social.unblock_chat"
+	SocialUpdatedUserEvent                    MicroserviceEvent = "social.updated_user"
 )
 
 func MicroserviceEventValues() []MicroserviceEvent {
@@ -55,6 +56,7 @@ func MicroserviceEventValues() []MicroserviceEvent {
 		SocialMediaRoomsDeleteInBatchEvent,
 		SocialNewUserEvent,
 		SocialUnblockChatEvent,
+		SocialUpdatedUserEvent,
 	}
 }
 
@@ -336,4 +338,13 @@ type SocialUnblockChatPayload struct {
 
 func (SocialUnblockChatPayload) Type() MicroserviceEvent {
 	return SocialUnblockChatEvent
+}
+
+// SocialUpdatedUserPayload is the payload for the social.updated_user event.
+type SocialUpdatedUserPayload struct {
+	SocialUser SocialUser `json:"socialUser"`
+}
+
+func (SocialUpdatedUserPayload) Type() MicroserviceEvent {
+	return SocialUpdatedUserEvent
 }
