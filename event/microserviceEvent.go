@@ -159,13 +159,6 @@ func (LegendMissionsOngoingMissionEventPayload) Type() MicroserviceEvent {
 	return LegendMissionsOngoingMissionEvent
 }
 
-type RewardType string
-
-const (
-	Legends      RewardType = "Legends"
-	CodeExchange RewardType = "CodeExchange"
-)
-
 type RankingWinners struct {
 	UserID string `json:"userId"`
 	Reward int    `json:"reward"`
@@ -179,7 +172,7 @@ type CompletedRanking struct {
 	EndsAt string `json:"endsAt"`
 	// JSON stringified with each user's rewards
 	Reward     string           `json:"reward"`
-	RewardType RewardType       `json:"rewardType"`
+	RewardType string           `json:"rewardType"`
 	Winners    []RankingWinners `json:"winners"`
 }
 
