@@ -20,6 +20,7 @@ const (
 	CoinsUpdateSubscription                   MicroserviceEvent = "coins.update_subscription"
 	LegendMissionsCompletedMissionRewardEvent MicroserviceEvent = "legend_missions.completed_mission_reward"
 	LegendMissionsOngoingMissionEvent         MicroserviceEvent = "legend_missions.ongoing_mission"
+	LegendRankingsCryptoRankingFinishedEvent  MicroserviceEvent = "legend_rankings.crypto_ranking_finished"
 	LegendRankingsRankingsFinishedEvent       MicroserviceEvent = "legend_rankings.rankings_finished"
 	RoomCreatorCreatedRoomEvent               MicroserviceEvent = "room_creator.created_room"
 	RoomCreatorUpdatedRoomEvent               MicroserviceEvent = "room_creator.updated_room"
@@ -157,6 +158,26 @@ type LegendMissionsOngoingMissionEventPayload struct {
 
 func (LegendMissionsOngoingMissionEventPayload) Type() MicroserviceEvent {
 	return LegendMissionsOngoingMissionEvent
+}
+
+type CryptoRankingWinners struct {
+	UserID string `json:"userId"`
+	// float64 because of the number of decimals it can have
+	Reward float64 `json:"reward"`
+}
+
+type CompletedCryptoRanking struct {
+	WalletAddress string                 `json:"walletAddress"`
+	Winners       []CryptoRankingWinners `json:"winners"`
+}
+
+// LegendRankingsCryptoRankingFinishedEventPayload is the payload for the legend_rankings.crypto_ranking_finished.
+type LegendRankingsCryptoRankingFinishedEventPayload struct {
+	CompletedCryptoRankings []CompletedCryptoRanking `json:"completedCryptoRankings"`
+}
+
+func (LegendRankingsCryptoRankingFinishedEventPayload) Type() MicroserviceEvent {
+	return LegendRankingsCryptoRankingFinishedEvent
 }
 
 type RankingWinners struct {
