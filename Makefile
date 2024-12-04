@@ -20,7 +20,8 @@ prettier-build:
 .PHONY: prettier-build
 
 test:
-	@GO_ENV=test go test -count=1 -v  ./test/...
+	@docker compose up -d
+	@GO_ENV=test go test -count=1 -v ./test/...
 .PHONY: test
 
 lint-fix:
