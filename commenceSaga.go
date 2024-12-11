@@ -9,8 +9,9 @@ const (
 type SagaTitle string
 
 const (
-	PurchaseResourceFlow SagaTitle = "purchase_resource_flow"
-	RankingsUsersReward  SagaTitle = "rankings_users_reward"
+	PurchaseResourceFlow                 SagaTitle = "purchase_resource_flow"
+	RankingsUsersReward                  SagaTitle = "rankings_users_reward"
+	TransferCryptoRewardToRankingWinners SagaTitle = "transfer_crypto_reward_to_ranking_winners"
 )
 
 type CommencePayload interface {
@@ -41,6 +42,26 @@ type RankingsUsersRewardPayload struct {
 
 func (RankingsUsersRewardPayload) Type() SagaTitle {
 	return RankingsUsersReward
+}
+
+type CryptoRankingWinners struct {
+	UserID string `json:"userId"`
+	// float64 because of the number of decimals it can have
+	Reward float64 `json:"reward"`
+}
+
+type CompletedCryptoRanking struct {
+	WalletAddress string                 `json:"walletAddress"`
+	Winners       []CryptoRankingWinners `json:"winners"`
+}
+
+// TransferCryptoRewardToRankingWinnersPayload is the payload for the transfer_crypto_reward_to_ranking_winners event.
+type TransferCryptoRewardToRankingWinnersPayload struct {
+	CompletedCryptoRankings []CompletedCryptoRanking `json:"completedCryptoRankings"`
+}
+
+func (TransferCryptoRewardToRankingWinnersPayload) Type() SagaTitle {
+	return TransferCryptoRewardToRankingWinners
 }
 
 type commenceSaga struct {
