@@ -46,8 +46,7 @@ func (RankingsUsersRewardPayload) Type() SagaTitle {
 
 type CryptoRankingWinners struct {
 	UserID string `json:"userId"`
-	// float64 because of the number of decimals it can have
-	Reward float64 `json:"reward"`
+	Reward string `json:"reward"`
 }
 
 type CompletedCryptoRanking struct {
