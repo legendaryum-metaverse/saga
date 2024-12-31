@@ -171,12 +171,14 @@ type CompletedRanking struct {
 	// End date converted to string
 	EndsAt string `json:"endsAt"`
 	// JSON stringified with each user's rewards
-	Reward               string           `json:"reward"`
-	RewardType           string           `json:"rewardType"`
-	Winners              []RankingWinners `json:"winners"`
-	NftBlockchainNetwork *string          `json:"nftBlockchainNetwork,omitempty"`
-	NftContractAddress   *string          `json:"nftContractAddress,omitempty"`
-	WalletCryptoAsset    *string          `json:"walletCryptoAsset,omitempty"`
+	Reward     string           `json:"reward"`
+	RewardType string           `json:"rewardType"`
+	Winners    []RankingWinners `json:"winners"`
+	// Present only if reward_type is "Nft"
+	NftBlockchainNetwork *string `json:"nftBlockchainNetwork,omitempty"`
+	NftContractAddress   *string `json:"nftContractAddress,omitempty"`
+	// Present only if reward_type is "Crypto"
+	WalletCryptoAsset *string `json:"walletCryptoAsset,omitempty"`
 }
 
 // LegendRankingsRankingsFinishedEventPayload is the payload for the legend_rankings.rankings_finished.
