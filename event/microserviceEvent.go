@@ -176,6 +176,7 @@ type CompletedRanking struct {
 	Winners              []RankingWinners `json:"winners"`
 	NftBlockchainNetwork *string          `json:"nftBlockchainNetwork,omitempty"`
 	NftContractAddress   *string          `json:"nftContractAddress,omitempty"`
+	WalletCryptoAsset    *string          `json:"walletCryptoAsset,omitempty"`
 }
 
 // LegendRankingsRankingsFinishedEventPayload is the payload for the legend_rankings.rankings_finished.
