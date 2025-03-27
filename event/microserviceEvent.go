@@ -12,25 +12,27 @@ const (
 	TestImageEvent MicroserviceEvent = "test.image"
 	TestMintEvent  MicroserviceEvent = "test.mint"
 
-	AuthDeletedUserEvent                      MicroserviceEvent = "auth.deleted_user"
-	AuthLogoutUserEvent                       MicroserviceEvent = "auth.logout_user"
-	AuthNewUserEvent                          MicroserviceEvent = "auth.new_user"
-	CoinsNotifyClientEvent                    MicroserviceEvent = "coins.notify_client"
-	CoinsSendEmail                            MicroserviceEvent = "coins.send_email"
-	CoinsUpdateSubscription                   MicroserviceEvent = "coins.update_subscription"
-	LegendMissionsCompletedMissionRewardEvent MicroserviceEvent = "legend_missions.completed_mission_reward"
-	LegendMissionsOngoingMissionEvent         MicroserviceEvent = "legend_missions.ongoing_mission"
-	LegendRankingsRankingsFinishedEvent       MicroserviceEvent = "legend_rankings.rankings_finished"
-	RoomCreatorCreatedRoomEvent               MicroserviceEvent = "room_creator.created_room"
-	RoomCreatorUpdatedRoomEvent               MicroserviceEvent = "room_creator.updated_room"
-	RoomInventoryUpdateVpBuildingImageEvent   MicroserviceEvent = "room_inventory.update_vp_building_image"
-	RoomSnapshotBuildingChangeInIslandEvent   MicroserviceEvent = "room_snapshot.building_change_in_island"
-	RoomSnapshotFirstSnapshotEvent            MicroserviceEvent = "room_snapshot.first_snapshot"
-	SocialBlockChatEvent                      MicroserviceEvent = "social.block_chat"
-	SocialMediaRoomsDeleteInBatchEvent        MicroserviceEvent = "social_media_rooms.delete_in_batch"
-	SocialNewUserEvent                        MicroserviceEvent = "social.new_user"
-	SocialUnblockChatEvent                    MicroserviceEvent = "social.unblock_chat"
-	SocialUpdatedUserEvent                    MicroserviceEvent = "social.updated_user"
+	AuthDeletedUserEvent                                   MicroserviceEvent = "auth.deleted_user"
+	AuthLogoutUserEvent                                    MicroserviceEvent = "auth.logout_user"
+	AuthNewUserEvent                                       MicroserviceEvent = "auth.new_user"
+	CoinsNotifyClientEvent                                 MicroserviceEvent = "coins.notify_client"
+	CoinsSendEmail                                         MicroserviceEvent = "coins.send_email"
+	CoinsUpdateSubscription                                MicroserviceEvent = "coins.update_subscription"
+	LegendMissionsCompletedMissionRewardEvent              MicroserviceEvent = "legend_missions.completed_mission_reward"
+	LegendMissionsOngoingMissionEvent                      MicroserviceEvent = "legend_missions.ongoing_mission"
+	LegendRankingsRankingsFinishedEvent                    MicroserviceEvent = "legend_rankings.rankings_finished"
+	LegendShowcaseUpdateAllowedMissionSubscriptionIdsEvent MicroserviceEvent = "legend_showcase.update_allowed_mission_subscription_ids"
+	LegendShowcaseUpdateAllowedRankingSubscriptionIdsEvent MicroserviceEvent = "legend_showcase.update_allowed_ranking_subscription_ids"
+	RoomCreatorCreatedRoomEvent                            MicroserviceEvent = "room_creator.created_room"
+	RoomCreatorUpdatedRoomEvent                            MicroserviceEvent = "room_creator.updated_room"
+	RoomInventoryUpdateVpBuildingImageEvent                MicroserviceEvent = "room_inventory.update_vp_building_image"
+	RoomSnapshotBuildingChangeInIslandEvent                MicroserviceEvent = "room_snapshot.building_change_in_island"
+	RoomSnapshotFirstSnapshotEvent                         MicroserviceEvent = "room_snapshot.first_snapshot"
+	SocialBlockChatEvent                                   MicroserviceEvent = "social.block_chat"
+	SocialMediaRoomsDeleteInBatchEvent                     MicroserviceEvent = "social_media_rooms.delete_in_batch"
+	SocialNewUserEvent                                     MicroserviceEvent = "social.new_user"
+	SocialUnblockChatEvent                                 MicroserviceEvent = "social.unblock_chat"
+	SocialUpdatedUserEvent                                 MicroserviceEvent = "social.updated_user"
 )
 
 func MicroserviceEventValues() []MicroserviceEvent {
@@ -47,6 +49,8 @@ func MicroserviceEventValues() []MicroserviceEvent {
 		LegendMissionsCompletedMissionRewardEvent,
 		LegendMissionsOngoingMissionEvent,
 		LegendRankingsRankingsFinishedEvent,
+		LegendShowcaseUpdateAllowedMissionSubscriptionIdsEvent,
+		LegendShowcaseUpdateAllowedRankingSubscriptionIdsEvent,
 		RoomCreatorCreatedRoomEvent,
 		RoomCreatorUpdatedRoomEvent,
 		RoomInventoryUpdateVpBuildingImageEvent,
@@ -188,6 +192,26 @@ type LegendRankingsRankingsFinishedEventPayload struct {
 
 func (LegendRankingsRankingsFinishedEventPayload) Type() MicroserviceEvent {
 	return LegendRankingsRankingsFinishedEvent
+}
+
+// LegendShowcaseUpdateAllowedMissionSubscriptionIdsEventPayload is the payload for the legend_showcase.update_allowed_mission_subscription_ids.
+type LegendShowcaseUpdateAllowedMissionSubscriptionIdsEventPayload struct {
+	ProductVirtualSlug     string   `json:"productVirtualSlug"`
+	AllowedSubscriptionIds []string `json:"allowedSubscriptionIds"`
+}
+
+func (LegendShowcaseUpdateAllowedMissionSubscriptionIdsEventPayload) Type() MicroserviceEvent {
+	return LegendShowcaseUpdateAllowedMissionSubscriptionIdsEvent
+}
+
+// LegendShowcaseUpdateAllowedRankingSubscriptionIdsEventPayload is the payload for the legend_showcase.update_allowed_ranking_subscription_ids.
+type LegendShowcaseUpdateAllowedRankingSubscriptionIdsEventPayload struct {
+	ProductVirtualID       string   `json:"productVirtualId"`
+	AllowedSubscriptionIds []string `json:"allowedSubscriptionIds"`
+}
+
+func (LegendShowcaseUpdateAllowedRankingSubscriptionIdsEventPayload) Type() MicroserviceEvent {
+	return LegendShowcaseUpdateAllowedRankingSubscriptionIdsEvent
 }
 
 type Room struct {
