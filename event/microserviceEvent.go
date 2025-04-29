@@ -21,6 +21,7 @@ const (
 	LegendMissionsCompletedMissionRewardEvent              MicroserviceEvent = "legend_missions.completed_mission_reward"
 	LegendMissionsOngoingMissionEvent                      MicroserviceEvent = "legend_missions.ongoing_mission"
 	LegendRankingsRankingsFinishedEvent                    MicroserviceEvent = "legend_rankings.rankings_finished"
+	LegendShowcaseProductVirtualDeleted                    MicroserviceEvent = "legend_showcase.product_virtual_deleted"
 	LegendShowcaseUpdateAllowedMissionSubscriptionIdsEvent MicroserviceEvent = "legend_showcase.update_allowed_mission_subscription_ids"
 	LegendShowcaseUpdateAllowedRankingSubscriptionIdsEvent MicroserviceEvent = "legend_showcase.update_allowed_ranking_subscription_ids"
 	RoomCreatorCreatedRoomEvent                            MicroserviceEvent = "room_creator.created_room"
@@ -192,6 +193,16 @@ type LegendRankingsRankingsFinishedEventPayload struct {
 
 func (LegendRankingsRankingsFinishedEventPayload) Type() MicroserviceEvent {
 	return LegendRankingsRankingsFinishedEvent
+}
+
+// LegendShowcaseProductVirtualDeletedEventPayload is the payload for the legend_showcase.product_virtual_deleted event.
+type LegendShowcaseProductVirtualDeletedEventPayload struct {
+	ProductVirtualID   string `json:"productVirtualId"`
+	ProductVirtualSlug string `json:"productVirtualSlug"`
+}
+
+func (LegendShowcaseProductVirtualDeletedEventPayload) Type() MicroserviceEvent {
+	return LegendShowcaseProductVirtualDeleted
 }
 
 // LegendShowcaseUpdateAllowedMissionSubscriptionIdsEventPayload is the payload for the legend_showcase.update_allowed_mission_subscription_ids.
