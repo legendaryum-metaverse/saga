@@ -21,7 +21,7 @@ const (
 	LegendMissionsCompletedMissionRewardEvent              MicroserviceEvent = "legend_missions.completed_mission_reward"
 	LegendMissionsOngoingMissionEvent                      MicroserviceEvent = "legend_missions.ongoing_mission"
 	LegendRankingsRankingsFinishedEvent                    MicroserviceEvent = "legend_rankings.rankings_finished"
-	LegendShowcaseProductVirtualDeleted                    MicroserviceEvent = "legend_showcase.product_virtual_deleted"
+	LegendShowcaseProductVirtualDeletedEvent               MicroserviceEvent = "legend_showcase.product_virtual_deleted"
 	LegendShowcaseUpdateAllowedMissionSubscriptionIdsEvent MicroserviceEvent = "legend_showcase.update_allowed_mission_subscription_ids"
 	LegendShowcaseUpdateAllowedRankingSubscriptionIdsEvent MicroserviceEvent = "legend_showcase.update_allowed_ranking_subscription_ids"
 	RoomCreatorCreatedRoomEvent                            MicroserviceEvent = "room_creator.created_room"
@@ -50,6 +50,7 @@ func MicroserviceEventValues() []MicroserviceEvent {
 		LegendMissionsCompletedMissionRewardEvent,
 		LegendMissionsOngoingMissionEvent,
 		LegendRankingsRankingsFinishedEvent,
+		LegendShowcaseProductVirtualDeletedEvent,
 		LegendShowcaseUpdateAllowedMissionSubscriptionIdsEvent,
 		LegendShowcaseUpdateAllowedRankingSubscriptionIdsEvent,
 		RoomCreatorCreatedRoomEvent,
@@ -202,7 +203,7 @@ type LegendShowcaseProductVirtualDeletedEventPayload struct {
 }
 
 func (LegendShowcaseProductVirtualDeletedEventPayload) Type() MicroserviceEvent {
-	return LegendShowcaseProductVirtualDeleted
+	return LegendShowcaseProductVirtualDeletedEvent
 }
 
 // LegendShowcaseUpdateAllowedMissionSubscriptionIdsEventPayload is the payload for the legend_showcase.update_allowed_mission_subscription_ids.
