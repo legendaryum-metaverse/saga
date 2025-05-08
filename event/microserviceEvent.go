@@ -19,6 +19,7 @@ const (
 	CoinsSendEmail                                         MicroserviceEvent = "coins.send_email"
 	CoinsUpdateSubscription                                MicroserviceEvent = "coins.update_subscription"
 	LegendMissionsCompletedMissionRewardEvent              MicroserviceEvent = "legend_missions.completed_mission_reward"
+	LegendMissionsNewMissionCreatedEvent                   MicroserviceEvent = "legend_missions.new_mission_created"
 	LegendMissionsOngoingMissionEvent                      MicroserviceEvent = "legend_missions.ongoing_mission"
 	LegendRankingsRankingsFinishedEvent                    MicroserviceEvent = "legend_rankings.rankings_finished"
 	LegendShowcaseProductVirtualDeletedEvent               MicroserviceEvent = "legend_showcase.product_virtual_deleted"
@@ -48,6 +49,7 @@ func MicroserviceEventValues() []MicroserviceEvent {
 		CoinsNotifyClientEvent,
 		CoinsSendEmail,
 		LegendMissionsCompletedMissionRewardEvent,
+		LegendMissionsNewMissionCreatedEvent,
 		LegendMissionsOngoingMissionEvent,
 		LegendRankingsRankingsFinishedEvent,
 		LegendShowcaseProductVirtualDeletedEvent,
@@ -154,6 +156,22 @@ type LegendMissionsCompletedMissionRewardEventPayload struct {
 
 func (LegendMissionsCompletedMissionRewardEventPayload) Type() MicroserviceEvent {
 	return LegendMissionsCompletedMissionRewardEvent
+}
+
+// LegendMissionsNewMissionCreatedEventPayload is the payload for the legend_missions.new_mission_created.
+type LegendMissionsNewMissionCreatedEventPayload struct {
+	Title                    string `json:"title"`
+	Author                   string `json:"author"`
+	AuthorEmail              string `json:"authorEmail"`
+	Reward                   int    `json:"reward"`
+	StartDate                string `json:"startDate"`
+	EndDate                  string `json:"endDate"`
+	MaxPlayersClaimingReward int    `json:"maxPlayersClaimingReward"`
+	TimeToReward             int    `json:"timeToReward"`
+}
+
+func (LegendMissionsNewMissionCreatedEventPayload) Type() MicroserviceEvent {
+	return LegendMissionsNewMissionCreatedEvent
 }
 
 // LegendMissionsOngoingMissionEventPayload is the payload for the legend_missions.ongoin_mission.
