@@ -39,8 +39,9 @@ const (
 )
 
 const (
-	Blockchain              AvailableMicroservices = "blockchain"
-	TransferRewardToWinners StepCommand            = "crypto_reward:transfer_reward_to_winners"
+	Blockchain                    AvailableMicroservices = "blockchain"
+	TransferMissionRewardToWinner StepCommand            = "crypto_reward:transfer_mission_reward_to_winner"
+	TransferRewardToWinners       StepCommand            = "crypto_reward:transfer_reward_to_winners"
 )
 
 const (

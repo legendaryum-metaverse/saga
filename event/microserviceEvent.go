@@ -19,7 +19,6 @@ const (
 	CoinsSendEmail                                         MicroserviceEvent = "coins.send_email"
 	CoinsUpdateSubscription                                MicroserviceEvent = "coins.update_subscription"
 	LegendMissionsCompletedMissionRewardEvent              MicroserviceEvent = "legend_missions.completed_mission_reward"
-	LegendMissionsCryptoMissionCompletedEvent              MicroserviceEvent = "legend_missions.crypto_mission_completed"
 	LegendMissionsNewMissionCreatedEvent                   MicroserviceEvent = "legend_missions.new_mission_created"
 	LegendMissionsOngoingMissionEvent                      MicroserviceEvent = "legend_missions.ongoing_mission"
 	LegendRankingsRankingsFinishedEvent                    MicroserviceEvent = "legend_rankings.rankings_finished"
@@ -50,7 +49,6 @@ func MicroserviceEventValues() []MicroserviceEvent {
 		CoinsNotifyClientEvent,
 		CoinsSendEmail,
 		LegendMissionsCompletedMissionRewardEvent,
-		LegendMissionsCryptoMissionCompletedEvent,
 		LegendMissionsNewMissionCreatedEvent,
 		LegendMissionsOngoingMissionEvent,
 		LegendRankingsRankingsFinishedEvent,
@@ -158,20 +156,6 @@ type LegendMissionsCompletedMissionRewardEventPayload struct {
 
 func (LegendMissionsCompletedMissionRewardEventPayload) Type() MicroserviceEvent {
 	return LegendMissionsCompletedMissionRewardEvent
-}
-
-// LegendMissionsCryptoMissionCompletedEventPayload is the payload for the legend_missions.crypto_mission_completed event.
-type LegendMissionsCryptoMissionCompletedEventPayload struct {
-	// Wallet address from which rewards will be transferred
-	WalletAddress string `json:"walletAddress"`
-	// ID of the user who completed the mission
-	UserID string `json:"userId"`
-	// Amount to be transferred
-	Reward string `json:"reward"`
-}
-
-func (LegendMissionsCryptoMissionCompletedEventPayload) Type() MicroserviceEvent {
-	return LegendMissionsCryptoMissionCompletedEvent
 }
 
 // LegendMissionsNewMissionCreatedEventPayload is the payload for the legend_missions.new_mission_created.

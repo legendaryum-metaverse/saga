@@ -11,6 +11,7 @@ type SagaTitle string
 const (
 	PurchaseResourceFlow                 SagaTitle = "purchase_resource_flow"
 	RankingsUsersReward                  SagaTitle = "rankings_users_reward"
+	TransferCryptoRewardToMissionWinner  SagaTitle = "transfer_crypto_reward_to_mission_winner"
 	TransferCryptoRewardToRankingWinners SagaTitle = "transfer_crypto_reward_to_ranking_winners"
 )
 
@@ -52,6 +53,20 @@ type CryptoRankingWinners struct {
 type CompletedCryptoRanking struct {
 	WalletAddress string                 `json:"walletAddress"`
 	Winners       []CryptoRankingWinners `json:"winners"`
+}
+
+// TransferCryptoRewardToMissionWinnerPayload is the payload for the transfer_crypto_reward_to_mission_winner event.
+type TransferCryptoRewardToMissionWinnerPayload struct {
+	// Wallet address from which rewards will be transferred
+	WalletAddress string `json:"walletAddress"`
+	// ID of the user who completed the mission
+	UserID string `json:"userId"`
+	// Amount to be transferred
+	Reward string `json:"reward"`
+}
+
+func (TransferCryptoRewardToMissionWinnerPayload) Type() SagaTitle {
+	return TransferCryptoRewardToMissionWinner
 }
 
 // TransferCryptoRewardToRankingWinnersPayload is the payload for the transfer_crypto_reward_to_ranking_winners event.
