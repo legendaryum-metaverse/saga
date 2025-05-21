@@ -12,29 +12,32 @@ const (
 	TestImageEvent MicroserviceEvent = "test.image"
 	TestMintEvent  MicroserviceEvent = "test.mint"
 
-	AuthDeletedUserEvent                                   MicroserviceEvent = "auth.deleted_user"
-	AuthLogoutUserEvent                                    MicroserviceEvent = "auth.logout_user"
-	AuthNewUserEvent                                       MicroserviceEvent = "auth.new_user"
-	CoinsNotifyClientEvent                                 MicroserviceEvent = "coins.notify_client"
-	CoinsSendEmail                                         MicroserviceEvent = "coins.send_email"
-	CoinsUpdateSubscription                                MicroserviceEvent = "coins.update_subscription"
-	LegendMissionsCompletedMissionRewardEvent              MicroserviceEvent = "legend_missions.completed_mission_reward"
-	LegendMissionsNewMissionCreatedEvent                   MicroserviceEvent = "legend_missions.new_mission_created"
-	LegendMissionsOngoingMissionEvent                      MicroserviceEvent = "legend_missions.ongoing_mission"
-	LegendRankingsRankingsFinishedEvent                    MicroserviceEvent = "legend_rankings.rankings_finished"
-	LegendShowcaseProductVirtualDeletedEvent               MicroserviceEvent = "legend_showcase.product_virtual_deleted"
-	LegendShowcaseUpdateAllowedMissionSubscriptionIdsEvent MicroserviceEvent = "legend_showcase.update_allowed_mission_subscription_ids"
-	LegendShowcaseUpdateAllowedRankingSubscriptionIdsEvent MicroserviceEvent = "legend_showcase.update_allowed_ranking_subscription_ids"
-	RoomCreatorCreatedRoomEvent                            MicroserviceEvent = "room_creator.created_room"
-	RoomCreatorUpdatedRoomEvent                            MicroserviceEvent = "room_creator.updated_room"
-	RoomInventoryUpdateVpBuildingImageEvent                MicroserviceEvent = "room_inventory.update_vp_building_image"
-	RoomSnapshotBuildingChangeInIslandEvent                MicroserviceEvent = "room_snapshot.building_change_in_island"
-	RoomSnapshotFirstSnapshotEvent                         MicroserviceEvent = "room_snapshot.first_snapshot"
-	SocialBlockChatEvent                                   MicroserviceEvent = "social.block_chat"
-	SocialMediaRoomsDeleteInBatchEvent                     MicroserviceEvent = "social_media_rooms.delete_in_batch"
-	SocialNewUserEvent                                     MicroserviceEvent = "social.new_user"
-	SocialUnblockChatEvent                                 MicroserviceEvent = "social.unblock_chat"
-	SocialUpdatedUserEvent                                 MicroserviceEvent = "social.updated_user"
+	AuthDeletedUserEvent                                     MicroserviceEvent = "auth.deleted_user"
+	AuthLogoutUserEvent                                      MicroserviceEvent = "auth.logout_user"
+	AuthNewUserEvent                                         MicroserviceEvent = "auth.new_user"
+	CoinsNotifyClientEvent                                   MicroserviceEvent = "coins.notify_client"
+	CoinsSendEmail                                           MicroserviceEvent = "coins.send_email"
+	CoinsUpdateSubscription                                  MicroserviceEvent = "coins.update_subscription"
+	LegendMissionsCompletedMissionRewardEvent                MicroserviceEvent = "legend_missions.completed_mission_reward"
+	LegendMissionsNewMissionCreatedEvent                     MicroserviceEvent = "legend_missions.new_mission_created"
+	LegendMissionsOngoingMissionEvent                        MicroserviceEvent = "legend_missions.ongoing_mission"
+	LegendMissionsSendEmailCryptoMissionCompletedEvent       MicroserviceEvent = "legend_missions.send_email_crypto_mission_completed"
+	LegendMissionsSendEmailCodeExchangeMissionCompletedEvent MicroserviceEvent = "legend_missions.send_email_code_exchange_mission_completed"
+	LegendMissionsSendEmailNftMissionCompletedEvent          MicroserviceEvent = "legend_missions.send_email_nft_mission_completed"
+	LegendRankingsRankingsFinishedEvent                      MicroserviceEvent = "legend_rankings.rankings_finished"
+	LegendShowcaseProductVirtualDeletedEvent                 MicroserviceEvent = "legend_showcase.product_virtual_deleted"
+	LegendShowcaseUpdateAllowedMissionSubscriptionIdsEvent   MicroserviceEvent = "legend_showcase.update_allowed_mission_subscription_ids"
+	LegendShowcaseUpdateAllowedRankingSubscriptionIdsEvent   MicroserviceEvent = "legend_showcase.update_allowed_ranking_subscription_ids"
+	RoomCreatorCreatedRoomEvent                              MicroserviceEvent = "room_creator.created_room"
+	RoomCreatorUpdatedRoomEvent                              MicroserviceEvent = "room_creator.updated_room"
+	RoomInventoryUpdateVpBuildingImageEvent                  MicroserviceEvent = "room_inventory.update_vp_building_image"
+	RoomSnapshotBuildingChangeInIslandEvent                  MicroserviceEvent = "room_snapshot.building_change_in_island"
+	RoomSnapshotFirstSnapshotEvent                           MicroserviceEvent = "room_snapshot.first_snapshot"
+	SocialBlockChatEvent                                     MicroserviceEvent = "social.block_chat"
+	SocialMediaRoomsDeleteInBatchEvent                       MicroserviceEvent = "social_media_rooms.delete_in_batch"
+	SocialNewUserEvent                                       MicroserviceEvent = "social.new_user"
+	SocialUnblockChatEvent                                   MicroserviceEvent = "social.unblock_chat"
+	SocialUpdatedUserEvent                                   MicroserviceEvent = "social.updated_user"
 )
 
 func MicroserviceEventValues() []MicroserviceEvent {
@@ -51,6 +54,9 @@ func MicroserviceEventValues() []MicroserviceEvent {
 		LegendMissionsCompletedMissionRewardEvent,
 		LegendMissionsNewMissionCreatedEvent,
 		LegendMissionsOngoingMissionEvent,
+		LegendMissionsSendEmailCryptoMissionCompletedEvent,
+		LegendMissionsSendEmailCodeExchangeMissionCompletedEvent,
+		LegendMissionsSendEmailNftMissionCompletedEvent,
 		LegendRankingsRankingsFinishedEvent,
 		LegendShowcaseProductVirtualDeletedEvent,
 		LegendShowcaseUpdateAllowedMissionSubscriptionIdsEvent,
@@ -203,6 +209,43 @@ type CompletedRanking struct {
 	NftContractAddress   *string `json:"nftContractAddress,omitempty"`
 	// Present only if reward_type is "Crypto"
 	WalletCryptoAsset *string `json:"walletCryptoAsset,omitempty"`
+}
+
+// LegendMissionsSendEmailCryptoMissionCompletedEventPayload is the payload for the legend_missions.send_email_crypto_mission_completed event.
+type LegendMissionsSendEmailCryptoMissionCompletedEventPayload struct {
+	UserID            string `json:"userId"`
+	MissionTitle      string `json:"missionTitle"`
+	Reward            int    `json:"reward"`
+	BlockchainNetwork string `json:"blockchainNetwork"`
+	CryptoAsset       string `json:"cryptoAsset"`
+}
+
+func (LegendMissionsSendEmailCryptoMissionCompletedEventPayload) Type() MicroserviceEvent {
+	return LegendMissionsSendEmailCryptoMissionCompletedEvent
+}
+
+// LegendMissionsSendEmailCodeExchangeMissionCompletedEventPayload is the payload for the legend_missions.send_email_code_exchange_mission_completed event.
+type LegendMissionsSendEmailCodeExchangeMissionCompletedEventPayload struct {
+	UserID          string `json:"userId"`
+	MissionTitle    string `json:"missionTitle"`
+	CodeValue       string `json:"codeValue"`
+	CodeDescription string `json:"codeDescription"`
+}
+
+func (LegendMissionsSendEmailCodeExchangeMissionCompletedEventPayload) Type() MicroserviceEvent {
+	return LegendMissionsSendEmailCodeExchangeMissionCompletedEvent
+}
+
+// LegendMissionsSendEmailNftMissionCompletedEventPayload is the payload for the legend_missions.send_email_nft_mission_completed event.
+type LegendMissionsSendEmailNftMissionCompletedEventPayload struct {
+	UserID             string `json:"userId"`
+	MissionTitle       string `json:"missionTitle"`
+	NftContractAddress string `json:"nftContractAddress"`
+	NftTokenID         string `json:"nftTokenId"`
+}
+
+func (LegendMissionsSendEmailNftMissionCompletedEventPayload) Type() MicroserviceEvent {
+	return LegendMissionsSendEmailNftMissionCompletedEvent
 }
 
 // LegendRankingsRankingsFinishedEventPayload is the payload for the legend_rankings.rankings_finished.
