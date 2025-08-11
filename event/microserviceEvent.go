@@ -215,7 +215,7 @@ type CompletedRanking struct {
 type LegendMissionsSendEmailCryptoMissionCompletedEventPayload struct {
 	UserID            string `json:"userId"`
 	MissionTitle      string `json:"missionTitle"`
-	Reward            int    `json:"reward"`
+	Reward            string `json:"reward"`
 	BlockchainNetwork string `json:"blockchainNetwork"`
 	CryptoAsset       string `json:"cryptoAsset"`
 }
