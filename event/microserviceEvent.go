@@ -273,7 +273,7 @@ type LegendRankingsNewRankingCreatedEventPayload struct {
 	NotificationConfig   *NotificationConfig `json:"notificationConfig,omitempty"`
 }
 
-// NotificationConfig represents the notification configuration
+// NotificationConfig represents the notification configuration.
 type NotificationConfig struct {
 	CustomEmails *[]string `json:"customEmails,omitempty"`
 	TemplateName string    `json:"templateName"`
