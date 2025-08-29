@@ -25,6 +25,7 @@ const (
 	LegendMissionsSendEmailCodeExchangeMissionCompletedEvent MicroserviceEvent = "legend_missions.send_email_code_exchange_mission_completed"
 	LegendMissionsSendEmailNftMissionCompletedEvent          MicroserviceEvent = "legend_missions.send_email_nft_mission_completed"
 	LegendRankingsRankingsFinishedEvent                      MicroserviceEvent = "legend_rankings.rankings_finished"
+	LegendRankingsNewRankingCreatedEvent                     MicroserviceEvent = "legend_rankings.new_ranking_created"
 	LegendShowcaseProductVirtualDeletedEvent                 MicroserviceEvent = "legend_showcase.product_virtual_deleted"
 	LegendShowcaseUpdateAllowedMissionSubscriptionIdsEvent   MicroserviceEvent = "legend_showcase.update_allowed_mission_subscription_ids"
 	LegendShowcaseUpdateAllowedRankingSubscriptionIdsEvent   MicroserviceEvent = "legend_showcase.update_allowed_ranking_subscription_ids"
@@ -58,6 +59,7 @@ func MicroserviceEventValues() []MicroserviceEvent {
 		LegendMissionsSendEmailCodeExchangeMissionCompletedEvent,
 		LegendMissionsSendEmailNftMissionCompletedEvent,
 		LegendRankingsRankingsFinishedEvent,
+		LegendRankingsNewRankingCreatedEvent,
 		LegendShowcaseProductVirtualDeletedEvent,
 		LegendShowcaseUpdateAllowedMissionSubscriptionIdsEvent,
 		LegendShowcaseUpdateAllowedRankingSubscriptionIdsEvent,
@@ -166,14 +168,15 @@ func (LegendMissionsCompletedMissionRewardEventPayload) Type() MicroserviceEvent
 
 // LegendMissionsNewMissionCreatedEventPayload is the payload for the legend_missions.new_mission_created.
 type LegendMissionsNewMissionCreatedEventPayload struct {
-	Title                    string `json:"title"`
-	Author                   string `json:"author"`
-	AuthorEmail              string `json:"authorEmail"`
-	Reward                   int    `json:"reward"`
-	StartDate                string `json:"startDate"`
-	EndDate                  string `json:"endDate"`
-	MaxPlayersClaimingReward int    `json:"maxPlayersClaimingReward"`
-	TimeToReward             int    `json:"timeToReward"`
+	Title                    string              `json:"title"`
+	Author                   string              `json:"author"`
+	AuthorEmail              string              `json:"authorEmail"`
+	Reward                   int                 `json:"reward"`
+	StartDate                string              `json:"startDate"`
+	EndDate                  string              `json:"endDate"`
+	MaxPlayersClaimingReward int                 `json:"maxPlayersClaimingReward"`
+	TimeToReward             int                 `json:"timeToReward"`
+	NotificationConfig       *NotificationConfig `json:"notificationConfig,omitempty"`
 }
 
 func (LegendMissionsNewMissionCreatedEventPayload) Type() MicroserviceEvent {
@@ -255,6 +258,29 @@ type LegendRankingsRankingsFinishedEventPayload struct {
 
 func (LegendRankingsRankingsFinishedEventPayload) Type() MicroserviceEvent {
 	return LegendRankingsRankingsFinishedEvent
+}
+
+// LegendRankingsNewRankingCreatedEventPayload is the payload for the legend_rankings.new_ranking_created event.
+type LegendRankingsNewRankingCreatedEventPayload struct {
+	Title                string              `json:"title"`
+	Description          string              `json:"description"`
+	AuthorEmail          string              `json:"authorEmail"`
+	RewardType           string              `json:"rewardType"`
+	EndsAt               string              `json:"endsAt"`
+	NftBlockchainNetwork *string             `json:"nftBlockchainNetwork,omitempty"`
+	NftContractAddress   *string             `json:"nftContractAddress,omitempty"`
+	WalletCryptoAsset    *string             `json:"walletCryptoAsset,omitempty"`
+	NotificationConfig   *NotificationConfig `json:"notificationConfig,omitempty"`
+}
+
+// NotificationConfig represents the notification configuration.
+type NotificationConfig struct {
+	CustomEmails *[]string `json:"customEmails,omitempty"`
+	TemplateName string    `json:"templateName"`
+}
+
+func (LegendRankingsNewRankingCreatedEventPayload) Type() MicroserviceEvent {
+	return LegendRankingsNewRankingCreatedEvent
 }
 
 // LegendShowcaseProductVirtualDeletedEventPayload is the payload for the legend_showcase.product_virtual_deleted event.
