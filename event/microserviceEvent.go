@@ -21,6 +21,7 @@ const (
 	LegendMissionsCompletedMissionRewardEvent                MicroserviceEvent = "legend_missions.completed_mission_reward"
 	LegendMissionsNewMissionCreatedEvent                     MicroserviceEvent = "legend_missions.new_mission_created"
 	LegendMissionsOngoingMissionEvent                        MicroserviceEvent = "legend_missions.ongoing_mission"
+	LegendMissionsMissionFinishedEvent                       MicroserviceEvent = "legend_missions.mission_finished"
 	LegendMissionsSendEmailCryptoMissionCompletedEvent       MicroserviceEvent = "legend_missions.send_email_crypto_mission_completed"
 	LegendMissionsSendEmailCodeExchangeMissionCompletedEvent MicroserviceEvent = "legend_missions.send_email_code_exchange_mission_completed"
 	LegendMissionsSendEmailNftMissionCompletedEvent          MicroserviceEvent = "legend_missions.send_email_nft_mission_completed"
@@ -55,6 +56,7 @@ func MicroserviceEventValues() []MicroserviceEvent {
 		LegendMissionsCompletedMissionRewardEvent,
 		LegendMissionsNewMissionCreatedEvent,
 		LegendMissionsOngoingMissionEvent,
+		LegendMissionsMissionFinishedEvent,
 		LegendMissionsSendEmailCryptoMissionCompletedEvent,
 		LegendMissionsSendEmailCodeExchangeMissionCompletedEvent,
 		LegendMissionsSendEmailNftMissionCompletedEvent,
@@ -190,6 +192,23 @@ type LegendMissionsOngoingMissionEventPayload struct {
 
 func (LegendMissionsOngoingMissionEventPayload) Type() MicroserviceEvent {
 	return LegendMissionsOngoingMissionEvent
+}
+
+// MissionFinishedParticipant represents a participant in the mission finished event.
+type MissionFinishedParticipant struct {
+	UserID   *string `json:"userId,omitempty"`
+	Email    *string `json:"email,omitempty"`
+	Position *int    `json:"position,omitempty"`
+}
+
+// LegendMissionsMissionFinishedEventPayload is the payload for the legend_missions.mission_finished event.
+type LegendMissionsMissionFinishedEventPayload struct {
+	MissionTitle string                       `json:"missionTitle"`
+	Participants []MissionFinishedParticipant `json:"participants"`
+}
+
+func (LegendMissionsMissionFinishedEventPayload) Type() MicroserviceEvent {
+	return LegendMissionsMissionFinishedEvent
 }
 
 type RankingWinners struct {
