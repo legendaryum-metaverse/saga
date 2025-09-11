@@ -12,6 +12,7 @@ const (
 	TestImageEvent MicroserviceEvent = "test.image"
 	TestMintEvent  MicroserviceEvent = "test.mint"
 
+	AuthBlockedUserEvent                                     MicroserviceEvent = "auth.blocked_user"
 	AuthDeletedUserEvent                                     MicroserviceEvent = "auth.deleted_user"
 	AuthLogoutUserEvent                                      MicroserviceEvent = "auth.logout_user"
 	AuthNewUserEvent                                         MicroserviceEvent = "auth.new_user"
@@ -47,6 +48,7 @@ func MicroserviceEventValues() []MicroserviceEvent {
 		TestImageEvent,
 		TestMintEvent,
 
+		AuthBlockedUserEvent,
 		AuthDeletedUserEvent,
 		AuthLogoutUserEvent,
 		AuthNewUserEvent,
@@ -94,6 +96,18 @@ type TestMintPayload struct {
 
 func (TestMintPayload) Type() MicroserviceEvent {
 	return TestMintEvent
+}
+
+// AuthBlockedUserPayload is the payload for the auth.blocked_user event.
+type AuthBlockedUserPayload struct {
+	UserID               string `json:"userId"`
+	BlockType            string `json:"blockType"`
+	BlockReason          string `json:"blockReason,omitempty"`
+	BlockExpirationHours int    `json:"blockExpirationHours,omitempty"`
+}
+
+func (AuthBlockedUserPayload) Type() MicroserviceEvent {
+	return AuthBlockedUserEvent
 }
 
 // AuthDeletedUserPayload is the payload for the auth.deleted_user event.
