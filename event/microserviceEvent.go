@@ -28,6 +28,7 @@ const (
 	LegendMissionsSendEmailNftMissionCompletedEvent          MicroserviceEvent = "legend_missions.send_email_nft_mission_completed"
 	LegendRankingsRankingsFinishedEvent                      MicroserviceEvent = "legend_rankings.rankings_finished"
 	LegendRankingsNewRankingCreatedEvent                     MicroserviceEvent = "legend_rankings.new_ranking_created"
+	LegendRankingsIntermediateRewardEvent                    MicroserviceEvent = "legend_rankings.intermediate_reward"
 	LegendShowcaseProductVirtualDeletedEvent                 MicroserviceEvent = "legend_showcase.product_virtual_deleted"
 	LegendShowcaseUpdateAllowedMissionSubscriptionIdsEvent   MicroserviceEvent = "legend_showcase.update_allowed_mission_subscription_ids"
 	LegendShowcaseUpdateAllowedRankingSubscriptionIdsEvent   MicroserviceEvent = "legend_showcase.update_allowed_ranking_subscription_ids"
@@ -64,6 +65,7 @@ func MicroserviceEventValues() []MicroserviceEvent {
 		LegendMissionsSendEmailNftMissionCompletedEvent,
 		LegendRankingsRankingsFinishedEvent,
 		LegendRankingsNewRankingCreatedEvent,
+		LegendRankingsIntermediateRewardEvent,
 		LegendShowcaseProductVirtualDeletedEvent,
 		LegendShowcaseUpdateAllowedMissionSubscriptionIdsEvent,
 		LegendShowcaseUpdateAllowedRankingSubscriptionIdsEvent,
@@ -314,6 +316,20 @@ type NotificationConfig struct {
 
 func (LegendRankingsNewRankingCreatedEventPayload) Type() MicroserviceEvent {
 	return LegendRankingsNewRankingCreatedEvent
+}
+
+// LegendRankingsIntermediateRewardEventPayload is the payload for the legend_rankings.intermediate_reward event.
+type LegendRankingsIntermediateRewardEventPayload struct {
+	UserID                 string                 `json:"userId"`
+	RankingID              int                    `json:"rankingId"`
+	IntermediateRewardType string                 `json:"intermediateRewardType"`
+	RewardConfig           map[string]interface{} `json:"rewardConfig"`
+	TemplateName           string                 `json:"templateName"`
+	TemplateData           map[string]interface{} `json:"templateData"`
+}
+
+func (LegendRankingsIntermediateRewardEventPayload) Type() MicroserviceEvent {
+	return LegendRankingsIntermediateRewardEvent
 }
 
 // LegendShowcaseProductVirtualDeletedEventPayload is the payload for the legend_showcase.product_virtual_deleted event.
