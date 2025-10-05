@@ -34,7 +34,7 @@ jobs:
           go mod verify
 
       - name: Create PR
-        uses: peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@v7
         with:
           title: 'dependencies: Upgrade GO packages (automated)'
           branch: 'upgrade-go-packages'
