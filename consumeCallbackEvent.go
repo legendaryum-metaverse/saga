@@ -51,7 +51,7 @@ func (e *EventHandler) ParseEventPayload(data any) {
 }
 
 // eventCallback handles the consumption and processing of microservice events.
-func eventCallback(msg *amqp.Delivery, channel *amqp.Channel, emitter *Emitter[EventHandler, event.MicroserviceEvent], queueName string, microservice string) {
+func (t *Transactional) eventCallback(msg *amqp.Delivery, emitter *Emitter[EventHandler, event.MicroserviceEvent], queueName string) {
 	if msg == nil {
 		fmt.Println("Message not available")
 		return
@@ -60,7 +60,7 @@ func eventCallback(msg *amqp.Delivery, channel *amqp.Channel, emitter *Emitter[E
 	var eventPayload map[string]interface{}
 	if err := json.Unmarshal(msg.Body, &eventPayload); err != nil {
 		fmt.Printf("Error parsing message: %s\n", err)
-		err = channel.Nack(msg.DeliveryTag, false, false)
+		err = t.eventsChannel.Nack(msg.DeliveryTag, false, false)
 		if err != nil {
 			fmt.Println("Error negatively acknowledging message:", err)
 			return
@@ -71,7 +71,7 @@ func eventCallback(msg *amqp.Delivery, channel *amqp.Channel, emitter *Emitter[E
 	eventKey, err := findEventValues(msg.Headers)
 	if err != nil {
 		fmt.Println("Invalid header value: no valid event key found")
-		err = channel.Nack(msg.DeliveryTag, false, false)
+		err = t.eventsChannel.Nack(msg.DeliveryTag, false, false)
 		if err != nil {
 			fmt.Println("Error negatively acknowledging message:", err)
 			return
@@ -88,7 +88,7 @@ func eventCallback(msg *amqp.Delivery, channel *amqp.Channel, emitter *Emitter[E
 	timestamp := uint64(time.Now().Unix())
 
 	auditReceivedPayload := &event.AuditReceivedPayload{
-		Microservice:  microservice,
+		Microservice:  string(t.Microservice),
 		ReceivedEvent: eventType,
 		ReceivedAt:    timestamp,
 		QueueName:     queueName,
@@ -102,11 +102,11 @@ func eventCallback(msg *amqp.Delivery, channel *amqp.Channel, emitter *Emitter[E
 
 	responseChannel := &EventsConsumeChannel{
 		ConsumeChannel: &ConsumeChannel{
-			channel:   channel,
+			channel:   t.eventsChannel,
 			msg:       msg,
 			queueName: queueName,
 		},
-		microservice: microservice,
+		microservice: string(t.Microservice),
 		eventType:    eventType,
 	}
 
