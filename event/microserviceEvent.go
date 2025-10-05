@@ -12,7 +12,7 @@ const (
 	TestImageEvent MicroserviceEvent = "test.image"
 	TestMintEvent  MicroserviceEvent = "test.mint"
 
-	// Audit events - track event lifecycle for monitoring and debugging
+	// Audit events - track event lifecycle for monitoring and debugging.
 	AuditReceivedEvent   MicroserviceEvent = "audit.received"
 	AuditProcessedEvent  MicroserviceEvent = "audit.processed"
 	AuditDeadLetterEvent MicroserviceEvent = "audit.dead_letter"

@@ -17,7 +17,6 @@ func (m *MicroserviceConsumeChannel) sendToQueue(queueName Queue, step SagaStep)
 }
 
 func send(channel *amqp.Channel, queueName string, payload interface{}) error {
-
 	body, err := json.Marshal(payload)
 	if err != nil {
 		return err

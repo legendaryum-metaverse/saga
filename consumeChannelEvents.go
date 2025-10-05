@@ -39,7 +39,7 @@ func (m *EventsConsumeChannel) AckMessage() {
 	}
 }
 
-// NackWithDelay wraps the base method and emits audit.dead_letter events
+// NackWithDelay wraps the base method and emits audit.dead_letter events.
 func (m *EventsConsumeChannel) NackWithDelay(delay time.Duration, maxRetries int32) (int32, time.Duration, error) {
 	result, duration, err := m.ConsumeChannel.NackWithDelay(delay, maxRetries)
 
@@ -64,7 +64,7 @@ func (m *EventsConsumeChannel) NackWithDelay(delay time.Duration, maxRetries int
 	return result, duration, err
 }
 
-// NackWithFibonacciStrategy wraps the base method and emits audit.dead_letter events
+// NackWithFibonacciStrategy wraps the base method and emits audit.dead_letter events.
 func (m *EventsConsumeChannel) NackWithFibonacciStrategy(maxOccurrence, maxRetries int32) (int32, time.Duration, int32, error) {
 	count, duration, occurrence, err := m.ConsumeChannel.NackWithFibonacciStrategy(maxOccurrence, maxRetries)
 

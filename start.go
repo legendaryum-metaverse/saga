@@ -123,7 +123,6 @@ func (t *Transactional) ConnectToSagaCommandEmitter() *Emitter[CommandHandler, m
 		for msg := range channelQ {
 			t.sagaCommandCallback(&msg, e, q.QueueName)
 		}
-
 	}()
 
 	return e
@@ -176,7 +175,6 @@ func (t *Transactional) ConnectToEvents() *Emitter[EventHandler, event.Microserv
 		for msg := range channelQ {
 			t.eventCallback(&msg, e, queueName)
 		}
-
 	}()
 
 	return e
