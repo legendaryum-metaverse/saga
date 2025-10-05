@@ -41,8 +41,8 @@ func (m *EventsConsumeChannel) AckMessage() {
 
 // NackWithDelay wraps the base method and emits audit.dead_letter events.
 func (m *EventsConsumeChannel) NackWithDelay(delay time.Duration, maxRetries int32) (int32, time.Duration, error) {
-	result, duration, err := m.ConsumeChannel.NackWithDelay(delay, maxRetries)
-
+	count, duration, err := m.ConsumeChannel.NackWithDelay(delay, maxRetries)
+	rc := uint32(count)
 	// Emit audit.dead_letter event automatically
 	timestamp := uint64(time.Now().Unix())
 
@@ -52,7 +52,7 @@ func (m *EventsConsumeChannel) NackWithDelay(delay time.Duration, maxRetries int
 		RejectedAt:      timestamp,
 		QueueName:       m.queueName,
 		RejectionReason: "delay",
-		RetryCount:      func() *uint32 { rc := uint32(result); return &rc }(),
+		RetryCount:      &rc,
 		EventID:         nil,
 	}
 
@@ -61,13 +61,13 @@ func (m *EventsConsumeChannel) NackWithDelay(delay time.Duration, maxRetries int
 		log.Printf("Failed to emit audit.dead_letter event: %v", auditErr)
 	}
 
-	return result, duration, err
+	return count, duration, err
 }
 
 // NackWithFibonacciStrategy wraps the base method and emits audit.dead_letter events.
 func (m *EventsConsumeChannel) NackWithFibonacciStrategy(maxOccurrence, maxRetries int32) (int32, time.Duration, int32, error) {
 	count, duration, occurrence, err := m.ConsumeChannel.NackWithFibonacciStrategy(maxOccurrence, maxRetries)
-
+	rc := uint32(count)
 	// Emit audit.dead_letter event automatically
 	timestamp := uint64(time.Now().Unix())
 
@@ -77,7 +77,7 @@ func (m *EventsConsumeChannel) NackWithFibonacciStrategy(maxOccurrence, maxRetri
 		RejectedAt:      timestamp,
 		QueueName:       m.queueName,
 		RejectionReason: "fibonacci_strategy",
-		RetryCount:      func() *uint32 { rc := uint32(count); return &rc }(),
+		RetryCount:      &rc,
 		EventID:         nil,
 	}
 
