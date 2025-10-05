@@ -12,7 +12,7 @@ lint:
 .PHONY: lint
 
 prettier:
-	@COMPOSE_PROJECT_NAME=golib-prettier docker compose -f compose.prettier.yml run prettier
+	@bun i && bun run format
 .PHONY: prettier
 
 prettier-build:

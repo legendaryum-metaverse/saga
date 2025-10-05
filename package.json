@@ -1,0 +1,17 @@
+{
+  "name": "go-library",
+  "private": true,
+  "scripts": {
+    "format": "prettier --write \"**/*.{md,yml,yaml,json,mdx,sh}\""
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "prettier": "^3.5.3",
+    "prettier-plugin-sh": "0.17.2"
+  }
+}
