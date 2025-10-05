@@ -23,6 +23,7 @@
 **legend-saga** is a Go library for microservice communication via RabbitMQ, supporting event-driven architecture and saga patterns.
 
 ### Key Features
+
 - 🔄 Publish/Subscribe with headers-based routing
 - 🎭 Saga orchestration for distributed transactions
 - ♻️ Fibonacci backoff retry mechanism
@@ -31,6 +32,7 @@
 - **🔍 Automatic audit logging (NEW)**
 
 ### Tech Stack
+
 - **Language**: Go 1.25.0
 - **Broker**: RabbitMQ
 - **AMQP**: `rabbitmq/amqp091-go v1.10.0`
@@ -41,6 +43,7 @@
 ## Codebase Structure
 
 ### Directory Layout
+
 ```
 legend-saga/
 ├── event/microserviceEvent.go          # Event types & payloads (590+ LOC)
@@ -61,6 +64,7 @@ legend-saga/
 ```
 
 ### Package Structure
+
 - **`saga`** (root): Core functionality
 - **`event`**: Event definitions, payloads, **audit payloads**
 - **`micro`**: Microservice identifiers, **AuditEda**
@@ -85,13 +89,13 @@ Application → Transactional → [ConnectToEvents | ConnectToSagaCommandEmitter
 
 ### Key Components
 
-| Component | File | Purpose |
-|-----------|------|---------|
-| `Transactional` | start.go:46 | Main coordinator, connection manager |
-| `Emitter[T, U]` | emitter.go:7 | Type-safe event dispatcher (generics) |
-| `EventHandler` | consumeCallbackEvent.go:13 | Event processing handler |
-| `AuditHandler` | consumeCallbackAudit.go:13 | **Non-recursive audit handler (NEW)** |
-| `EventsConsumeChannel` | consumeChannelEvents.go:11 | **Auto-emits audit events (NEW)** |
+| Component              | File                       | Purpose                               |
+| ---------------------- | -------------------------- | ------------------------------------- |
+| `Transactional`        | start.go:46                | Main coordinator, connection manager  |
+| `Emitter[T, U]`        | emitter.go:7               | Type-safe event dispatcher (generics) |
+| `EventHandler`         | consumeCallbackEvent.go:13 | Event processing handler              |
+| `AuditHandler`         | consumeCallbackAudit.go:13 | **Non-recursive audit handler (NEW)** |
+| `EventsConsumeChannel` | consumeChannelEvents.go:11 | **Auto-emits audit events (NEW)**     |
 
 ---
 
@@ -108,6 +112,7 @@ The audit feature automatically tracks the **lifecycle of every event** for moni
 ### Architecture
 
 #### Direct Exchange Pattern
+
 ```
 All Microservices           Audit Microservice
        ↓                            ↓
@@ -121,6 +126,7 @@ Emit Audit Events → audit_exchange (direct) → 3 Queues
 ```
 
 **Why Direct Exchange?**
+
 - Efficient single-consumer delivery to audit microservice
 - Routing keys: `audit.received`, `audit.processed`, `audit.dead_letter`
 - No broadcast overhead (unlike headers exchange for events)
@@ -179,6 +185,7 @@ func (t *Transactional) createAuditLoggingResources() error {
 #### 3. Automatic Emission (consumeChannelEvents.go)
 
 **On ACK** (consumeChannelEvents.go:17):
+
 ```go
 func (m *EventsConsumeChannel) AckMessage() {
     m.channel.Ack(m.msg.DeliveryTag, false)
@@ -195,6 +202,7 @@ func (m *EventsConsumeChannel) AckMessage() {
 ```
 
 **On NACK** (consumeChannelEvents.go:43):
+
 ```go
 func (m *EventsConsumeChannel) NackWithFibonacciStrategy(...) {
     m.ConsumeChannel.NackWithFibonacciStrategy(...)
@@ -212,6 +220,7 @@ func (m *EventsConsumeChannel) NackWithFibonacciStrategy(...) {
 ```
 
 **On Receive** (consumeCallbackEvent.go:87):
+
 ```go
 func eventCallback(..., microservice string) {
     // Parse event from message
@@ -305,6 +314,7 @@ emitter.On(event.AuthNewUserEvent, func(handler saga.EventHandler) {
 ```
 
 **Audit events emitted**:
+
 1. `audit.received` when event arrives (before handler)
 2. `audit.processed` when `AckMessage()` called
 3. `audit.dead_letter` if `NackWithFibonacciStrategy()` called
@@ -348,14 +358,17 @@ auditEmitter.On(event.AuditDeadLetterEvent, func(handler saga.AuditHandler) {
 ### Expected Behavior (from Rust specification)
 
 1. **Every event produces exactly 2 audit events**:
+
    - `audit.received` (when received)
    - `audit.processed` OR `audit.dead_letter` (never both)
 
 2. **Audit events do NOT audit themselves**:
+
    - Processing `audit.received` does NOT emit another `audit.received`
    - `AuditHandler` prevents recursion
 
 3. **Failure scenarios**:
+
    - Failed events emit `audit.dead_letter` instead of `audit.processed`
    - Error reason and retry count included in payload
 
@@ -365,14 +378,15 @@ auditEmitter.On(event.AuditDeadLetterEvent, func(handler saga.AuditHandler) {
 
 ### Resources
 
-| Resource | Type | Purpose |
-|----------|------|---------|
-| `audit_exchange` | Direct Exchange | Routes audit events |
-| `audit_received_commands` | Queue | Holds audit.received events |
-| `audit_processed_commands` | Queue | Holds audit.processed events |
-| `audit_dead_letter_commands` | Queue | Holds audit.dead_letter events |
+| Resource                     | Type            | Purpose                        |
+| ---------------------------- | --------------- | ------------------------------ |
+| `audit_exchange`             | Direct Exchange | Routes audit events            |
+| `audit_received_commands`    | Queue           | Holds audit.received events    |
+| `audit_processed_commands`   | Queue           | Holds audit.processed events   |
+| `audit_dead_letter_commands` | Queue           | Holds audit.dead_letter events |
 
 **Constants** (resources.go):
+
 ```go
 const (
     AuditExchange           Exchange = "audit_exchange"
@@ -384,14 +398,14 @@ const (
 
 ### Key Rust→Go Patterns
 
-| Rust Pattern | Go Equivalent | Notes |
-|--------------|---------------|-------|
-| `Arc<Mutex<Channel>>` | `*amqp.Channel` | Shared channel via pointer |
-| `async fn` + `tokio::spawn` | `go func()` | Goroutine per consumer |
-| `Result<T, Error>` | `(T, error)` | Explicit error returns |
-| Trait `PayloadEvent` | Interface `PayloadEvent` | `Type() MicroserviceEvent` |
-| `u64` timestamp | `uint64` | UNIX timestamp in seconds |
-| `Option<String>` | `*string` | Pointer for optional fields |
+| Rust Pattern                | Go Equivalent            | Notes                       |
+| --------------------------- | ------------------------ | --------------------------- |
+| `Arc<Mutex<Channel>>`       | `*amqp.Channel`          | Shared channel via pointer  |
+| `async fn` + `tokio::spawn` | `go func()`              | Goroutine per consumer      |
+| `Result<T, Error>`          | `(T, error)`             | Explicit error returns      |
+| Trait `PayloadEvent`        | Interface `PayloadEvent` | `Type() MicroserviceEvent`  |
+| `u64` timestamp             | `uint64`                 | UNIX timestamp in seconds   |
+| `Option<String>`            | `*string`                | Pointer for optional fields |
 
 ---
 
@@ -408,6 +422,7 @@ saga.PublishEvent(&event.AuthNewUserPayload{
 ```
 
 **Flow**:
+
 1. `PublishEvent()` → `getSendChannel()` → creates/reuses channel
 2. Headers created: `{"AUTH.NEW_USER": "auth.new_user", "all-micro": "yes"}`
 3. Publishes to `matching_exchange` (headers exchange)
@@ -427,6 +442,7 @@ emitter.On(event.AuthNewUserEvent, func(handler saga.EventHandler) {
 ```
 
 **Flow**:
+
 1. Consumer goroutine receives message
 2. **Emits `audit.received`** (NEW)
 3. `eventCallback()` extracts event type from headers
@@ -442,6 +458,7 @@ handler.Channel.NackWithFibonacciStrategy(MAX_OCCURRENCE, MAX_NACK_RETRIES)
 ```
 
 **Fibonacci Backoff**:
+
 - Occurrence: 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144...
 - Delay (seconds): 1s, 2s, 3s, 5s, 8s, 13s, 21s, 34s, 55s, 89s, 144s...
 - After 19 occurrences: ~1.18 hours delay
@@ -490,6 +507,7 @@ emitter.On(micro.ResourcePurchasedDeductCoinsCommand, func(handler saga.CommandH
 ### Adding Audit Support to Existing Code
 
 **No changes needed!** Audit is automatic. Just ensure:
+
 1. Use `handler.Channel.AckMessage()` for success
 2. Use `handler.Channel.NackWithFibonacciStrategy()` for failure
 3. Audit events will be emitted automatically
@@ -517,11 +535,13 @@ auditEmitter.On(event.AuditReceivedEvent, func(handler saga.AuditHandler) {
 ### Adding New Events
 
 1. **Define event** (event/microserviceEvent.go):
+
 ```go
 const PaymentsChargeSucceededEvent MicroserviceEvent = "payments.charge_succeeded"
 ```
 
 2. **Add to values array**:
+
 ```go
 func MicroserviceEventValues() []MicroserviceEvent {
     return []MicroserviceEvent{
@@ -532,6 +552,7 @@ func MicroserviceEventValues() []MicroserviceEvent {
 ```
 
 3. **Define payload**:
+
 ```go
 type PaymentsChargeSucceededPayload struct {
     ChargeID string  `json:"chargeId"`
@@ -543,6 +564,7 @@ func (PaymentsChargeSucceededPayload) Type() MicroserviceEvent {
 ```
 
 4. **Publish**:
+
 ```go
 saga.PublishEvent(&event.PaymentsChargeSucceededPayload{
     ChargeID: "ch_123",
@@ -551,6 +573,7 @@ saga.PublishEvent(&event.PaymentsChargeSucceededPayload{
 ```
 
 5. **Subscribe**:
+
 ```go
 emitter.On(event.PaymentsChargeSucceededEvent, func(handler saga.EventHandler) {
     payload := saga.ParsePayload(handler.Payload, &event.PaymentsChargeSucceededPayload{})
@@ -565,31 +588,31 @@ emitter.On(event.PaymentsChargeSucceededEvent, func(handler saga.EventHandler) {
 
 ### Lines of Code
 
-| Category | LOC | Notes |
-|----------|-----|-------|
-| Event Definitions | 590 | +70 LOC for audit payloads |
-| Core Logic | 1,400 | +260 LOC for audit feature |
-| Microservice Definitions | 106 | +4 LOC for AuditEda |
-| **Total** | **~2,100** | **+334 LOC for audit** |
+| Category                 | LOC        | Notes                      |
+| ------------------------ | ---------- | -------------------------- |
+| Event Definitions        | 590        | +70 LOC for audit payloads |
+| Core Logic               | 1,400      | +260 LOC for audit feature |
+| Microservice Definitions | 106        | +4 LOC for AuditEda        |
+| **Total**                | **~2,100** | **+334 LOC for audit**     |
 
 ### New Files (Audit Feature)
 
-| File | LOC | Purpose |
-|------|-----|---------|
-| `publishAuditEvent.go` | 76 | Audit event publishing |
-| `consumeCallbackAudit.go` | 94 | Non-recursive audit handler |
-| `createAuditInfrastructure.go` | 100 | Audit infrastructure setup |
+| File                           | LOC | Purpose                     |
+| ------------------------------ | --- | --------------------------- |
+| `publishAuditEvent.go`         | 76  | Audit event publishing      |
+| `consumeCallbackAudit.go`      | 94  | Non-recursive audit handler |
+| `createAuditInfrastructure.go` | 100 | Audit infrastructure setup  |
 
 ### Modified Files (Audit Feature)
 
-| File | Changes | Purpose |
-|------|---------|---------|
-| `event/microserviceEvent.go` | +70 LOC | Audit event types & payloads |
-| `consumeChannelEvents.go` | +75 LOC | Auto-emit audit on ACK/NACK |
-| `consumeCallbackEvent.go` | +25 LOC | Auto-emit audit.received |
-| `start.go` | +55 LOC | ConnectToAudit() method |
-| `resources.go` | +4 LOC | Audit exchange & queue constants |
-| `micro/sagaCommands.go` | +4 LOC | AuditEda microservice |
+| File                         | Changes | Purpose                          |
+| ---------------------------- | ------- | -------------------------------- |
+| `event/microserviceEvent.go` | +70 LOC | Audit event types & payloads     |
+| `consumeChannelEvents.go`    | +75 LOC | Auto-emit audit on ACK/NACK      |
+| `consumeCallbackEvent.go`    | +25 LOC | Auto-emit audit.received         |
+| `start.go`                   | +55 LOC | ConnectToAudit() method          |
+| `resources.go`               | +4 LOC  | Audit exchange & queue constants |
+| `micro/sagaCommands.go`      | +4 LOC  | AuditEda microservice            |
 
 ### Supported Events
 
