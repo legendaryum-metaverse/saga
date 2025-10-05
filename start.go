@@ -10,28 +10,6 @@ import (
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-// consume consumes messages from the queue and processes them.
-func consume[T any, U comparable](e *Emitter[T, U], queueName string, channel *amqp.Channel, cb func(*amqp.Delivery, *amqp.Channel, *Emitter[T, U], string)) error {
-	channelQ, err := channel.Consume(
-		queueName,
-		"",
-		false,
-		false,
-		false,
-		false,
-		nil,
-	)
-	if err != nil {
-		return fmt.Errorf("failed to consume: %w", err)
-	}
-
-	for msg := range channelQ {
-		cb(&msg, channel, e, queueName)
-	}
-
-	return nil
-}
-
 func getQueueName(microservice micro.AvailableMicroservices) string {
 	return fmt.Sprintf("%s_saga_commands", microservice)
 }
@@ -129,9 +107,21 @@ func (t *Transactional) ConnectToSagaCommandEmitter() *Emitter[CommandHandler, m
 	}
 
 	go func() {
-		err = consume(e, q.QueueName, t.sagaChannel, sagaCommandCallback)
+		channelQ, err := t.sagaChannel.Consume(
+			q.QueueName,
+			"",
+			false,
+			false,
+			false,
+			false,
+			nil,
+		)
 		if err != nil {
 			fmt.Println("Error consuming messages:", err)
+		}
+
+		for msg := range channelQ {
+			t.sagaCommandCallback(&msg, e, q.QueueName)
 		}
 	}()
 
@@ -162,10 +152,28 @@ func (t *Transactional) ConnectToEvents() *Emitter[EventHandler, event.Microserv
 		panic(err)
 	}
 
+	// Create audit logging resources - this feature is related only to "events"
+	err = t.createAuditLoggingResources()
+	if err != nil {
+		panic(fmt.Sprintf("Failed to create audit logging resources: %v", err))
+	}
+
 	go func() {
-		err = consume(e, queueName, t.eventsChannel, eventCallback)
+		channelQ, err := t.eventsChannel.Consume(
+			queueName,
+			"",
+			false,
+			false,
+			false,
+			false,
+			nil,
+		)
 		if err != nil {
 			fmt.Println("Error consuming messages:", err)
+		}
+
+		for msg := range channelQ {
+			t.eventCallback(&msg, e, queueName)
 		}
 	}()
 

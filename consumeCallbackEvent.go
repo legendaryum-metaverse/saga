@@ -3,7 +3,9 @@ package saga
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"slices"
+	"time"
 
 	"github.com/legendaryum-metaverse/saga/event"
 
@@ -49,7 +51,7 @@ func (e *EventHandler) ParseEventPayload(data any) {
 }
 
 // eventCallback handles the consumption and processing of microservice events.
-func eventCallback(msg *amqp.Delivery, channel *amqp.Channel, emitter *Emitter[EventHandler, event.MicroserviceEvent], queueName string) {
+func (t *Transactional) eventCallback(msg *amqp.Delivery, emitter *Emitter[EventHandler, event.MicroserviceEvent], queueName string) {
 	if msg == nil {
 		fmt.Println("Message not available")
 		return
@@ -58,7 +60,7 @@ func eventCallback(msg *amqp.Delivery, channel *amqp.Channel, emitter *Emitter[E
 	var eventPayload map[string]interface{}
 	if err := json.Unmarshal(msg.Body, &eventPayload); err != nil {
 		fmt.Printf("Error parsing message: %s\n", err)
-		err = channel.Nack(msg.DeliveryTag, false, false)
+		err = t.eventsChannel.Nack(msg.DeliveryTag, false, false)
 		if err != nil {
 			fmt.Println("Error negatively acknowledging message:", err)
 			return
@@ -69,7 +71,7 @@ func eventCallback(msg *amqp.Delivery, channel *amqp.Channel, emitter *Emitter[E
 	eventKey, err := findEventValues(msg.Headers)
 	if err != nil {
 		fmt.Println("Invalid header value: no valid event key found")
-		err = channel.Nack(msg.DeliveryTag, false, false)
+		err = t.eventsChannel.Nack(msg.DeliveryTag, false, false)
 		if err != nil {
 			fmt.Println("Error negatively acknowledging message:", err)
 			return
@@ -80,12 +82,32 @@ func eventCallback(msg *amqp.Delivery, channel *amqp.Channel, emitter *Emitter[E
 		fmt.Println("More then one valid header, using the first one detected, that is because the payload is typed with a particular event")
 	}
 
+	eventType := string(eventKey[0])
+
+	// Emit audit.received event automatically when event is received (before processing)
+	timestamp := uint64(time.Now().Unix())
+
+	auditReceivedPayload := &event.AuditReceivedPayload{
+		Microservice:  string(t.Microservice),
+		ReceivedEvent: eventType,
+		ReceivedAt:    timestamp,
+		QueueName:     queueName,
+		EventID:       nil,
+	}
+
+	// Emit the audit.received event (don't fail the main flow if audit fails)
+	if err = PublishAuditReceivedEvent(auditReceivedPayload); err != nil {
+		log.Printf("Failed to emit audit.received event: %v", err)
+	}
+
 	responseChannel := &EventsConsumeChannel{
-		&ConsumeChannel{
-			channel:   channel,
+		ConsumeChannel: &ConsumeChannel{
+			channel:   t.eventsChannel,
 			msg:       msg,
 			queueName: queueName,
 		},
+		microservice: string(t.Microservice),
+		eventType:    eventType,
 	}
 
 	emitter.Emit(eventKey[0], EventHandler{

@@ -12,6 +12,11 @@ const (
 	TestImageEvent MicroserviceEvent = "test.image"
 	TestMintEvent  MicroserviceEvent = "test.mint"
 
+	// Audit events - track event lifecycle for monitoring and debugging.
+	AuditReceivedEvent   MicroserviceEvent = "audit.received"
+	AuditProcessedEvent  MicroserviceEvent = "audit.processed"
+	AuditDeadLetterEvent MicroserviceEvent = "audit.dead_letter"
+
 	AuthBlockedUserEvent                                     MicroserviceEvent = "auth.blocked_user"
 	AuthDeletedUserEvent                                     MicroserviceEvent = "auth.deleted_user"
 	AuthLogoutUserEvent                                      MicroserviceEvent = "auth.logout_user"
@@ -48,6 +53,11 @@ func MicroserviceEventValues() []MicroserviceEvent {
 	return []MicroserviceEvent{
 		TestImageEvent,
 		TestMintEvent,
+
+		// Audit events
+		AuditReceivedEvent,
+		AuditProcessedEvent,
+		AuditDeadLetterEvent,
 
 		AuthBlockedUserEvent,
 		AuthDeletedUserEvent,
@@ -517,4 +527,64 @@ type SocialUpdatedUserPayload struct {
 
 func (SocialUpdatedUserPayload) Type() MicroserviceEvent {
 	return SocialUpdatedUserEvent
+}
+
+// ********** AUDIT PAYLOADS ************** //
+
+// AuditReceivedPayload is the payload for audit.received event - tracks when event is received before processing.
+type AuditReceivedPayload struct {
+	// The microservice that received the event
+	Microservice string `json:"microservice"`
+	// The event that was received
+	ReceivedEvent string `json:"received_event"`
+	// Timestamp when the event was received (UNIX timestamp in seconds)
+	ReceivedAt uint64 `json:"received_at"`
+	// The queue name from which the event was consumed
+	QueueName string `json:"queue_name"`
+	// Optional event identifier for tracking
+	EventID *string `json:"event_id,omitempty"`
+}
+
+func (AuditReceivedPayload) Type() MicroserviceEvent {
+	return AuditReceivedEvent
+}
+
+// AuditProcessedPayload is the payload for audit.processed event - tracks successful event processing.
+type AuditProcessedPayload struct {
+	// The microservice that processed the event
+	Microservice string `json:"microservice"`
+	// The original event that was processed
+	ProcessedEvent string `json:"processed_event"`
+	// Timestamp when the event was processed (UNIX timestamp in seconds)
+	ProcessedAt uint64 `json:"processed_at"`
+	// The queue name where the event was consumed
+	QueueName string `json:"queue_name"`
+	// Optional event identifier for tracking
+	EventID *string `json:"event_id,omitempty"`
+}
+
+func (AuditProcessedPayload) Type() MicroserviceEvent {
+	return AuditProcessedEvent
+}
+
+// AuditDeadLetterPayload is the payload for audit.dead_letter event - tracks when message is rejected/nacked.
+type AuditDeadLetterPayload struct {
+	// The microservice that rejected the event
+	Microservice string `json:"microservice"`
+	// The original event that was rejected
+	RejectedEvent string `json:"rejected_event"`
+	// Timestamp when the event was rejected (UNIX timestamp in seconds)
+	RejectedAt uint64 `json:"rejected_at"`
+	// The queue name where the event was rejected from
+	QueueName string `json:"queue_name"`
+	// Reason for rejection (delay, fibonacci_strategy, etc.)
+	RejectionReason string `json:"rejection_reason"`
+	// Optional retry count
+	RetryCount *uint32 `json:"retry_count,omitempty"`
+	// Optional event identifier for tracking
+	EventID *string `json:"event_id,omitempty"`
+}
+
+func (AuditDeadLetterPayload) Type() MicroserviceEvent {
+	return AuditDeadLetterEvent
 }

@@ -14,7 +14,7 @@ type CommandHandler struct {
 	SagaID  int                         `json:"sagaId"`
 }
 
-func sagaCommandCallback(msg *amqp.Delivery, channel *amqp.Channel, e *Emitter[CommandHandler, micro.StepCommand], queueName string) {
+func (t *Transactional) sagaCommandCallback(msg *amqp.Delivery, e *Emitter[CommandHandler, micro.StepCommand], queueName string) {
 	if msg == nil {
 		fmt.Println("NO MSG AVAILABLE")
 		return
@@ -24,7 +24,7 @@ func sagaCommandCallback(msg *amqp.Delivery, channel *amqp.Channel, e *Emitter[C
 	err := json.Unmarshal(msg.Body, &currentStep)
 	if err != nil {
 		fmt.Println("ERROR PARSING MSG", err)
-		err = channel.Nack(msg.DeliveryTag, false, false)
+		err = t.sagaChannel.Nack(msg.DeliveryTag, false, false)
 		if err != nil {
 			fmt.Println("Error negatively acknowledging message:", err)
 			return
@@ -35,7 +35,7 @@ func sagaCommandCallback(msg *amqp.Delivery, channel *amqp.Channel, e *Emitter[C
 	responseChannel := &MicroserviceConsumeChannel{
 		step: currentStep,
 		ConsumeChannel: &ConsumeChannel{
-			channel:   channel,
+			channel:   t.sagaChannel,
 			msg:       msg,
 			queueName: queueName,
 		},

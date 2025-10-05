@@ -32,7 +32,9 @@ func (m *MicroserviceConsumeChannel) AckMessage(payloadForNextStep NextStepPaylo
 	}
 
 	m.step.Payload = metaData
-
+	// Para que este micro pueda realizar pasos del saga y realizar commence_saga ops las queue's deben existir, no es responsabilidad
+	// de los micros crear estos recursos, el micro "transactional" debe crear estos recursos -> "queue.CommenceSaga" en commenceSagaListener
+	// y "queue.ReplyToSaga" en startGlobalSagaStepListener
 	err := m.sendToQueue(ReplyToSagaQ, m.step)
 	if err != nil {
 		// TODO: reenqueue message o manejar mejor el error
