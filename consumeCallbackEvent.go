@@ -3,7 +3,9 @@ package saga
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"slices"
+	"time"
 
 	"github.com/legendaryum-metaverse/saga/event"
 
@@ -49,7 +51,7 @@ func (e *EventHandler) ParseEventPayload(data any) {
 }
 
 // eventCallback handles the consumption and processing of microservice events.
-func eventCallback(msg *amqp.Delivery, channel *amqp.Channel, emitter *Emitter[EventHandler, event.MicroserviceEvent], queueName string) {
+func eventCallback(msg *amqp.Delivery, channel *amqp.Channel, emitter *Emitter[EventHandler, event.MicroserviceEvent], queueName string, microservice string) {
 	if msg == nil {
 		fmt.Println("Message not available")
 		return
@@ -80,12 +82,32 @@ func eventCallback(msg *amqp.Delivery, channel *amqp.Channel, emitter *Emitter[E
 		fmt.Println("More then one valid header, using the first one detected, that is because the payload is typed with a particular event")
 	}
 
+	eventType := string(eventKey[0])
+
+	// Emit audit.received event automatically when event is received (before processing)
+	timestamp := uint64(time.Now().Unix())
+
+	auditReceivedPayload := &event.AuditReceivedPayload{
+		Microservice:  microservice,
+		ReceivedEvent: eventType,
+		ReceivedAt:    timestamp,
+		QueueName:     queueName,
+		EventID:       nil,
+	}
+
+	// Emit the audit.received event (don't fail the main flow if audit fails)
+	if err = PublishAuditReceivedEvent(auditReceivedPayload); err != nil {
+		log.Printf("Failed to emit audit.received event: %v", err)
+	}
+
 	responseChannel := &EventsConsumeChannel{
-		&ConsumeChannel{
+		ConsumeChannel: &ConsumeChannel{
 			channel:   channel,
 			msg:       msg,
 			queueName: queueName,
 		},
+		microservice: microservice,
+		eventType:    eventType,
 	}
 
 	emitter.Emit(eventKey[0], EventHandler{

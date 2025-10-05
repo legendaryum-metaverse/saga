@@ -14,7 +14,8 @@ func (m AvailableMicroservices) IsValid() bool {
 		Missions,
 		Rankings,
 		RapidMessaging, RoomCreator, RoomInventory, RoomSnapshot,
-		SendEmail, Showcase, Social, SocialMediaRooms, Storage:
+		SendEmail, Showcase, Social, SocialMediaRooms, Storage,
+		AuditEda:
 		return true
 	}
 	return false
@@ -98,4 +99,8 @@ const (
 const (
 	Storage           AvailableMicroservices = "legend-storage"
 	UploadFileCommand StepCommand            = "upload_file"
+)
+
+const (
+	AuditEda AvailableMicroservices = "audit-eda"
 )
