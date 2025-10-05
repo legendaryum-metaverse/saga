@@ -89,6 +89,9 @@ func CommenceSaga(payload CommencePayload) error {
 		return fmt.Errorf("error getting send channel: %w", err)
 	}
 	title := payload.Type()
+	// Para que este micro pueda realizar pasos del saga y realizar commence_saga ops las queue's deben existir, no es responsabilidad
+	// de los micros crear estos recursos, el micro "transactional" debe crear estos recursos -> "queue.CommenceSaga" en commenceSagaListener
+	// y "queue.ReplyToSaga" en startGlobalSagaStepListener
 	err = send(channel, string(CommenceSagaQueue), commenceSaga{
 		Title:   title,
 		Payload: payload,

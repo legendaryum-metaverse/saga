@@ -66,11 +66,6 @@ func PublishEvent(payload event.PayloadEvent) error {
 		headersArgs[k] = v
 	}
 
-	err = channel.ExchangeDeclare(string(MatchingExchange), "headers", true, false, false, false, nil)
-	if err != nil {
-		return fmt.Errorf("failed to declare exchange %s: %w", string(MatchingExchange), err)
-	}
-
 	body, err := json.Marshal(payload)
 	if err != nil {
 		return err
