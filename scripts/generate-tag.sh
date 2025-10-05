@@ -8,7 +8,7 @@ IFS='.' read -r major minor patch <<< "$(echo "$last_tag" | tr -d 'v')"
 
 echo -e "\033[32mLast tag: $last_tag\033[0m"
 
-new_tag="v$major.$minor.$((patch+1))"
+new_tag="v$major.$minor.$((patch + 1))"
 
 echo -e "\033[32mNew tag: $new_tag\033[0m"
 
