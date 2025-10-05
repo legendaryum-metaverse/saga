@@ -5,7 +5,7 @@ go 1.25.0
 require (
 	github.com/go-playground/validator/v10 v10.27.0
 	github.com/rabbitmq/amqp091-go v1.10.0
-	github.com/stretchr/testify v1.9.0
+	github.com/stretchr/testify v1.11.1
 )
 
 require (
