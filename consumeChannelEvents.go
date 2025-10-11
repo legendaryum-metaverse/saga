@@ -33,13 +33,13 @@ func (m *EventsConsumeChannel) AckMessage() {
 		QueueName:             m.queueName,
 		EventID:               m.eventID,
 	}
-	go func(auditPayload event.AuditProcessedPayload) {
+	go func() {
 		// Emit the audit event using the direct exchange method
 		if auditErr := PublishAuditEvent(&auditPayload); auditErr != nil {
 			// Log the error but don't fail the ack operation
 			log.Printf("Failed to emit audit.processed event: %v", auditErr)
 		}
-	}(auditPayload)
+	}()
 }
 
 // NackWithDelay wraps the base method and emits audit.dead_letter events.
@@ -59,12 +59,12 @@ func (m *EventsConsumeChannel) NackWithDelay(delay time.Duration, maxRetries int
 		RetryCount:            &rc,
 		EventID:               m.eventID,
 	}
-	go func(auditPayload event.AuditDeadLetterPayload) {
+	go func() {
 		// Emit the audit event (don't fail if audit fails)
 		if auditErr := PublishAuditEvent(&auditPayload); auditErr != nil {
 			log.Printf("Failed to emit audit.dead_letter event: %v", auditErr)
 		}
-	}(auditPayload)
+	}()
 
 	return count, duration, err
 }
@@ -86,12 +86,13 @@ func (m *EventsConsumeChannel) NackWithFibonacciStrategy(maxOccurrence, maxRetri
 		RetryCount:            &rc,
 		EventID:               m.eventID,
 	}
-	go func(auditPayload event.AuditDeadLetterPayload) {
+
+	go func() {
 		// Emit the audit event (don't fail if audit fails)
 		if auditErr := PublishAuditEvent(&auditPayload); auditErr != nil {
 			log.Printf("Failed to emit audit.dead_letter event: %v", auditErr)
 		}
-	}(auditPayload)
+	}()
 
 	return count, duration, occurrence, err
 }

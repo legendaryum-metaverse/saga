@@ -109,12 +109,12 @@ func (t *Transactional) eventCallback(msg *amqp.Delivery, emitter *Emitter[Event
 		QueueName:             queueName,
 		EventID:               eventID,
 	}
-	go func(auditReceivedPayload event.AuditReceivedPayload) {
+	go func() {
 		// Emit the audit.received event (don't fail the main flow if audit fails)
 		if auditErr := PublishAuditEvent(&auditReceivedPayload); auditErr != nil {
 			log.Printf("Failed to emit audit.received event: %v", auditErr)
 		}
-	}(auditReceivedPayload)
+	}()
 
 	responseChannel := &EventsConsumeChannel{
 		ConsumeChannel: &ConsumeChannel{

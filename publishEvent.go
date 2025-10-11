@@ -112,11 +112,11 @@ func PublishEvent(payload event.PayloadEvent) error {
 		EventID:               eventID,
 	}
 	// Emit audit.published event (fire-and-forget - never fail the main flow)
-	go func(auditPayload event.AuditPublishedPayload) {
+	go func() {
 		if auditErr := PublishAuditEvent(&auditPayload); auditErr != nil {
 			log.Printf("Failed to emit audit.published event: %v", auditErr)
 		}
-	}(auditPayload)
+	}()
 
 	return nil
 }
