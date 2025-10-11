@@ -7,6 +7,7 @@ import (
 	"slices"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/legendaryum-metaverse/saga/event"
 
 	amqp "github.com/rabbitmq/amqp091-go"
@@ -84,21 +85,36 @@ func (t *Transactional) eventCallback(msg *amqp.Delivery, emitter *Emitter[Event
 
 	eventType := string(eventKey[0])
 
+	// Extract publisher microservice from message properties (set by the publisher)
+	publisherMicroservice := msg.AppId
+	if publisherMicroservice == "" {
+		log.Printf("Warning: Message is missing AppId, using unknown as publisher_microservice")
+		publisherMicroservice = "unknown"
+	}
+
+	// Extract or generate event_id from message properties
+	eventID := msg.MessageId
+	if eventID == "" {
+		log.Printf("Warning: Message is missing MessageId, generating a new UUID v7 for event_id")
+		eventID = uuid.Must(uuid.NewV7()).String()
+	}
 	// Emit audit.received event automatically when event is received (before processing)
 	timestamp := uint64(time.Now().Unix())
 
-	auditReceivedPayload := &event.AuditReceivedPayload{
-		Microservice:  string(t.Microservice),
-		ReceivedEvent: eventType,
-		ReceivedAt:    timestamp,
-		QueueName:     queueName,
-		EventID:       nil,
+	auditReceivedPayload := event.AuditReceivedPayload{
+		PublisherMicroservice: publisherMicroservice,
+		ReceiverMicroservice:  string(t.Microservice),
+		ReceivedEvent:         eventType,
+		ReceivedAt:            timestamp,
+		QueueName:             queueName,
+		EventID:               eventID,
 	}
-
-	// Emit the audit.received event (don't fail the main flow if audit fails)
-	if err = PublishAuditReceivedEvent(auditReceivedPayload); err != nil {
-		log.Printf("Failed to emit audit.received event: %v", err)
-	}
+	go func() {
+		// Emit the audit.received event (don't fail the main flow if audit fails)
+		if auditErr := PublishAuditEvent(&auditReceivedPayload); auditErr != nil {
+			log.Printf("Failed to emit audit.received event: %v", auditErr)
+		}
+	}()
 
 	responseChannel := &EventsConsumeChannel{
 		ConsumeChannel: &ConsumeChannel{
@@ -106,8 +122,10 @@ func (t *Transactional) eventCallback(msg *amqp.Delivery, emitter *Emitter[Event
 			msg:       msg,
 			queueName: queueName,
 		},
-		microservice: string(t.Microservice),
-		eventType:    eventType,
+		microservice:          string(t.Microservice),
+		eventType:             eventType,
+		publisherMicroservice: publisherMicroservice,
+		eventID:               eventID,
 	}
 
 	emitter.Emit(eventKey[0], EventHandler{

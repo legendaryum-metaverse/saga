@@ -34,7 +34,16 @@ type Transactional struct {
 	healthCheckQueue string
 }
 
-var validate *validator.Validate
+var (
+	validate     *validator.Validate
+	storedConfig *Transactional
+)
+
+// GetStoredConfig returns the stored Transactional configuration.
+// This is used by publishEvent to access the current microservice name.
+func GetStoredConfig() *Transactional {
+	return storedConfig
+}
 
 func init() {
 	validate = validator.New()
@@ -79,6 +88,10 @@ func Config(opts *Opts) *Transactional {
 	t.notifyClose()
 	t.isConnected = true
 	RabbitUri = opts.RabbitUri
+
+	// Store configuration for access by publishEvent
+	storedConfig = t
+
 	return t
 }
 

@@ -13,6 +13,7 @@ const (
 	TestMintEvent  MicroserviceEvent = "test.mint"
 
 	// Audit events - track event lifecycle for monitoring and debugging.
+	AuditPublishedEvent  MicroserviceEvent = "audit.published"
 	AuditReceivedEvent   MicroserviceEvent = "audit.received"
 	AuditProcessedEvent  MicroserviceEvent = "audit.processed"
 	AuditDeadLetterEvent MicroserviceEvent = "audit.dead_letter"
@@ -55,6 +56,7 @@ func MicroserviceEventValues() []MicroserviceEvent {
 		TestMintEvent,
 
 		// Audit events
+		AuditPublishedEvent,
 		AuditReceivedEvent,
 		AuditProcessedEvent,
 		AuditDeadLetterEvent,
@@ -533,16 +535,18 @@ func (SocialUpdatedUserPayload) Type() MicroserviceEvent {
 
 // AuditReceivedPayload is the payload for audit.received event - tracks when event is received before processing.
 type AuditReceivedPayload struct {
+	// The microservice that published the original event
+	PublisherMicroservice string `json:"publisher_microservice"`
 	// The microservice that received the event
-	Microservice string `json:"microservice"`
+	ReceiverMicroservice string `json:"receiver_microservice"`
 	// The event that was received
 	ReceivedEvent string `json:"received_event"`
 	// Timestamp when the event was received (UNIX timestamp in seconds)
 	ReceivedAt uint64 `json:"received_at"`
 	// The queue name from which the event was consumed
 	QueueName string `json:"queue_name"`
-	// Optional event identifier for tracking
-	EventID *string `json:"event_id,omitempty"`
+	// Event identifier for tracking across the event lifecycle
+	EventID string `json:"event_id"`
 }
 
 func (AuditReceivedPayload) Type() MicroserviceEvent {
@@ -551,16 +555,18 @@ func (AuditReceivedPayload) Type() MicroserviceEvent {
 
 // AuditProcessedPayload is the payload for audit.processed event - tracks successful event processing.
 type AuditProcessedPayload struct {
+	// The microservice that published the original event
+	PublisherMicroservice string `json:"publisher_microservice"`
 	// The microservice that processed the event
-	Microservice string `json:"microservice"`
+	ProcessorMicroservice string `json:"processor_microservice"`
 	// The original event that was processed
 	ProcessedEvent string `json:"processed_event"`
 	// Timestamp when the event was processed (UNIX timestamp in seconds)
 	ProcessedAt uint64 `json:"processed_at"`
 	// The queue name where the event was consumed
 	QueueName string `json:"queue_name"`
-	// Optional event identifier for tracking
-	EventID *string `json:"event_id,omitempty"`
+	// Event identifier for tracking across the event lifecycle
+	EventID string `json:"event_id"`
 }
 
 func (AuditProcessedPayload) Type() MicroserviceEvent {
@@ -569,8 +575,10 @@ func (AuditProcessedPayload) Type() MicroserviceEvent {
 
 // AuditDeadLetterPayload is the payload for audit.dead_letter event - tracks when message is rejected/nacked.
 type AuditDeadLetterPayload struct {
+	// The microservice that published the original event
+	PublisherMicroservice string `json:"publisher_microservice"`
 	// The microservice that rejected the event
-	Microservice string `json:"microservice"`
+	RejectorMicroservice string `json:"rejector_microservice"`
 	// The original event that was rejected
 	RejectedEvent string `json:"rejected_event"`
 	// Timestamp when the event was rejected (UNIX timestamp in seconds)
@@ -581,10 +589,26 @@ type AuditDeadLetterPayload struct {
 	RejectionReason string `json:"rejection_reason"`
 	// Optional retry count
 	RetryCount *uint32 `json:"retry_count,omitempty"`
-	// Optional event identifier for tracking
-	EventID *string `json:"event_id,omitempty"`
+	// Event identifier for tracking across the event lifecycle
+	EventID string `json:"event_id"`
 }
 
 func (AuditDeadLetterPayload) Type() MicroserviceEvent {
 	return AuditDeadLetterEvent
+}
+
+// AuditPublishedPayload is the payload for audit.published event - tracks when event is published by a microservice.
+type AuditPublishedPayload struct {
+	// The microservice that published the event
+	PublisherMicroservice string `json:"publisher_microservice"`
+	// The event that was published
+	PublishedEvent string `json:"published_event"`
+	// Timestamp when the event was published (UNIX timestamp in seconds)
+	PublishedAt uint64 `json:"published_at"`
+	// Event identifier for tracking across the event lifecycle
+	EventID string `json:"event_id"`
+}
+
+func (AuditPublishedPayload) Type() MicroserviceEvent {
+	return AuditPublishedEvent
 }

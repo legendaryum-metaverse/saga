@@ -124,6 +124,8 @@ func (c *ConsumeChannel) publishNackEvent(delay time.Duration) error {
 				Headers:      c.msg.Headers,
 				Body:         c.msg.Body,
 				DeliveryMode: amqp.Persistent,
+				AppId:        c.msg.AppId,
+				MessageId:    c.msg.MessageId,
 			},
 		)
 		if err != nil {
@@ -143,6 +145,8 @@ func (c *ConsumeChannel) publishNackEvent(delay time.Duration) error {
 				Headers:      c.msg.Headers,
 				Body:         c.msg.Body,
 				DeliveryMode: amqp.Persistent,
+				AppId:        c.msg.AppId,
+				MessageId:    c.msg.MessageId,
 			},
 		)
 		if err != nil {
