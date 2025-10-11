@@ -1,101 +1,120 @@
 # 📖 CLAUDE.md - legend-saga Golang Library
 
 > **Technical Documentation for Claude Code Assistant**
-> Updated: 2025-10-05 | Go 1.25.0 | Production-Ready
+> Updated: 2025-10-11 | Go 1.25.1 | Production-Ready
 
 ---
 
-## 📋 Table of Contents
+## Quick Reference
 
-1. [Project Overview](#project-overview)
-2. [Codebase Structure](#codebase-structure)
-3. [Core Architecture](#core-architecture)
-4. [Audit Feature (NEW)](#audit-feature)
-5. [Event System](#event-system)
-6. [Saga Orchestration](#saga-orchestration)
-7. [Developer Guidelines](#developer-guidelines)
-8. [Code Metrics](#code-metrics)
+### Essential Patterns
+
+```go
+// 1. Initialize
+transactional := saga.Config(&saga.Opts{
+    RabbitUri:    "amqp://localhost:5672",
+    Microservice: micro.Social,
+    Events:       []event.MicroserviceEvent{event.AuthNewUserEvent},
+})
+
+// 2. Publish Event
+saga.PublishEvent(&event.AuthNewUserPayload{ID: "123", Email: "user@example.com"})
+
+// 3. Consume Event
+emitter := transactional.ConnectToEvents()
+emitter.On(event.AuthNewUserEvent, func(handler saga.EventHandler) {
+    payload := saga.ParsePayload(handler.Payload, &event.AuthNewUserPayload{})
+    // Process event...
+    handler.Channel.AckMessage() // Success - emits audit.processed
+    // OR
+    handler.Channel.NackWithFibonacciStrategy(19, 3) // Failure - emits audit.dead_letter
+})
+
+// 4. Saga Orchestration
+saga.CommenceSaga(&saga.PurchaseResourceFlowPayload{...})
+sagaEmitter := transactional.ConnectToSagaCommandEmitter()
+sagaEmitter.On(micro.SomeCommand, func(handler saga.CommandHandler) {
+    // Handle saga step...
+    handler.Channel.AckMessage(saga.NextStepPayload{...})
+})
+```
 
 ---
 
 ## Project Overview
 
-**legend-saga** is a Go library for microservice communication via RabbitMQ, supporting event-driven architecture and saga patterns.
+**legend-saga** is a Go library for microservice communication via RabbitMQ, supporting event-driven architecture and saga orchestration patterns.
 
 ### Key Features
 
 - 🔄 Publish/Subscribe with headers-based routing
 - 🎭 Saga orchestration for distributed transactions
+- 🔍 **Automatic audit logging** (lifecycle tracking)
 - ♻️ Fibonacci backoff retry mechanism
 - 🛡️ Durable message delivery
 - 🎯 Type-safe Go generics
-- **🔍 Automatic audit logging (NEW)**
 
 ### Tech Stack
 
-- **Language**: Go 1.25.0
-- **Broker**: RabbitMQ
-- **AMQP**: `rabbitmq/amqp091-go v1.10.0`
-- **Validation**: `go-playground/validator/v10`
+- **Language**: Go 1.25.1
+- **Broker**: RabbitMQ (AMQP 0.9.1)
+- **Dependencies**: `rabbitmq/amqp091-go v1.10.0`, `go-playground/validator/v10`
 
 ---
 
-## Codebase Structure
+## Architecture
 
-### Directory Layout
+### System Flow
+
+```
+Application
+    ↓
+Transactional (start.go)
+    ↓
+┌────────────────┬─────────────────────────┐
+↓                ↓                         ↓
+ConnectToEvents  ConnectToSagaCommand     (Audit Infrastructure)
+    ↓                ↓                         ↓
+Event Emitter    Saga Emitter         audit_exchange (direct)
+    ↓                ↓                         ↓
+matching_exchange commands_exchange    3 Audit Queues
+(headers)        (direct)              - audit_received_commands
+    ↓                ↓                 - audit_processed_commands
+Event Consumers  Saga Consumers        - audit_dead_letter_commands
+```
+
+### Core Components
+
+| Component              | Location                   | Purpose                              |
+| ---------------------- | -------------------------- | ------------------------------------ |
+| `Transactional`        | start.go:24                | Main coordinator, connection manager |
+| `Emitter[T, U]`        | emitter.go:7               | Type-safe event dispatcher           |
+| `EventHandler`         | consumeCallbackEvent.go    | Event processing handler             |
+| `CommandHandler`       | consumeCallbackSagaCommand | Saga step handler                    |
+| `EventsConsumeChannel` | consumeChannelEvents.go    | Channel wrapper with audit emission  |
+
+### Directory Structure
 
 ```
 legend-saga/
-├── event/microserviceEvent.go          # Event types & payloads (590+ LOC)
-├── micro/sagaCommands.go                # Microservices & commands (106 LOC)
-├── test/                                # Integration tests
+├── event/microserviceEvent.go    # 45 events (42 business + 3 audit)
+├── micro/sagaCommands.go          # 17 microservices + saga commands
+├── test/                          # Integration tests
 │
-# Core files (flat structure ~1,400 LOC)
-├── start.go                             # Entry point, Transactional, ConnectToAudit
-├── emitter.go                           # Generic event emitter
-├── publishEvent.go                      # Event publishing
-├── publishAuditEvent.go                 # Audit event publishing (NEW)
-├── consumeCallbackEvent.go              # Event handler (emits audit.received)
-├── consumeCallbackAudit.go              # AuditHandler (non-recursive) (NEW)
-├── consumeChannelEvents.go              # Event channel (emits audit.processed/dead_letter)
-├── createAuditInfrastructure.go         # Audit exchange & queues setup (NEW)
-├── resources.go                         # Exchange & queue constants
-└── ...
+# Core files (~1,400 LOC)
+├── start.go                       # Entry point, Transactional, ConnectTo* methods
+├── emitter.go                     # Generic type-safe emitter
+├── publishEvent.go                # Event publishing (headers exchange)
+├── publishAuditEvent.go           # Audit event publishing (direct exchange)
+├── consumeCallbackEvent.go        # Event consumer (emits audit.received)
+├── consumeChannelEvents.go        # Channel wrapper (emits audit.processed/dead_letter)
+├── createAuditInfrastructure.go   # Audit exchange & queues setup
+├── createHeaderConsumer.go        # Event subscription setup
+├── createConsumers.go             # Saga command consumers
+├── commenceSaga.go                # Saga initiation
+├── consumeCallbackSagaCommand.go  # Saga step processing
+└── resources.go                   # Exchange & queue constants
 ```
-
-### Package Structure
-
-- **`saga`** (root): Core functionality
-- **`event`**: Event definitions, payloads, **audit payloads**
-- **`micro`**: Microservice identifiers, **AuditEda**
-
----
-
-## Core Architecture
-
-### High-Level Flow
-
-```
-Application → Transactional → [ConnectToEvents | ConnectToSagaCommandEmitter | ConnectToAudit]
-                                      ↓                    ↓                           ↓
-                              Event Emitter        Saga Emitter                 Audit Emitter
-                                      ↓                    ↓                           ↓
-                             RabbitMQ Exchanges   RabbitMQ Exchanges           RabbitMQ Audit Exchange
-                                      ↓                    ↓                           ↓
-                              Event Consumers      Saga Consumers               Audit Consumers
-                                      ↓                    ↓                           ↓
-                              Business Logic        Saga Steps                  Audit Processing
-```
-
-### Key Components
-
-| Component              | File                       | Purpose                               |
-| ---------------------- | -------------------------- | ------------------------------------- |
-| `Transactional`        | start.go:46                | Main coordinator, connection manager  |
-| `Emitter[T, U]`        | emitter.go:7               | Type-safe event dispatcher (generics) |
-| `EventHandler`         | consumeCallbackEvent.go:13 | Event processing handler              |
-| `AuditHandler`         | consumeCallbackAudit.go:13 | **Non-recursive audit handler (NEW)** |
-| `EventsConsumeChannel` | consumeChannelEvents.go:11 | **Auto-emits audit events (NEW)**     |
 
 ---
 
@@ -103,315 +122,84 @@ Application → Transactional → [ConnectToEvents | ConnectToSagaCommandEmitter
 
 ### Overview
 
-The audit feature automatically tracks the **lifecycle of every event** for monitoring, debugging, and compliance. It emits three types of audit events:
+The audit feature **automatically tracks the lifecycle of every event** without code changes. It emits three types of audit events:
 
-1. **`audit.received`**: When an event is received (before processing)
-2. **`audit.processed`**: When an event is successfully processed (on ACK)
-3. **`audit.dead_letter`**: When an event fails and is NACKed
+1. **`audit.received`**: When event arrives (before processing)
+2. **`audit.processed`**: When event succeeds (on ACK)
+3. **`audit.dead_letter`**: When event fails (on NACK)
 
-### Architecture
+**Key Design**: Audit uses a **direct exchange** (not headers) for efficient single-consumer routing to the audit microservice.
 
-#### Direct Exchange Pattern
+### Automatic Emission Points
 
-```
-All Microservices           Audit Microservice
-       ↓                            ↓
-[Event Processing]      [Audit Event Consumers]
-       ↓                            ↓
-Emit Audit Events → audit_exchange (direct) → 3 Queues
-                           ↓
-                    ┌──────┴──────┬──────────┐
-                    ↓             ↓          ↓
-        audit_received_commands  audit_processed_commands  audit_dead_letter_commands
-```
+| Trigger         | Location                      | Audit Event Emitted      |
+| --------------- | ----------------------------- | ------------------------ |
+| Event received  | consumeCallbackEvent.go       | `audit.received`         |
+| ACK called      | consumeChannelEvents.go:17    | `audit.processed`        |
+| NACK called     | consumeChannelEvents.go:43    | `audit.dead_letter`      |
+| Infrastructure  | createAuditInfrastructure.go  | Creates exchanges/queues |
+| Publishing      | publishAuditEvent.go          | Sends to audit_exchange  |
+| Auto-setup      | start.go:169 (ConnectToEvents)| Called automatically     |
 
-**Why Direct Exchange?**
-
-- Efficient single-consumer delivery to audit microservice
-- Routing keys: `audit.received`, `audit.processed`, `audit.dead_letter`
-- No broadcast overhead (unlike headers exchange for events)
-
-#### Non-Recursive Design
-
-**Critical**: Audit events themselves must NOT emit more audits (infinite loop prevention).
+### Audit Payloads
 
 ```go
-// Standard EventHandler (emits audits)
-eventCallback() → emits audit.received → processes event → handler.AckMessage() → emits audit.processed
-
-// AuditHandler (NO recursive audits)
-auditEventCallback() → processes audit event → handler.AuditAck() → NO audit emission
-```
-
-### Implementation Details
-
-#### 1. Event Definitions (event/microserviceEvent.go)
-
-```go
-const (
-    AuditReceivedEvent   MicroserviceEvent = "audit.received"
-    AuditProcessedEvent  MicroserviceEvent = "audit.processed"
-    AuditDeadLetterEvent MicroserviceEvent = "audit.dead_letter"
-)
-
+// All audit payloads include:
 type AuditReceivedPayload struct {
-    Microservice  string  `json:"microservice"`
-    ReceivedEvent string  `json:"received_event"`
+    Microservice  string  `json:"microservice"`   // Source microservice
+    ReceivedEvent string  `json:"received_event"` // Event type
     ReceivedAt    uint64  `json:"received_at"`    // UNIX timestamp
-    QueueName     string  `json:"queue_name"`
-    EventID       *string `json:"event_id,omitempty"`
+    QueueName     string  `json:"queue_name"`     // Consumer queue
+    EventID       *string `json:"event_id,omitempty"` // Optional correlation ID
 }
-// Similar: AuditProcessedPayload, AuditDeadLetterPayload
+
+// Similar: AuditProcessedPayload (processed_event, processed_at)
+//          AuditDeadLetterPayload (rejected_event, rejection_reason, retry_count)
 ```
 
-#### 2. Infrastructure (createAuditInfrastructure.go)
+### Infrastructure (Auto-Created)
 
-```go
-func (t *Transactional) createAuditLoggingResources() error {
-    // 1. Declare direct exchange
-    t.eventsChannel.ExchangeDeclare("audit_exchange", "direct", ...)
+| Resource                     | Type            | Routing Key           |
+| ---------------------------- | --------------- | --------------------- |
+| `audit_exchange`             | Direct Exchange | N/A                   |
+| `audit_received_commands`    | Queue           | `audit.received`      |
+| `audit_processed_commands`   | Queue           | `audit.processed`     |
+| `audit_dead_letter_commands` | Queue           | `audit.dead_letter`   |
 
-    // 2. Declare 3 separate queues
-    t.eventsChannel.QueueDeclare("audit_received_commands", ...)
-    t.eventsChannel.QueueDeclare("audit_processed_commands", ...)
-    t.eventsChannel.QueueDeclare("audit_dead_letter_commands", ...)
-
-    // 3. Bind queues to exchange with routing keys
-    t.eventsChannel.QueueBind("audit_received_commands", "audit.received", "audit_exchange", ...)
-    // ... similar for other queues
-}
-```
-
-#### 3. Automatic Emission (consumeChannelEvents.go)
-
-**On ACK** (consumeChannelEvents.go:17):
-
-```go
-func (m *EventsConsumeChannel) AckMessage() {
-    m.channel.Ack(m.msg.DeliveryTag, false)
-
-    // Auto-emit audit.processed
-    auditPayload := &event.AuditProcessedPayload{
-        Microservice:   m.microservice,
-        ProcessedEvent: m.eventType,
-        ProcessedAt:    uint64(time.Now().Unix()),
-        QueueName:      m.queueName,
-    }
-    PublishAuditProcessedEvent(auditPayload)
-}
-```
-
-**On NACK** (consumeChannelEvents.go:43):
-
-```go
-func (m *EventsConsumeChannel) NackWithFibonacciStrategy(...) {
-    m.ConsumeChannel.NackWithFibonacciStrategy(...)
-
-    // Auto-emit audit.dead_letter
-    auditPayload := &event.AuditDeadLetterPayload{
-        Microservice:    m.microservice,
-        RejectedEvent:   m.eventType,
-        RejectionReason: "fibonacci_strategy",
-        RetryCount:      &retryCount,
-        ...
-    }
-    PublishAuditDeadLetterEvent(auditPayload)
-}
-```
-
-**On Receive** (consumeCallbackEvent.go:87):
-
-```go
-func eventCallback(..., microservice string) {
-    // Parse event from message
-    eventType := string(eventKey[0])
-
-    // Auto-emit audit.received BEFORE processing
-    auditPayload := &event.AuditReceivedPayload{
-        Microservice:  microservice,
-        ReceivedEvent: eventType,
-        ReceivedAt:    uint64(time.Now().Unix()),
-        QueueName:     queueName,
-    }
-    PublishAuditReceivedEvent(auditPayload)
-
-    // Then process event normally
-    emitter.Emit(eventKey[0], EventHandler{...})
-}
-```
-
-#### 4. Audit Consumer (start.go:181)
-
-```go
-func (t *Transactional) ConnectToAudit() *Emitter[AuditHandler, event.MicroserviceEvent] {
-    // Create audit infrastructure
-    t.createAuditLoggingResources()
-
-    e := newEmitter[AuditHandler, event.MicroserviceEvent]()
-
-    // Spawn 3 consumers (one per audit event type)
-    go consume(e, "audit_received_commands", t.eventsChannel, auditEventCallback, ...)
-    go consume(e, "audit_processed_commands", t.eventsChannel, auditEventCallback, ...)
-    go consume(e, "audit_dead_letter_commands", t.eventsChannel, auditEventCallback, ...)
-
-    return e
-}
-```
-
-#### 5. Non-Recursive Handler (consumeCallbackAudit.go)
-
-```go
-type AuditHandler struct {
-    Channel *AuditConsumeChannel
-    Payload map[string]interface{}
-}
-
-type AuditConsumeChannel struct {
-    *ConsumeChannel
-}
-
-// AuditAck does NOT emit audit events (breaks recursion)
-func (a *AuditConsumeChannel) AuditAck() {
-    a.channel.Ack(a.msg.DeliveryTag, false)
-    // NO PublishAuditProcessedEvent() call here!
-}
-
-// auditEventCallback does NOT emit audit.received (breaks recursion)
-func auditEventCallback(...) {
-    // Determine event type from queue name (not headers)
-    var eventType event.MicroserviceEvent
-    switch queueName {
-    case "audit_received_commands":
-        eventType = event.AuditReceivedEvent
-    // ...
-    }
-
-    // NO PublishAuditReceivedEvent() call here!
-    emitter.Emit(eventType, AuditHandler{...})
-}
-```
+All resources are **durable** and created automatically when `ConnectToEvents()` is called.
 
 ### Usage
 
-#### For Regular Microservices (Automatic)
-
-No code changes needed! Audit events are emitted automatically:
+**For Regular Microservices**: No changes needed! Audit is automatic.
 
 ```go
-// Existing code works as-is
-transactional := saga.Config(&saga.Opts{
-    RabbitUri:    "amqp://...",
-    Microservice: micro.Social,
-    Events:       []event.MicroserviceEvent{event.AuthNewUserEvent},
-})
-
-emitter := transactional.ConnectToEvents()
+// This code automatically emits audit events:
 emitter.On(event.AuthNewUserEvent, func(handler saga.EventHandler) {
-    // Process event
-    // ...
-    handler.Channel.AckMessage() // ← Automatically emits audit.processed
+    // audit.received emitted before this runs
+
+    payload := saga.ParsePayload(handler.Payload, &event.AuthNewUserPayload{})
+    createUser(payload)
+
+    handler.Channel.AckMessage() // ← audit.processed emitted
 })
 ```
 
-**Audit events emitted**:
+**For Audit Microservice**: Consume from audit queues directly using standard RabbitMQ client (separate service, not using this library).
 
-1. `audit.received` when event arrives (before handler)
-2. `audit.processed` when `AckMessage()` called
-3. `audit.dead_letter` if `NackWithFibonacciStrategy()` called
+### Expected Behavior
 
-#### For Audit Microservice
-
-```go
-transactional := saga.Config(&saga.Opts{
-    RabbitUri:    "amqp://...",
-    Microservice: micro.AuditEda, // Special audit microservice
-    Events:       []event.MicroserviceEvent{},
-})
-
-// Use ConnectToAudit() instead of ConnectToEvents()
-auditEmitter := transactional.ConnectToAudit()
-
-// Handle audit events without recursion
-auditEmitter.On(event.AuditReceivedEvent, func(handler saga.AuditHandler) {
-    payload := ParseAuditPayload(handler.Payload, &event.AuditReceivedPayload{})
-
-    // Store in database, send to monitoring, etc.
-    storeAuditEvent(payload)
-
-    // Use AuditAck() to avoid recursive audit emission
-    handler.Channel.AuditAck()
-})
-
-auditEmitter.On(event.AuditProcessedEvent, func(handler saga.AuditHandler) {
-    payload := ParseAuditPayload(handler.Payload, &event.AuditProcessedPayload{})
-    storeAuditEvent(payload)
-    handler.Channel.AuditAck()
-})
-
-auditEmitter.On(event.AuditDeadLetterEvent, func(handler saga.AuditHandler) {
-    payload := ParseAuditPayload(handler.Payload, &event.AuditDeadLetterPayload{})
-    alertOnFailure(payload)
-    handler.Channel.AuditAck()
-})
-```
-
-### Expected Behavior (from Rust specification)
-
-1. **Every event produces exactly 2 audit events**:
-
-   - `audit.received` (when received)
-   - `audit.processed` OR `audit.dead_letter` (never both)
-
-2. **Audit events do NOT audit themselves**:
-
-   - Processing `audit.received` does NOT emit another `audit.received`
-   - `AuditHandler` prevents recursion
-
-3. **Failure scenarios**:
-
-   - Failed events emit `audit.dead_letter` instead of `audit.processed`
-   - Error reason and retry count included in payload
-
-4. **Isolated streams**:
-   - Each microservice has separate audit stream
-   - Audit microservice processes all audit events
-
-### Resources
-
-| Resource                     | Type            | Purpose                        |
-| ---------------------------- | --------------- | ------------------------------ |
-| `audit_exchange`             | Direct Exchange | Routes audit events            |
-| `audit_received_commands`    | Queue           | Holds audit.received events    |
-| `audit_processed_commands`   | Queue           | Holds audit.processed events   |
-| `audit_dead_letter_commands` | Queue           | Holds audit.dead_letter events |
-
-**Constants** (resources.go):
-
-```go
-const (
-    AuditExchange           Exchange = "audit_exchange"
-    AuditReceivedCommandsQ  Queue    = "audit_received_commands"
-    AuditProcessedCommandsQ Queue    = "audit_processed_commands"
-    AuditDeadLetterCommandsQ Queue   = "audit_dead_letter_commands"
-)
-```
-
-### Key Rust→Go Patterns
-
-| Rust Pattern                | Go Equivalent            | Notes                       |
-| --------------------------- | ------------------------ | --------------------------- |
-| `Arc<Mutex<Channel>>`       | `*amqp.Channel`          | Shared channel via pointer  |
-| `async fn` + `tokio::spawn` | `go func()`              | Goroutine per consumer      |
-| `Result<T, Error>`          | `(T, error)`             | Explicit error returns      |
-| Trait `PayloadEvent`        | Interface `PayloadEvent` | `Type() MicroserviceEvent`  |
-| `u64` timestamp             | `uint64`                 | UNIX timestamp in seconds   |
-| `Option<String>`            | `*string`                | Pointer for optional fields |
+- **Every event produces exactly 2 audit events**: `received` + (`processed` OR `dead_letter`)
+- **Audit events do NOT audit themselves**: No recursive loops
+- **Failure tracking**: `audit.dead_letter` includes error reason and retry count
+- **Isolated streams**: Each microservice's events are tracked separately
 
 ---
 
 ## Event System
 
-### Event Publishing
+### Publishing Events
+
+Events use a **headers exchange** (`matching_exchange`) for broadcast routing:
 
 ```go
 saga.PublishEvent(&event.AuthNewUserPayload{
@@ -421,52 +209,44 @@ saga.PublishEvent(&event.AuthNewUserPayload{
 })
 ```
 
-**Flow**:
+**Headers created**: `{"AUTH.NEW_USER": "auth.new_user", "all-micro": "yes"}`
 
-1. `PublishEvent()` → `getSendChannel()` → creates/reuses channel
-2. Headers created: `{"AUTH.NEW_USER": "auth.new_user", "all-micro": "yes"}`
-3. Publishes to `matching_exchange` (headers exchange)
-4. RabbitMQ routes to subscribed microservices
-
-### Event Consumption
+### Consuming Events
 
 ```go
+transactional := saga.Config(&saga.Opts{
+    RabbitUri:    "amqp://localhost:5672",
+    Microservice: micro.Social,
+    Events:       []event.MicroserviceEvent{event.AuthNewUserEvent}, // Subscribe
+})
+
 emitter := transactional.ConnectToEvents()
 emitter.On(event.AuthNewUserEvent, func(handler saga.EventHandler) {
     payload := saga.ParsePayload(handler.Payload, &event.AuthNewUserPayload{})
 
-    createUserProfile(payload.ID, payload.Email)
+    // Process event
+    createUserProfile(payload)
 
-    handler.Channel.AckMessage() // ← Emits audit.processed
+    handler.Channel.AckMessage() // ← Automatically emits audit.processed
 })
 ```
 
-**Flow**:
-
-1. Consumer goroutine receives message
-2. **Emits `audit.received`** (NEW)
-3. `eventCallback()` extracts event type from headers
-4. Parses JSON payload
-5. Emits to registered handler
-6. Handler processes and ACKs/NACKs
-7. **Emits `audit.processed` or `audit.dead_letter`** (NEW)
-
-### Retry Mechanism
+### Error Handling with Fibonacci Backoff
 
 ```go
-handler.Channel.NackWithFibonacciStrategy(MAX_OCCURRENCE, MAX_NACK_RETRIES)
+handler.Channel.NackWithFibonacciStrategy(19, 3)
+// maxOccurrence: 19 (stops after 19 retries ~ 1.18 hours)
+// maxNackRetries: 3 (requeues 3 times, then drops)
 ```
 
-**Fibonacci Backoff**:
-
-- Occurrence: 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144...
-- Delay (seconds): 1s, 2s, 3s, 5s, 8s, 13s, 21s, 34s, 55s, 89s, 144s...
-- After 19 occurrences: ~1.18 hours delay
-- Max: 25 occurrences (~20.84 hours)
+**Fibonacci Delays**: 1s, 2s, 3s, 5s, 8s, 13s, 21s, 34s, 55s, 89s, 144s...
+**Max**: 25 occurrences (~20.84 hours total delay)
 
 ---
 
 ## Saga Orchestration
+
+Sagas use a **direct exchange** (`commands_exchange`) with microservice-specific routing.
 
 ### Initiate Saga
 
@@ -482,8 +262,8 @@ saga.CommenceSaga(&saga.PurchaseResourceFlowPayload{
 ### Handle Saga Step
 
 ```go
-emitter := transactional.ConnectToSagaCommandEmitter()
-emitter.On(micro.ResourcePurchasedDeductCoinsCommand, func(handler saga.CommandHandler) {
+sagaEmitter := transactional.ConnectToSagaCommandEmitter()
+sagaEmitter.On(micro.ResourcePurchasedDeductCoinsCommand, func(handler saga.CommandHandler) {
     payload := saga.ParsePayload(handler.Payload, &DeductCoinsPayload{})
 
     newBalance, err := deductCoins(payload.UserId, payload.Price)
@@ -492,9 +272,9 @@ emitter.On(micro.ResourcePurchasedDeductCoinsCommand, func(handler saga.CommandH
         return
     }
 
+    // Pass data to next saga step
     handler.Channel.AckMessage(saga.NextStepPayload{
         "__userId":    payload.UserId,
-        "__price":     payload.Price,
         "newBalance":  newBalance,
     })
 })
@@ -504,149 +284,103 @@ emitter.On(micro.ResourcePurchasedDeductCoinsCommand, func(handler saga.CommandH
 
 ## Developer Guidelines
 
-### Adding Audit Support to Existing Code
-
-**No changes needed!** Audit is automatic. Just ensure:
-
-1. Use `handler.Channel.AckMessage()` for success
-2. Use `handler.Channel.NackWithFibonacciStrategy()` for failure
-3. Audit events will be emitted automatically
-
-### Creating Audit Microservice
-
-```go
-// 1. Configure with AuditEda microservice
-transactional := saga.Config(&saga.Opts{
-    RabbitUri:    "amqp://...",
-    Microservice: micro.AuditEda,
-    Events:       []event.MicroserviceEvent{},
-})
-
-// 2. Use ConnectToAudit() instead of ConnectToEvents()
-auditEmitter := transactional.ConnectToAudit()
-
-// 3. Handle audit events with AuditHandler
-auditEmitter.On(event.AuditReceivedEvent, func(handler saga.AuditHandler) {
-    // Process audit event
-    handler.Channel.AuditAck() // ← Use AuditAck(), not AckMessage()
-})
-```
-
 ### Adding New Events
 
-1. **Define event** (event/microserviceEvent.go):
-
-```go
-const PaymentsChargeSucceededEvent MicroserviceEvent = "payments.charge_succeeded"
-```
+1. **Define constant** (event/microserviceEvent.go):
+   ```go
+   const PaymentsChargeSucceededEvent MicroserviceEvent = "payments.charge_succeeded"
+   ```
 
 2. **Add to values array**:
+   ```go
+   func MicroserviceEventValues() []MicroserviceEvent {
+       return []MicroserviceEvent{
+           // ...
+           PaymentsChargeSucceededEvent,
+       }
+   }
+   ```
 
-```go
-func MicroserviceEventValues() []MicroserviceEvent {
-    return []MicroserviceEvent{
-        // ...
-        PaymentsChargeSucceededEvent,
-    }
-}
-```
+3. **Define payload struct**:
+   ```go
+   type PaymentsChargeSucceededPayload struct {
+       ChargeID string  `json:"chargeId"`
+       Amount   float64 `json:"amount"`
+   }
 
-3. **Define payload**:
+   func (PaymentsChargeSucceededPayload) Type() MicroserviceEvent {
+       return PaymentsChargeSucceededEvent
+   }
+   ```
 
-```go
-type PaymentsChargeSucceededPayload struct {
-    ChargeID string  `json:"chargeId"`
-    Amount   float64 `json:"amount"`
-}
-func (PaymentsChargeSucceededPayload) Type() MicroserviceEvent {
-    return PaymentsChargeSucceededEvent
-}
-```
+4. **Publish and consume** as shown in Quick Reference
 
-4. **Publish**:
+### Adding New Microservices
 
-```go
-saga.PublishEvent(&event.PaymentsChargeSucceededPayload{
-    ChargeID: "ch_123",
-    Amount:   99.99,
-})
-```
+1. **Define constant** (micro/sagaCommands.go):
+   ```go
+   const Payments AvailableMicroservices = "payments"
+   ```
 
-5. **Subscribe**:
+2. **Add to values array** and **update IsValid()** method
 
-```go
-emitter.On(event.PaymentsChargeSucceededEvent, func(handler saga.EventHandler) {
-    payload := saga.ParsePayload(handler.Payload, &event.PaymentsChargeSucceededPayload{})
-    // Process
-    handler.Channel.AckMessage()
-})
-```
+3. Define saga commands if needed
+
+### Testing
+
+Integration tests in `test/`:
+- `conf_test.go`: Configuration tests
+- `pub_test.go`: Publishing tests
 
 ---
 
-## Code Metrics
+## Key Design Decisions
 
-### Lines of Code
+### Events vs Saga Commands
 
-| Category                 | LOC        | Notes                      |
-| ------------------------ | ---------- | -------------------------- |
-| Event Definitions        | 590        | +70 LOC for audit payloads |
-| Core Logic               | 1,400      | +260 LOC for audit feature |
-| Microservice Definitions | 106        | +4 LOC for AuditEda        |
-| **Total**                | **~2,100** | **+334 LOC for audit**     |
+| Aspect       | Events (Headers Exchange)              | Saga Commands (Direct Exchange)        |
+| ------------ | -------------------------------------- | -------------------------------------- |
+| Pattern      | Pub/Sub (broadcast)                    | Point-to-point                         |
+| Exchange     | `matching_exchange` (headers)          | `commands_exchange` (direct)           |
+| Routing      | Headers: `{"EVENT.NAME": "event.name"}`| Routing key: `microservice_name`       |
+| Use Case     | Business events (user created, etc.)   | Orchestrated saga steps                |
+| Consumers    | Multiple microservices                 | Single microservice                    |
 
-### New Files (Audit Feature)
+### Audit Exchange Choice
 
-| File                           | LOC | Purpose                     |
-| ------------------------------ | --- | --------------------------- |
-| `publishAuditEvent.go`         | 76  | Audit event publishing      |
-| `consumeCallbackAudit.go`      | 94  | Non-recursive audit handler |
-| `createAuditInfrastructure.go` | 100 | Audit infrastructure setup  |
-
-### Modified Files (Audit Feature)
-
-| File                         | Changes | Purpose                          |
-| ---------------------------- | ------- | -------------------------------- |
-| `event/microserviceEvent.go` | +70 LOC | Audit event types & payloads     |
-| `consumeChannelEvents.go`    | +75 LOC | Auto-emit audit on ACK/NACK      |
-| `consumeCallbackEvent.go`    | +25 LOC | Auto-emit audit.received         |
-| `start.go`                   | +55 LOC | ConnectToAudit() method          |
-| `resources.go`               | +4 LOC  | Audit exchange & queue constants |
-| `micro/sagaCommands.go`      | +4 LOC  | AuditEda microservice            |
-
-### Supported Events
-
-- **Standard Events**: 42 (auth, coins, missions, rankings, rooms, social, etc.)
-- **Audit Events**: 3 (audit.received, audit.processed, audit.dead_letter)
-- **Total**: 45 events
-
-### Supported Microservices
-
-- **Business Microservices**: 16 (auth, blockchain, coins, etc.)
-- **Audit Microservice**: 1 (audit-eda)
-- **Total**: 17 microservices
+**Direct Exchange** chosen for audit because:
+- Single consumer (audit microservice)
+- No broadcast needed
+- More efficient than headers exchange
+- Routing keys: `audit.received`, `audit.processed`, `audit.dead_letter`
 
 ---
 
 ## Summary
 
-### What's New in Audit Feature
+### Production-Ready Features
+- ✅ Event-driven architecture with headers-based routing
+- ✅ Saga orchestration for distributed transactions
+- ✅ Automatic audit logging (zero-code overhead)
+- ✅ Fibonacci backoff retry strategy
+- ✅ Type-safe generics for handlers
+- ✅ Durable messaging with QoS=1
+- ✅ Health checks for RabbitMQ connectivity
 
-1. **Automatic Lifecycle Tracking**: Every event emits 2 audit events automatically
-2. **Non-Recursive Design**: `AuditHandler` prevents infinite audit loops
-3. **Direct Exchange**: Efficient routing to single audit microservice
-4. **Transparent Integration**: No changes needed in existing code
-5. **Rust Parity**: 100% functional parity with production Rust implementation
+### Statistics
+- **Events**: 45 total (42 business + 3 audit)
+- **Microservices**: 17 supported
+- **Exchanges**: 3 (matching, commands, audit)
+- **LOC**: ~2,100 (core + events + microservices)
 
-### Key Takeaways
-
-- **For Regular Microservices**: Audit is automatic, zero code changes required
-- **For Audit Microservice**: Use `ConnectToAudit()` and `AuditHandler`
-- **Payload Format**: JSON with snake_case, UNIX timestamps (uint64)
-- **Event Flow**: received → [processing] → processed OR dead_letter
-- **Infrastructure**: 1 direct exchange, 3 queues, 3 routing keys
+### Critical Concepts
+1. **Audit is automatic** - No code changes needed in microservices
+2. **Two exchange types** - Headers for events, direct for commands/audit
+3. **Fibonacci backoff** - Prevents thundering herd
+4. **Type safety** - Generics ensure compile-time correctness
+5. **Lifecycle tracking** - Every event produces 2 audit events
 
 ---
 
-**End of Documentation**
-For questions, see [GitHub Issues](https://github.com/legendaryum-metaverse/saga/issues).
+**For detailed implementation examples**, see existing code in `test/` directory.
+**For questions or issues**, see [GitHub Issues](https://github.com/legendaryum-metaverse/saga/issues).
