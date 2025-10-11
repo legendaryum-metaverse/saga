@@ -87,7 +87,7 @@ func (t *Transactional) eventCallback(msg *amqp.Delivery, emitter *Emitter[Event
 
 	// Extract publisher microservice from message properties (set by the publisher)
 	publisherMicroservice := msg.AppId
-	if publisherMicroservice != "" {
+	if publisherMicroservice == "" {
 		log.Printf("Warning: Message is missing AppId, using unknown as publisher_microservice")
 		publisherMicroservice = "unknown"
 	}
