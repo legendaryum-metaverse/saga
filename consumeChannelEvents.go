@@ -25,7 +25,7 @@ func (m *EventsConsumeChannel) AckMessage() {
 	// Emit audit.processed event automatically
 	timestamp := uint64(time.Now().Unix())
 
-	auditPayload := &event.AuditProcessedPayload{
+	auditPayload := event.AuditProcessedPayload{
 		PublisherMicroservice: m.publisherMicroservice,
 		ProcessorMicroservice: m.microservice,
 		ProcessedEvent:        m.eventType,
@@ -33,11 +33,11 @@ func (m *EventsConsumeChannel) AckMessage() {
 		QueueName:             m.queueName,
 		EventID:               m.eventID,
 	}
-	go func(auditPayload *event.AuditProcessedPayload) {
+	go func(auditPayload event.AuditProcessedPayload) {
 		// Emit the audit event using the direct exchange method
-		if err = PublishAuditEvent(auditPayload); err != nil {
+		if auditErr := PublishAuditEvent(&auditPayload); auditErr != nil {
 			// Log the error but don't fail the ack operation
-			log.Printf("Failed to emit audit.processed event: %v", err)
+			log.Printf("Failed to emit audit.processed event: %v", auditErr)
 		}
 	}(auditPayload)
 }
@@ -49,7 +49,7 @@ func (m *EventsConsumeChannel) NackWithDelay(delay time.Duration, maxRetries int
 	// Emit audit.dead_letter event automatically
 	timestamp := uint64(time.Now().Unix())
 
-	auditPayload := &event.AuditDeadLetterPayload{
+	auditPayload := event.AuditDeadLetterPayload{
 		PublisherMicroservice: m.publisherMicroservice,
 		RejectorMicroservice:  m.microservice,
 		RejectedEvent:         m.eventType,
@@ -59,9 +59,9 @@ func (m *EventsConsumeChannel) NackWithDelay(delay time.Duration, maxRetries int
 		RetryCount:            &rc,
 		EventID:               m.eventID,
 	}
-	go func(auditPayload *event.AuditDeadLetterPayload) {
+	go func(auditPayload event.AuditDeadLetterPayload) {
 		// Emit the audit event (don't fail if audit fails)
-		if auditErr := PublishAuditEvent(auditPayload); auditErr != nil {
+		if auditErr := PublishAuditEvent(&auditPayload); auditErr != nil {
 			log.Printf("Failed to emit audit.dead_letter event: %v", auditErr)
 		}
 	}(auditPayload)
@@ -76,7 +76,7 @@ func (m *EventsConsumeChannel) NackWithFibonacciStrategy(maxOccurrence, maxRetri
 	// Emit audit.dead_letter event automatically
 	timestamp := uint64(time.Now().Unix())
 
-	auditPayload := &event.AuditDeadLetterPayload{
+	auditPayload := event.AuditDeadLetterPayload{
 		PublisherMicroservice: m.publisherMicroservice,
 		RejectorMicroservice:  m.microservice,
 		RejectedEvent:         m.eventType,
@@ -86,9 +86,10 @@ func (m *EventsConsumeChannel) NackWithFibonacciStrategy(maxOccurrence, maxRetri
 		RetryCount:            &rc,
 		EventID:               m.eventID,
 	}
-	go func(auditPayload *event.AuditDeadLetterPayload) {
+	go func(auditPayload event.AuditDeadLetterPayload) {
+
 		// Emit the audit event (don't fail if audit fails)
-		if auditErr := PublishAuditEvent(auditPayload); auditErr != nil {
+		if auditErr := PublishAuditEvent(&auditPayload); auditErr != nil {
 			log.Printf("Failed to emit audit.dead_letter event: %v", auditErr)
 		}
 	}(auditPayload)

@@ -101,7 +101,7 @@ func (t *Transactional) eventCallback(msg *amqp.Delivery, emitter *Emitter[Event
 	// Emit audit.received event automatically when event is received (before processing)
 	timestamp := uint64(time.Now().Unix())
 
-	auditReceivedPayload := &event.AuditReceivedPayload{
+	auditReceivedPayload := event.AuditReceivedPayload{
 		PublisherMicroservice: publisherMicroservice,
 		ReceiverMicroservice:  string(t.Microservice),
 		ReceivedEvent:         eventType,
@@ -109,10 +109,10 @@ func (t *Transactional) eventCallback(msg *amqp.Delivery, emitter *Emitter[Event
 		QueueName:             queueName,
 		EventID:               eventID,
 	}
-	go func(auditReceivedPayload *event.AuditReceivedPayload) {
+	go func(auditReceivedPayload event.AuditReceivedPayload) {
 		// Emit the audit.received event (don't fail the main flow if audit fails)
-		if err = PublishAuditEvent(auditReceivedPayload); err != nil {
-			log.Printf("Failed to emit audit.received event: %v", err)
+		if auditErr := PublishAuditEvent(&auditReceivedPayload); auditErr != nil {
+			log.Printf("Failed to emit audit.received event: %v", auditErr)
 		}
 	}(auditReceivedPayload)
 
