@@ -87,7 +87,6 @@ func (m *EventsConsumeChannel) NackWithFibonacciStrategy(maxOccurrence, maxRetri
 		EventID:               m.eventID,
 	}
 	go func(auditPayload *event.AuditDeadLetterPayload) {
-
 		// Emit the audit event (don't fail if audit fails)
 		if auditErr := PublishAuditEvent(auditPayload); auditErr != nil {
 			log.Printf("Failed to emit audit.dead_letter event: %v", auditErr)
