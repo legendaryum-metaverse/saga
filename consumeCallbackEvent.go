@@ -98,24 +98,23 @@ func (t *Transactional) eventCallback(msg *amqp.Delivery, emitter *Emitter[Event
 		log.Printf("Warning: Message is missing MessageId, generating a new UUID v7 for event_id")
 		eventID = uuid.Must(uuid.NewV7()).String()
 	}
+	// Emit audit.received event automatically when event is received (before processing)
+	timestamp := uint64(time.Now().Unix())
 
-	go func() {
-		// Emit audit.received event automatically when event is received (before processing)
-		timestamp := uint64(time.Now().Unix())
-
-		auditReceivedPayload := &event.AuditReceivedPayload{
-			PublisherMicroservice: publisherMicroservice,
-			ReceiverMicroservice:  string(t.Microservice),
-			ReceivedEvent:         eventType,
-			ReceivedAt:            timestamp,
-			QueueName:             queueName,
-			EventID:               eventID,
-		}
+	auditReceivedPayload := event.AuditReceivedPayload{
+		PublisherMicroservice: publisherMicroservice,
+		ReceiverMicroservice:  string(t.Microservice),
+		ReceivedEvent:         eventType,
+		ReceivedAt:            timestamp,
+		QueueName:             queueName,
+		EventID:               eventID,
+	}
+	go func(auditReceivedPayload event.AuditReceivedPayload) {
 		// Emit the audit.received event (don't fail the main flow if audit fails)
-		if err = PublishAuditEvent(auditReceivedPayload); err != nil {
-			log.Printf("Failed to emit audit.received event: %v", err)
+		if auditErr := PublishAuditEvent(&auditReceivedPayload); auditErr != nil {
+			log.Printf("Failed to emit audit.received event: %v", auditErr)
 		}
-	}()
+	}(auditReceivedPayload)
 
 	responseChannel := &EventsConsumeChannel{
 		ConsumeChannel: &ConsumeChannel{

@@ -104,21 +104,19 @@ func PublishEvent(payload event.PayloadEvent) error {
 	if err != nil {
 		return fmt.Errorf("error publishing message: %w", err)
 	}
-
+	timestamp := uint64(time.Now().Unix())
+	auditPayload := event.AuditPublishedPayload{
+		PublisherMicroservice: publisherMicroservice,
+		PublishedEvent:        string(payload.Type()),
+		PublishedAt:           timestamp,
+		EventID:               eventID,
+	}
 	// Emit audit.published event (fire-and-forget - never fail the main flow)
-	go func() {
-		timestamp := uint64(time.Now().Unix())
-		auditPayload := &event.AuditPublishedPayload{
-			PublisherMicroservice: publisherMicroservice,
-			PublishedEvent:        string(payload.Type()),
-			PublishedAt:           timestamp,
-			EventID:               eventID,
-		}
-
+	go func(auditPayload event.AuditPublishedPayload) {
 		if auditErr := PublishAuditEvent(auditPayload); auditErr != nil {
 			log.Printf("Failed to emit audit.published event: %v", auditErr)
 		}
-	}()
+	}(auditPayload)
 
 	return nil
 }
