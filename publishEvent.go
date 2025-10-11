@@ -4,8 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/legendaryum-metaverse/saga/event"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
@@ -58,6 +60,17 @@ func PublishEvent(payload event.PayloadEvent) error {
 	if err != nil {
 		return fmt.Errorf("error getting send channel: %w", err)
 	}
+
+	// Generate UUID v7 for event tracking
+	eventID := uuid.Must(uuid.NewV7()).String()
+
+	// Get publisher microservice name from stored config
+	config := GetStoredConfig()
+	if config == nil {
+		return fmt.Errorf("config not initialized - cannot determine publisher microservice")
+	}
+	publisherMicroservice := string(config.Microservice)
+
 	headerEvent := getEventObject(payload.Type())
 	headersArgs := amqp.Table{
 		"all-micro": "yes",
@@ -84,10 +97,28 @@ func PublishEvent(payload event.PayloadEvent) error {
 			ContentType:  "application/json",
 			Body:         body,
 			DeliveryMode: amqp.Persistent,
+			MessageId:    eventID,               // UUID v7 for event tracking
+			AppId:        publisherMicroservice, // Publisher microservice name
 		},
 	)
 	if err != nil {
 		return fmt.Errorf("error publishing message: %w", err)
 	}
+
+	// Emit audit.published event (fire-and-forget - never fail the main flow)
+	go func() {
+		timestamp := uint64(time.Now().Unix())
+		auditPayload := &event.AuditPublishedPayload{
+			PublisherMicroservice: publisherMicroservice,
+			PublishedEvent:        string(payload.Type()),
+			PublishedAt:           timestamp,
+			EventID:               eventID,
+		}
+
+		if auditErr := PublishAuditEvent(auditPayload); auditErr != nil {
+			log.Printf("Failed to emit audit.published event: %v", auditErr)
+		}
+	}()
+
 	return nil
 }

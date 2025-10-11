@@ -12,7 +12,7 @@ import (
 
 // publishAuditEvent publishes audit events to the direct audit exchange.
 // Uses the event type as routing key for flexible audit event routing.
-func publishAuditEvent(payload event.PayloadEvent) error {
+func PublishAuditEvent(payload event.PayloadEvent) error {
 	channel, err := getSendChannel()
 	if err != nil {
 		return fmt.Errorf("error getting send channel: %w", err)
@@ -47,19 +47,4 @@ func publishAuditEvent(payload event.PayloadEvent) error {
 	}
 
 	return nil
-}
-
-// PublishAuditReceivedEvent publishes audit.received events - convenience wrapper.
-func PublishAuditReceivedEvent(payload *event.AuditReceivedPayload) error {
-	return publishAuditEvent(payload)
-}
-
-// PublishAuditProcessedEvent publishes audit.processed events - convenience wrapper.
-func PublishAuditProcessedEvent(payload *event.AuditProcessedPayload) error {
-	return publishAuditEvent(payload)
-}
-
-// PublishAuditDeadLetterEvent publishes audit.dead_letter events - convenience wrapper.
-func PublishAuditDeadLetterEvent(payload *event.AuditDeadLetterPayload) error {
-	return publishAuditEvent(payload)
 }

@@ -21,6 +21,19 @@ func (t *Transactional) createAuditLoggingResources() error {
 		return fmt.Errorf("failed to declare audit exchange: %w", err)
 	}
 
+	// Create separate queue for audit.published events
+	_, err = t.eventsChannel.QueueDeclare(
+		string(AuditPublishedCommandsQ), // name
+		true,                            // durable
+		false,                           // delete when unused
+		false,                           // exclusive
+		false,                           // no-wait
+		nil,                             // arguments
+	)
+	if err != nil {
+		return fmt.Errorf("failed to declare audit.published queue: %w", err)
+	}
+
 	// Create separate queue for audit.received events
 	_, err = t.eventsChannel.QueueDeclare(
 		string(AuditReceivedCommandsQ), // name
@@ -61,6 +74,17 @@ func (t *Transactional) createAuditLoggingResources() error {
 	}
 
 	// Bind each queue to its specific routing key
+	err = t.eventsChannel.QueueBind(
+		string(AuditPublishedCommandsQ), // queue name
+		"audit.published",               // routing key
+		string(AuditExchange),           // exchange
+		false,                           // no-wait
+		nil,                             // arguments
+	)
+	if err != nil {
+		return fmt.Errorf("failed to bind audit.published queue: %w", err)
+	}
+
 	err = t.eventsChannel.QueueBind(
 		string(AuditReceivedCommandsQ), // queue name
 		"audit.received",               // routing key
