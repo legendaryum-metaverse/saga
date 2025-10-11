@@ -15,11 +15,13 @@ CLAUDE.md should be **concise yet comprehensive** - a technical reference docume
 ## What to Include
 
 ### 1. Essential Context
+
 - **What**: Project purpose and key capabilities
 - **Why**: Architectural decisions and design rationale
 - **How**: Quick reference patterns for common tasks
 
 ### 2. Critical Information
+
 - Current metadata (date, Go version, dependencies)
 - System architecture (high-level flow diagrams)
 - Core components with file locations
@@ -27,7 +29,9 @@ CLAUDE.md should be **concise yet comprehensive** - a technical reference docume
 - Developer guidelines for common modifications
 
 ### 3. Quick Reference Section
+
 Place at the top for immediate access:
+
 - Initialize connection
 - Publish events
 - Consume events
@@ -39,6 +43,7 @@ Place at the top for immediate access:
 ## What NOT to Include
 
 ### ❌ Avoid These
+
 - **Verbose code walkthroughs**: Show pattern, not every line
 - **Implementation details**: Those belong in code comments
 - **Duplicate examples**: One clear example per pattern
@@ -48,6 +53,7 @@ Place at the top for immediate access:
 - **Granular metrics**: High-level stats only
 
 ### ❌ Red Flags
+
 - Sections longer than 100 lines (except for comprehensive tables)
 - Repeated code examples with minor variations
 - Step-by-step tutorials (use Quick Reference instead)
@@ -98,6 +104,7 @@ Place at the top for immediate access:
 ## Update Process
 
 ### Step 1: Analyze Current State
+
 ```bash
 # Check current line count
 wc -l CLAUDE.md
@@ -113,13 +120,16 @@ ls -1 *.go event/*.go micro/*.go
 ```
 
 ### Step 2: Verify Accuracy
+
 - Cross-reference mentioned files with actual codebase
 - Validate code examples compile
 - Check constants/types exist as documented
 - Remove references to non-existent code
 
 ### Step 3: Update Content
+
 Focus updates on:
+
 1. **Metadata**: Date, Go version, dependency versions
 2. **New features**: Add section if >100 LOC changed
 3. **Removed features**: Delete outdated sections
@@ -127,7 +137,9 @@ Focus updates on:
 5. **API changes**: Update Quick Reference
 
 ### Step 4: Condense if Needed
+
 If over 400 lines:
+
 - Merge similar examples
 - Convert verbose text to tables
 - Remove redundant explanations
@@ -139,6 +151,7 @@ If over 400 lines:
 ## Writing Style Guidelines
 
 ### Code Examples
+
 ```go
 // ✅ Good: Shows pattern clearly
 emitter.On(event.SomeEvent, func(handler saga.EventHandler) {
@@ -163,9 +176,11 @@ func handleAuthNewUserForSocialMicroservice(handler saga.EventHandler) {
 ```
 
 ### Explanations
+
 ```markdown
 ✅ Good: Concise with key insight
 **Direct Exchange** chosen for audit because:
+
 - Single consumer (audit microservice)
 - No broadcast needed
 - More efficient than headers exchange
@@ -181,13 +196,14 @@ multiple header attributes to determine routing...
 ```
 
 ### Tables vs Prose
+
 ```markdown
 ✅ Good: Scannable table
-| Feature       | Events           | Saga Commands    |
+| Feature | Events | Saga Commands |
 |--------------|------------------|------------------|
-| Pattern      | Pub/Sub          | Point-to-point   |
-| Exchange     | matching_exchange| commands_exchange|
-| Consumers    | Multiple         | Single           |
+| Pattern | Pub/Sub | Point-to-point |
+| Exchange | matching_exchange| commands_exchange|
+| Consumers | Multiple | Single |
 
 ❌ Bad: Dense paragraph
 Events use a publish/subscribe pattern with the matching_exchange which
@@ -218,25 +234,31 @@ Before committing updates:
 ## Examples of Good Updates
 
 ### ✅ Adding a New Feature (50-80 lines)
+
 ```markdown
 ## New Feature Name
 
 ### Overview
+
 Brief description (2-3 sentences).
 
 ### Key Concept
+
 One critical insight or design decision.
 
 ### Usage
+
 // Minimal code example (10-15 lines)
 
 ### Infrastructure
+
 | Resource | Type | Purpose |
-|----------|------|---------|
+| -------- | ---- | ------- |
 | ...      | ...  | ...     |
 ```
 
 ### ✅ Updating Quick Reference
+
 ```markdown
 ## Quick Reference
 
@@ -246,6 +268,7 @@ result := saga.NewMethod(&saga.NewPayload{...})
 ```
 
 ### ❌ Adding Tutorial Content
+
 ```markdown
 ## Step-by-Step Guide to Implementing X
 
@@ -263,7 +286,9 @@ Let's look at each part in detail...
 ## Common Scenarios
 
 ### Scenario 1: Major Feature Added (>200 LOC)
+
 **Action**: Add new feature section (50-80 lines)
+
 - Overview paragraph
 - Key design decision
 - Minimal usage example
@@ -271,22 +296,30 @@ Let's look at each part in detail...
 - Update Quick Reference
 
 ### Scenario 2: Minor Bug Fix (<50 LOC)
+
 **Action**: No CLAUDE.md update needed
+
 - Bug fixes don't change architecture or usage
 
 ### Scenario 3: API Changed
+
 **Action**: Update affected sections (10-30 lines)
+
 - Update Quick Reference
 - Update relevant usage examples
 - Add migration note in Developer Guidelines if breaking
 
 ### Scenario 4: Dependency Upgraded
+
 **Action**: Update metadata (1-3 lines)
+
 - Update Tech Stack section
 - Update metadata header
 
 ### Scenario 5: Refactoring (file renamed, reorganized)
+
 **Action**: Update file references (5-15 lines)
+
 - Update Directory Structure
 - Update Core Components table
 - Verify all file:line references
@@ -296,7 +329,9 @@ Let's look at each part in detail...
 ## Anti-Patterns to Avoid
 
 ### 🚫 Documentation Drift
+
 Don't document planned features or outdated code:
+
 ```markdown
 ❌ "In the future, we plan to add..."
 ❌ "The old ConnectToAudit() method (deprecated)..."
@@ -304,7 +339,9 @@ Don't document planned features or outdated code:
 ```
 
 ### 🚫 Tutorial Creep
+
 Don't turn CLAUDE.md into a tutorial:
+
 ```markdown
 ❌ "Let's walk through how to build a microservice from scratch..."
 ❌ "Step 1: First, open your editor and create..."
@@ -312,7 +349,9 @@ Don't turn CLAUDE.md into a tutorial:
 ```
 
 ### 🚫 Over-Specification
+
 Don't duplicate information available in code:
+
 ```markdown
 ❌ Listing all 42 event types with descriptions
 ❌ Showing every field of every struct
@@ -320,7 +359,9 @@ Don't duplicate information available in code:
 ```
 
 ### 🚫 Inconsistent Depth
+
 Don't explain some concepts in detail while glossing over others:
+
 ```markdown
 ❌ 150 lines on audit feature, 10 lines on saga orchestration
 ✅ Balanced coverage (50-80 lines per major feature)
@@ -342,6 +383,7 @@ Don't explain some concepts in detail while glossing over others:
 ## Meta: Updating This Document
 
 When updating `update_claude_prompt.md`:
+
 - Keep under 300 lines
 - Balance specificity with brevity
 - Include concrete examples (good/bad comparisons)

@@ -132,14 +132,14 @@ The audit feature **automatically tracks the lifecycle of every event** without 
 
 ### Automatic Emission Points
 
-| Trigger         | Location                      | Audit Event Emitted      |
-| --------------- | ----------------------------- | ------------------------ |
-| Event received  | consumeCallbackEvent.go       | `audit.received`         |
-| ACK called      | consumeChannelEvents.go:17    | `audit.processed`        |
-| NACK called     | consumeChannelEvents.go:43    | `audit.dead_letter`      |
-| Infrastructure  | createAuditInfrastructure.go  | Creates exchanges/queues |
-| Publishing      | publishAuditEvent.go          | Sends to audit_exchange  |
-| Auto-setup      | start.go:169 (ConnectToEvents)| Called automatically     |
+| Trigger        | Location                       | Audit Event Emitted      |
+| -------------- | ------------------------------ | ------------------------ |
+| Event received | consumeCallbackEvent.go        | `audit.received`         |
+| ACK called     | consumeChannelEvents.go:17     | `audit.processed`        |
+| NACK called    | consumeChannelEvents.go:43     | `audit.dead_letter`      |
+| Infrastructure | createAuditInfrastructure.go   | Creates exchanges/queues |
+| Publishing     | publishAuditEvent.go           | Sends to audit_exchange  |
+| Auto-setup     | start.go:169 (ConnectToEvents) | Called automatically     |
 
 ### Audit Payloads
 
@@ -159,12 +159,12 @@ type AuditReceivedPayload struct {
 
 ### Infrastructure (Auto-Created)
 
-| Resource                     | Type            | Routing Key           |
-| ---------------------------- | --------------- | --------------------- |
-| `audit_exchange`             | Direct Exchange | N/A                   |
-| `audit_received_commands`    | Queue           | `audit.received`      |
-| `audit_processed_commands`   | Queue           | `audit.processed`     |
-| `audit_dead_letter_commands` | Queue           | `audit.dead_letter`   |
+| Resource                     | Type            | Routing Key         |
+| ---------------------------- | --------------- | ------------------- |
+| `audit_exchange`             | Direct Exchange | N/A                 |
+| `audit_received_commands`    | Queue           | `audit.received`    |
+| `audit_processed_commands`   | Queue           | `audit.processed`   |
+| `audit_dead_letter_commands` | Queue           | `audit.dead_letter` |
 
 All resources are **durable** and created automatically when `ConnectToEvents()` is called.
 
@@ -287,11 +287,13 @@ sagaEmitter.On(micro.ResourcePurchasedDeductCoinsCommand, func(handler saga.Comm
 ### Adding New Events
 
 1. **Define constant** (event/microserviceEvent.go):
+
    ```go
    const PaymentsChargeSucceededEvent MicroserviceEvent = "payments.charge_succeeded"
    ```
 
 2. **Add to values array**:
+
    ```go
    func MicroserviceEventValues() []MicroserviceEvent {
        return []MicroserviceEvent{
@@ -302,6 +304,7 @@ sagaEmitter.On(micro.ResourcePurchasedDeductCoinsCommand, func(handler saga.Comm
    ```
 
 3. **Define payload struct**:
+
    ```go
    type PaymentsChargeSucceededPayload struct {
        ChargeID string  `json:"chargeId"`
@@ -318,6 +321,7 @@ sagaEmitter.On(micro.ResourcePurchasedDeductCoinsCommand, func(handler saga.Comm
 ### Adding New Microservices
 
 1. **Define constant** (micro/sagaCommands.go):
+
    ```go
    const Payments AvailableMicroservices = "payments"
    ```
@@ -329,6 +333,7 @@ sagaEmitter.On(micro.ResourcePurchasedDeductCoinsCommand, func(handler saga.Comm
 ### Testing
 
 Integration tests in `test/`:
+
 - `conf_test.go`: Configuration tests
 - `pub_test.go`: Publishing tests
 
@@ -338,17 +343,18 @@ Integration tests in `test/`:
 
 ### Events vs Saga Commands
 
-| Aspect       | Events (Headers Exchange)              | Saga Commands (Direct Exchange)        |
-| ------------ | -------------------------------------- | -------------------------------------- |
-| Pattern      | Pub/Sub (broadcast)                    | Point-to-point                         |
-| Exchange     | `matching_exchange` (headers)          | `commands_exchange` (direct)           |
-| Routing      | Headers: `{"EVENT.NAME": "event.name"}`| Routing key: `microservice_name`       |
-| Use Case     | Business events (user created, etc.)   | Orchestrated saga steps                |
-| Consumers    | Multiple microservices                 | Single microservice                    |
+| Aspect    | Events (Headers Exchange)               | Saga Commands (Direct Exchange)  |
+| --------- | --------------------------------------- | -------------------------------- |
+| Pattern   | Pub/Sub (broadcast)                     | Point-to-point                   |
+| Exchange  | `matching_exchange` (headers)           | `commands_exchange` (direct)     |
+| Routing   | Headers: `{"EVENT.NAME": "event.name"}` | Routing key: `microservice_name` |
+| Use Case  | Business events (user created, etc.)    | Orchestrated saga steps          |
+| Consumers | Multiple microservices                  | Single microservice              |
 
 ### Audit Exchange Choice
 
 **Direct Exchange** chosen for audit because:
+
 - Single consumer (audit microservice)
 - No broadcast needed
 - More efficient than headers exchange
@@ -359,6 +365,7 @@ Integration tests in `test/`:
 ## Summary
 
 ### Production-Ready Features
+
 - ✅ Event-driven architecture with headers-based routing
 - ✅ Saga orchestration for distributed transactions
 - ✅ Automatic audit logging (zero-code overhead)
@@ -368,12 +375,14 @@ Integration tests in `test/`:
 - ✅ Health checks for RabbitMQ connectivity
 
 ### Statistics
+
 - **Events**: 45 total (42 business + 3 audit)
 - **Microservices**: 17 supported
 - **Exchanges**: 3 (matching, commands, audit)
 - **LOC**: ~2,100 (core + events + microservices)
 
 ### Critical Concepts
+
 1. **Audit is automatic** - No code changes needed in microservices
 2. **Two exchange types** - Headers for events, direct for commands/audit
 3. **Fibonacci backoff** - Prevents thundering herd
