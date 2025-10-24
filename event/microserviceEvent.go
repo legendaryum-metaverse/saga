@@ -35,6 +35,7 @@ const (
 	LegendRankingsRankingsFinishedEvent                      MicroserviceEvent = "legend_rankings.rankings_finished"
 	LegendRankingsNewRankingCreatedEvent                     MicroserviceEvent = "legend_rankings.new_ranking_created"
 	LegendRankingsIntermediateRewardEvent                    MicroserviceEvent = "legend_rankings.intermediate_reward"
+	LegendRankingsParticipationRewardEvent                   MicroserviceEvent = "legend_rankings.participation_reward"
 	LegendShowcaseProductVirtualDeletedEvent                 MicroserviceEvent = "legend_showcase.product_virtual_deleted"
 	LegendShowcaseUpdateAllowedMissionSubscriptionIdsEvent   MicroserviceEvent = "legend_showcase.update_allowed_mission_subscription_ids"
 	LegendShowcaseUpdateAllowedRankingSubscriptionIdsEvent   MicroserviceEvent = "legend_showcase.update_allowed_ranking_subscription_ids"
@@ -78,6 +79,7 @@ func MicroserviceEventValues() []MicroserviceEvent {
 		LegendRankingsRankingsFinishedEvent,
 		LegendRankingsNewRankingCreatedEvent,
 		LegendRankingsIntermediateRewardEvent,
+		LegendRankingsParticipationRewardEvent,
 		LegendShowcaseProductVirtualDeletedEvent,
 		LegendShowcaseUpdateAllowedMissionSubscriptionIdsEvent,
 		LegendShowcaseUpdateAllowedRankingSubscriptionIdsEvent,
@@ -342,6 +344,20 @@ type LegendRankingsIntermediateRewardEventPayload struct {
 
 func (LegendRankingsIntermediateRewardEventPayload) Type() MicroserviceEvent {
 	return LegendRankingsIntermediateRewardEvent
+}
+
+// LegendRankingsParticipationRewardEventPayload is the payload for the legend_rankings.participation_reward event.
+type LegendRankingsParticipationRewardEventPayload struct {
+	UserID                  string                 `json:"userId"`
+	RankingID               int                    `json:"rankingId"`
+	ParticipationRewardType string                 `json:"participationRewardType"`
+	RewardConfig            map[string]interface{} `json:"rewardConfig"`
+	TemplateName            string                 `json:"templateName"`
+	TemplateData            map[string]interface{} `json:"templateData"`
+}
+
+func (LegendRankingsParticipationRewardEventPayload) Type() MicroserviceEvent {
+	return LegendRankingsParticipationRewardEvent
 }
 
 // LegendShowcaseProductVirtualDeletedEventPayload is the payload for the legend_showcase.product_virtual_deleted event.
