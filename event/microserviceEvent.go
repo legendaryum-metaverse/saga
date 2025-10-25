@@ -557,7 +557,7 @@ type AuditReceivedPayload struct {
 	ReceiverMicroservice string `json:"receiver_microservice"`
 	// The event that was received
 	ReceivedEvent string `json:"received_event"`
-	// Timestamp when the event was received (UNIX timestamp in seconds)
+	// Timestamp when the event was received (UNIX timestamp in milliseconds)
 	ReceivedAt uint64 `json:"received_at"`
 	// The queue name from which the event was consumed
 	QueueName string `json:"queue_name"`
@@ -577,7 +577,7 @@ type AuditProcessedPayload struct {
 	ProcessorMicroservice string `json:"processor_microservice"`
 	// The original event that was processed
 	ProcessedEvent string `json:"processed_event"`
-	// Timestamp when the event was processed (UNIX timestamp in seconds)
+	// Timestamp when the event was processed (UNIX timestamp in milliseconds)
 	ProcessedAt uint64 `json:"processed_at"`
 	// The queue name where the event was consumed
 	QueueName string `json:"queue_name"`
@@ -597,7 +597,7 @@ type AuditDeadLetterPayload struct {
 	RejectorMicroservice string `json:"rejector_microservice"`
 	// The original event that was rejected
 	RejectedEvent string `json:"rejected_event"`
-	// Timestamp when the event was rejected (UNIX timestamp in seconds)
+	// Timestamp when the event was rejected (UNIX timestamp in milliseconds)
 	RejectedAt uint64 `json:"rejected_at"`
 	// The queue name where the event was rejected from
 	QueueName string `json:"queue_name"`
@@ -619,7 +619,7 @@ type AuditPublishedPayload struct {
 	PublisherMicroservice string `json:"publisher_microservice"`
 	// The event that was published
 	PublishedEvent string `json:"published_event"`
-	// Timestamp when the event was published (UNIX timestamp in seconds)
+	// Timestamp when the event was published (UNIX timestamp in milliseconds)
 	PublishedAt uint64 `json:"published_at"`
 	// Event identifier for tracking across the event lifecycle
 	EventID string `json:"event_id"`

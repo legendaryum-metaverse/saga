@@ -99,7 +99,7 @@ func (t *Transactional) eventCallback(msg *amqp.Delivery, emitter *Emitter[Event
 		eventID = uuid.Must(uuid.NewV7()).String()
 	}
 	// Emit audit.received event automatically when event is received (before processing)
-	timestamp := uint64(time.Now().Unix())
+	timestamp := uint64(time.Now().UnixMilli())
 
 	auditReceivedPayload := event.AuditReceivedPayload{
 		PublisherMicroservice: publisherMicroservice,

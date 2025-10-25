@@ -23,7 +23,7 @@ func (m *EventsConsumeChannel) AckMessage() {
 		return
 	}
 	// Emit audit.processed event automatically
-	timestamp := uint64(time.Now().Unix())
+	timestamp := uint64(time.Now().UnixMilli())
 
 	auditPayload := event.AuditProcessedPayload{
 		PublisherMicroservice: m.publisherMicroservice,
@@ -47,7 +47,7 @@ func (m *EventsConsumeChannel) NackWithDelay(delay time.Duration, maxRetries int
 	count, duration, err := m.ConsumeChannel.NackWithDelay(delay, maxRetries)
 	rc := uint32(count)
 	// Emit audit.dead_letter event automatically
-	timestamp := uint64(time.Now().Unix())
+	timestamp := uint64(time.Now().UnixMilli())
 
 	auditPayload := event.AuditDeadLetterPayload{
 		PublisherMicroservice: m.publisherMicroservice,
@@ -74,7 +74,7 @@ func (m *EventsConsumeChannel) NackWithFibonacciStrategy(maxOccurrence, maxRetri
 	count, duration, occurrence, err := m.ConsumeChannel.NackWithFibonacciStrategy(maxOccurrence, maxRetries)
 	rc := uint32(count)
 	// Emit audit.dead_letter event automatically
-	timestamp := uint64(time.Now().Unix())
+	timestamp := uint64(time.Now().UnixMilli())
 
 	auditPayload := event.AuditDeadLetterPayload{
 		PublisherMicroservice: m.publisherMicroservice,
