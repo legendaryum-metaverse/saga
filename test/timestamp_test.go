@@ -8,10 +8,10 @@ import (
 )
 
 // Constants for timestamp validation
-// Year 2020 in milliseconds (Jan 1, 2020 00:00:00 UTC)
+// Year 2020 in milliseconds (Jan 1, 2020 00:00:00 UTC).
 const YEAR_2020_MS int64 = 1577836800000
 
-// Year 2030 in milliseconds (Jan 1, 2030 00:00:00 UTC)
+// Year 2030 in milliseconds (Jan 1, 2030 00:00:00 UTC).
 const YEAR_2030_MS int64 = 1893456000000
 
 func TestTimestampPrecision(t *testing.T) {
@@ -172,7 +172,7 @@ func TestMillisecondVsSecondTimestamps(t *testing.T) {
 	})
 }
 
-// Helper function to convert int64 to string for digit counting
+// Helper function to convert int64 to string for digit counting.
 func toString(n int64) string {
 	if n == 0 {
 		return "0"
