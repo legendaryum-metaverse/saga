@@ -104,7 +104,7 @@ func PublishEvent(payload event.PayloadEvent) error {
 	if err != nil {
 		return fmt.Errorf("error publishing message: %w", err)
 	}
-	timestamp := uint64(time.Now().Unix())
+	timestamp := uint64(time.Now().UnixMilli())
 	auditPayload := event.AuditPublishedPayload{
 		PublisherMicroservice: publisherMicroservice,
 		PublishedEvent:        string(payload.Type()),
