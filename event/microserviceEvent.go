@@ -261,6 +261,8 @@ type CompletedRanking struct {
 	NftContractAddress   *string `json:"nftContractAddress,omitempty"`
 	// Present only if reward_type is "Crypto"
 	WalletCryptoAsset *string `json:"walletCryptoAsset,omitempty"`
+	// Optional notification config (dynamic template data)
+	NotificationConfig map[string]any `json:"notificationConfig,omitempty"`
 }
 
 // LegendMissionsSendEmailCryptoMissionCompletedEventPayload is the payload for the legend_missions.send_email_crypto_mission_completed event.
