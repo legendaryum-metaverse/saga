@@ -317,6 +317,7 @@ type LegendRankingsNewRankingCreatedEventPayload struct {
 	Description          string              `json:"description"`
 	AuthorEmail          string              `json:"authorEmail"`
 	RewardType           string              `json:"rewardType"`
+	StartAt              string              `json:"startAt"`
 	EndsAt               string              `json:"endsAt"`
 	NftBlockchainNetwork *string             `json:"nftBlockchainNetwork,omitempty"`
 	NftContractAddress   *string             `json:"nftContractAddress,omitempty"`
