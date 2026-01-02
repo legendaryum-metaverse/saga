@@ -40,7 +40,7 @@ const (
 	SocialUnblockChatEvent                                   MicroserviceEvent = "social.unblock_chat"
 	SocialUpdatedUserEvent                                   MicroserviceEvent = "social.updated_user"
 
-	// Billing events - Payment and subscription domain events (No Stripe leakage)
+	// Billing events - Payment and subscription domain events (No Stripe leakage).
 	BillingPaymentCreatedEvent       MicroserviceEvent = "billing.payment.created"
 	BillingPaymentSucceededEvent     MicroserviceEvent = "billing.payment.succeeded"
 	BillingPaymentFailedEvent        MicroserviceEvent = "billing.payment.failed"
@@ -524,7 +524,7 @@ func (AuditPublishedPayload) Type() MicroserviceEvent {
 // BILLING PAYLOADS - Payment and subscription domain events (No Stripe leakage - only internal IDs)
 // ======================================================================================================
 
-// BillingPaymentCreatedPayload is the payload for billing.payment.created event
+// BillingPaymentCreatedPayload is the payload for billing.payment.created event.
 type BillingPaymentCreatedPayload struct {
 	PaymentID  string            `json:"paymentId"`
 	UserID     string            `json:"userId"`
@@ -539,7 +539,7 @@ func (BillingPaymentCreatedPayload) Type() MicroserviceEvent {
 	return BillingPaymentCreatedEvent
 }
 
-// BillingPaymentSucceededPayload is the payload for billing.payment.succeeded event
+// BillingPaymentSucceededPayload is the payload for billing.payment.succeeded event.
 type BillingPaymentSucceededPayload struct {
 	PaymentID  string            `json:"paymentId"`
 	UserID     string            `json:"userId"`
@@ -553,7 +553,7 @@ func (BillingPaymentSucceededPayload) Type() MicroserviceEvent {
 	return BillingPaymentSucceededEvent
 }
 
-// BillingPaymentFailedPayload is the payload for billing.payment.failed event
+// BillingPaymentFailedPayload is the payload for billing.payment.failed event.
 type BillingPaymentFailedPayload struct {
 	PaymentID     string            `json:"paymentId"`
 	UserID        string            `json:"userId"`
@@ -568,7 +568,7 @@ func (BillingPaymentFailedPayload) Type() MicroserviceEvent {
 	return BillingPaymentFailedEvent
 }
 
-// BillingPaymentRefundedPayload is the payload for billing.payment.refunded event
+// BillingPaymentRefundedPayload is the payload for billing.payment.refunded event.
 type BillingPaymentRefundedPayload struct {
 	PaymentID      string            `json:"paymentId"`
 	UserID         string            `json:"userId"`
@@ -583,7 +583,7 @@ func (BillingPaymentRefundedPayload) Type() MicroserviceEvent {
 	return BillingPaymentRefundedEvent
 }
 
-// BillingSubscriptionCreatedPayload is the payload for billing.subscription.created event
+// BillingSubscriptionCreatedPayload is the payload for billing.subscription.created event.
 type BillingSubscriptionCreatedPayload struct {
 	SubscriptionID string `json:"subscriptionId"`
 	UserID         string `json:"userId"`
@@ -599,7 +599,7 @@ func (BillingSubscriptionCreatedPayload) Type() MicroserviceEvent {
 	return BillingSubscriptionCreatedEvent
 }
 
-// BillingSubscriptionUpdatedPayload is the payload for billing.subscription.updated event
+// BillingSubscriptionUpdatedPayload is the payload for billing.subscription.updated event.
 type BillingSubscriptionUpdatedPayload struct {
 	SubscriptionID    string `json:"subscriptionId"`
 	UserID            string `json:"userId"`
@@ -616,7 +616,7 @@ func (BillingSubscriptionUpdatedPayload) Type() MicroserviceEvent {
 	return BillingSubscriptionUpdatedEvent
 }
 
-// BillingSubscriptionRenewedPayload is the payload for billing.subscription.renewed event
+// BillingSubscriptionRenewedPayload is the payload for billing.subscription.renewed event.
 type BillingSubscriptionRenewedPayload struct {
 	SubscriptionID string `json:"subscriptionId"`
 	UserID         string `json:"userId"`
@@ -631,7 +631,7 @@ func (BillingSubscriptionRenewedPayload) Type() MicroserviceEvent {
 	return BillingSubscriptionRenewedEvent
 }
 
-// BillingSubscriptionCanceledPayload is the payload for billing.subscription.canceled event
+// BillingSubscriptionCanceledPayload is the payload for billing.subscription.canceled event.
 type BillingSubscriptionCanceledPayload struct {
 	SubscriptionID string `json:"subscriptionId"`
 	UserID         string `json:"userId"`
@@ -645,7 +645,7 @@ func (BillingSubscriptionCanceledPayload) Type() MicroserviceEvent {
 	return BillingSubscriptionCanceledEvent
 }
 
-// BillingSubscriptionExpiredPayload is the payload for billing.subscription.expired event
+// BillingSubscriptionExpiredPayload is the payload for billing.subscription.expired event.
 type BillingSubscriptionExpiredPayload struct {
 	SubscriptionID string `json:"subscriptionId"`
 	UserID         string `json:"userId"`
