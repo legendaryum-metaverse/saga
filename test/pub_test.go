@@ -19,7 +19,7 @@ type EventsTestSuite struct {
 func (suite *EventsTestSuite) SetupSuite() {
 	transactional := saga.Config(&saga.Opts{
 		RabbitUri:    "amqp://rabbit:1234@localhost:5672",
-		Microservice: micro.RoomInventory,
+		Microservice: micro.Auth,
 		Events: []event.MicroserviceEvent{
 			event.SocialNewUserEvent,
 			event.SocialBlockChatEvent,
