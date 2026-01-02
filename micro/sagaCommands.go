@@ -13,7 +13,7 @@ func (m AvailableMicroservices) IsValid() bool {
 		Missions,
 		Rankings,
 		SendEmail, Showcase, Social, Storage,
-		AuditEda:
+		AuditEda, Billing:
 		return true
 	}
 	return false
@@ -73,4 +73,8 @@ const (
 
 const (
 	AuditEda AvailableMicroservices = "audit-eda"
+)
+
+const (
+	Billing AvailableMicroservices = "billing"
 )
