@@ -31,20 +31,6 @@ func (PurchaseResourceFlowPayload) Type() SagaTitle {
 	return PurchaseResourceFlow
 }
 
-type UserReward struct {
-	UserId string `json:"userId"`
-	Reward string `json:"coins"`
-}
-
-// RankingsUsersRewardPayload is the payload for the rankings_users_reward event.
-type RankingsUsersRewardPayload struct {
-	Rewards []UserReward `json:"rewards"`
-}
-
-func (RankingsUsersRewardPayload) Type() SagaTitle {
-	return RankingsUsersReward
-}
-
 type CryptoRankingWinners struct {
 	UserID string `json:"userId"`
 	Reward string `json:"reward"`
