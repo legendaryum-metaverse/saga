@@ -76,5 +76,8 @@ const (
 )
 
 const (
-	Billing AvailableMicroservices = "billing"
+	Billing                           AvailableMicroservices = "billing"
+	RefundPaymentCommand              StepCommand            = "refund_payment"
+	CancelSubscriptionCommand         StepCommand            = "cancel_subscription"
+	CreateSubscriptionScheduleCommand StepCommand            = "create_subscription_schedule"
 )
