@@ -10,11 +10,9 @@ func (m AvailableMicroservices) IsValid() bool {
 	case TestImage, TestMint,
 		Auth,
 		Blockchain,
-		Coins,
 		Missions,
 		Rankings,
-		RapidMessaging, RoomCreator, RoomInventory, RoomSnapshot,
-		SendEmail, Showcase, Social, SocialMediaRooms, Storage,
+		SendEmail, Showcase, Social, Storage,
 		AuditEda:
 		return true
 	}
@@ -46,35 +44,11 @@ const (
 )
 
 const (
-	Coins                               AvailableMicroservices = "coins"
-	ResourcePurchasedDeductCoinsCommand StepCommand            = "resource_purchased:deduct_coins"
-	RankingsRewardCoinsCommand          StepCommand            = "rankings_users_reward:reward_coins"
-)
-
-const (
 	Missions AvailableMicroservices = "legend-missions"
 )
 
 const (
 	Rankings AvailableMicroservices = "rankings"
-)
-
-const (
-	RapidMessaging AvailableMicroservices = "rapid-messaging"
-)
-
-const (
-	RoomInventory                AvailableMicroservices = "room-inventory"
-	SavePurchasedResourceCommand StepCommand            = "resource_purchased:save_purchased_resource"
-)
-
-const (
-	RoomSnapshot AvailableMicroservices = "room-snapshot"
-)
-
-const (
-	RoomCreator                     AvailableMicroservices = "room-creator"
-	UpdateIslandRoomTemplateCommand StepCommand            = "update_island_room_template"
 )
 
 const (
@@ -90,10 +64,6 @@ const (
 	Social                  AvailableMicroservices = "social"
 	UpdateUserImageCommand  StepCommand            = "update_user:image"
 	CreateSocialUserCommand StepCommand            = "create_social_user"
-)
-
-const (
-	SocialMediaRooms AvailableMicroservices = "social-media-rooms"
 )
 
 const (
