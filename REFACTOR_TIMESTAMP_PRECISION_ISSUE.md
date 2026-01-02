@@ -27,6 +27,7 @@ let published_at = chrono::DateTime::from_timestamp_millis(payload.published_at 
 ```
 
 However, all libraries are currently sending timestamps in **seconds**, leading to:
+
 - ❌ Dates showing as **1970** instead of **2025** in the database
 - ❌ Loss of sub-second precision (critical for 0.5ms - 2ms latency tracking)
 - ❌ Broken cross-system time comparisons
@@ -58,10 +59,12 @@ Each payload has a timestamp field that needs to be changed from seconds → mil
 **Action**: Update field documentation for all timestamp fields.
 
 **Change**:
+
 - ❌ OLD: "UNIX timestamp" or "UNIX timestamp in seconds"
 - ✅ NEW: "UNIX timestamp in milliseconds"
 
 **Example (Rust)**:
+
 ```rust
 // BEFORE
 pub struct AuditPublishedPayload {
@@ -89,6 +92,7 @@ pub struct AuditPublishedPayload {
 #### Pattern to Search For
 
 Look for code that:
+
 1. Gets current system time
 2. Converts to UNIX timestamp
 3. Uses **seconds** (not milliseconds)
@@ -116,10 +120,10 @@ let timestamp = SystemTime::now()
 
 ```typescript
 // ❌ OLD: Generates seconds
-const timestamp = Math.floor(Date.now() / 1000);  // Divides by 1000 = seconds
+const timestamp = Math.floor(Date.now() / 1000); // Divides by 1000 = seconds
 
 // ✅ NEW: Generates milliseconds
-const timestamp = Date.now();  // Already in milliseconds!
+const timestamp = Date.now(); // Already in milliseconds!
 ```
 
 **Go**:
@@ -145,6 +149,7 @@ Search your codebase for these patterns:
 5. **Test code** - Any tests that create audit payloads
 
 **Rust locations** (as reference):
+
 - `src/publish_event.rs` - Publishing audit.published
 - `src/events_consume.rs` (4 locations):
   - `ack()` method - audit.processed
@@ -158,6 +163,7 @@ Search your codebase for these patterns:
 **Action**: Add tests to verify timestamp precision.
 
 **What to test**:
+
 1. Timestamp values are in reasonable range (year 2020-2030)
 2. Timestamps have millisecond precision (not just seconds)
 3. Verify milliseconds are ~1000x larger than seconds
@@ -262,7 +268,7 @@ describe('Timestamp Precision Tests', () => {
       publisher_microservice: 'test-service',
       published_event: 'test.event',
       published_at: Date.now(),
-      event_id: 'test-uuid'
+      event_id: 'test-uuid',
     };
 
     expect(payload.published_at).toBeGreaterThan(YEAR_2020_MS);
@@ -323,6 +329,7 @@ func TestTimestampPrecision(t *testing.T) {
 Ensure all existing tests pass **AND** new timestamp precision tests pass.
 
 **Rust**:
+
 ```bash
 make test
 # OR
@@ -330,6 +337,7 @@ cargo test --lib -- --test-threads=1
 ```
 
 **TypeScript**:
+
 ```bash
 npm test
 # OR
@@ -337,6 +345,7 @@ yarn test
 ```
 
 **Go**:
+
 ```bash
 go test ./... -v
 ```
@@ -393,12 +402,12 @@ LIMIT 5;
 // ❌ WRONG: This creates seconds then treats as milliseconds
 const timestampSeconds = Math.floor(Date.now() / 1000);
 const payload = {
-  published_at: timestampSeconds  // Will show as 1970!
+  published_at: timestampSeconds, // Will show as 1970!
 };
 
 // ✅ CORRECT: Use milliseconds directly
 const payload = {
-  published_at: Date.now()
+  published_at: Date.now(),
 };
 ```
 
@@ -427,6 +436,7 @@ fn test_something() {
 ### ❌ Don't: Assume Type Changes Are Needed
 
 The data type remains the same (usually `u64`, `number`, `int64`). Only the **value** changes:
+
 - ❌ OLD: `1761368484` (10 digits, seconds)
 - ✅ NEW: `1761368484328` (13 digits, milliseconds)
 
@@ -436,27 +446,27 @@ The data type remains the same (usually `u64`, `number`, `int64`). Only the **va
 
 ### Rust
 
-| Operation | Seconds (OLD ❌) | Milliseconds (NEW ✅) |
-|-----------|------------------|----------------------|
-| Get timestamp | `.as_secs()` | `.as_millis() as u64` |
-| Type | `u64` | `u64` |
-| Example value | `1761368484` | `1761368484328` |
+| Operation     | Seconds (OLD ❌) | Milliseconds (NEW ✅) |
+| ------------- | ---------------- | --------------------- |
+| Get timestamp | `.as_secs()`     | `.as_millis() as u64` |
+| Type          | `u64`            | `u64`                 |
+| Example value | `1761368484`     | `1761368484328`       |
 
 ### TypeScript/JavaScript
 
-| Operation | Seconds (OLD ❌) | Milliseconds (NEW ✅) |
-|-----------|------------------|----------------------|
-| Get timestamp | `Math.floor(Date.now() / 1000)` | `Date.now()` |
-| Type | `number` | `number` |
-| Example value | `1761368484` | `1761368484328` |
+| Operation     | Seconds (OLD ❌)                | Milliseconds (NEW ✅) |
+| ------------- | ------------------------------- | --------------------- |
+| Get timestamp | `Math.floor(Date.now() / 1000)` | `Date.now()`          |
+| Type          | `number`                        | `number`              |
+| Example value | `1761368484`                    | `1761368484328`       |
 
 ### Go
 
-| Operation | Seconds (OLD ❌) | Milliseconds (NEW ✅) |
-|-----------|------------------|----------------------|
+| Operation     | Seconds (OLD ❌)    | Milliseconds (NEW ✅)    |
+| ------------- | ------------------- | ------------------------ |
 | Get timestamp | `time.Now().Unix()` | `time.Now().UnixMilli()` |
-| Type | `int64` | `int64` |
-| Example value | `1761368484` | `1761368484328` |
+| Type          | `int64`             | `int64`                  |
+| Example value | `1761368484`        | `1761368484328`          |
 
 ---
 
@@ -465,6 +475,7 @@ The data type remains the same (usually `u64`, `number`, `int64`). Only the **va
 ### Breaking Change
 
 This is a **breaking change** because:
+
 - Old libraries send seconds (10 digits)
 - New libraries send milliseconds (13 digits)
 - Consumer expects one format consistently
@@ -472,11 +483,13 @@ This is a **breaking change** because:
 ### Deployment Strategy
 
 **Option 1: Big Bang Deployment** (Recommended if automated)
+
 1. Deploy all libraries simultaneously via CI/CD
 2. All microservices update at once
 3. Clean cutover with no mixed state
 
 **Option 2: Gradual Deployment** (If needed)
+
 1. Deploy consumer validation first (optional, not in this guide)
 2. Deploy libraries one by one
 3. Monitor logs for issues
@@ -484,6 +497,7 @@ This is a **breaking change** because:
 ### Success Criteria
 
 After deployment, verify:
+
 - ✅ Database queries show dates in 2025 (not 1970)
 - ✅ Latency calculations remain accurate with millisecond precision
 - ✅ All library tests pass
@@ -495,12 +509,14 @@ After deployment, verify:
 ## Summary
 
 **Changes Required**:
+
 1. ✅ Update documentation: "UNIX timestamp in seconds" → "UNIX timestamp in milliseconds"
 2. ✅ Update timestamp generation: seconds → milliseconds
 3. ✅ Add unit tests: verify millisecond precision
 4. ✅ Run tests: ensure everything passes
 
 **Files to Search**:
+
 - Event payload definitions (4 structs)
 - Event publishing code
 - Event consuming code (ACK/NACK handlers)
@@ -513,6 +529,7 @@ After deployment, verify:
 ## Questions?
 
 If you encounter issues:
+
 1. Check that ALL timestamp generation uses milliseconds
 2. Verify tests include reasonable range checks (2020-2030)
 3. Ensure no test code was missed
