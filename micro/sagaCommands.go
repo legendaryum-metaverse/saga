@@ -56,8 +56,7 @@ const (
 )
 
 const (
-	Showcase                      AvailableMicroservices = "legend-showcase"
-	RandomizeIslandPvImageCommand StepCommand            = "randomize_island_pv_image"
+	Showcase AvailableMicroservices = "legend-showcase"
 )
 
 const (
