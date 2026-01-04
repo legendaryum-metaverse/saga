@@ -9,7 +9,6 @@ const (
 type SagaTitle string
 
 const (
-	PurchaseResourceFlow                 SagaTitle = "purchase_resource_flow"
 	RankingsUsersReward                  SagaTitle = "rankings_users_reward"
 	TransferCryptoRewardToMissionWinner  SagaTitle = "transfer_crypto_reward_to_mission_winner"
 	TransferCryptoRewardToRankingWinners SagaTitle = "transfer_crypto_reward_to_ranking_winners"
@@ -17,18 +16,6 @@ const (
 
 type CommencePayload interface {
 	Type() SagaTitle
-}
-
-// PurchaseResourceFlowPayload is the payload for the purchase_resource_flow event.
-type PurchaseResourceFlowPayload struct {
-	UserId     string `json:"userId"`
-	ResourceId string `json:"resourceId"`
-	Price      int    `json:"price"`
-	Quantity   int    `json:"quantity"`
-}
-
-func (PurchaseResourceFlowPayload) Type() SagaTitle {
-	return PurchaseResourceFlow
 }
 
 type CryptoRankingWinners struct {
