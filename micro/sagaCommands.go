@@ -8,12 +8,13 @@ type AvailableMicroservices string
 func (m AvailableMicroservices) IsValid() bool {
 	switch m {
 	case TestImage, TestMint,
+		AuditEda,
 		Auth,
+		Billing,
 		Blockchain,
 		Missions,
 		Rankings,
-		SendEmail, Showcase, Social, Storage,
-		AuditEda:
+		SendEmail, Showcase, Social, Storage:
 		return true
 	}
 	return false
@@ -72,4 +73,8 @@ const (
 
 const (
 	AuditEda AvailableMicroservices = "audit-eda"
+)
+
+const (
+	Billing AvailableMicroservices = "billing"
 )

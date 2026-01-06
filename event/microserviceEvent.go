@@ -39,6 +39,17 @@ const (
 	SocialNewUserEvent                                       MicroserviceEvent = "social.new_user"
 	SocialUnblockChatEvent                                   MicroserviceEvent = "social.unblock_chat"
 	SocialUpdatedUserEvent                                   MicroserviceEvent = "social.updated_user"
+
+	// Billing events - Payment and subscription domain events (No Stripe leakage).
+	BillingPaymentCreatedEvent       MicroserviceEvent = "billing.payment_created"
+	BillingPaymentSucceededEvent     MicroserviceEvent = "billing.payment_succeeded"
+	BillingPaymentFailedEvent        MicroserviceEvent = "billing.payment_failed"
+	BillingPaymentRefundedEvent      MicroserviceEvent = "billing.payment_refunded"
+	BillingSubscriptionCreatedEvent  MicroserviceEvent = "billing.subscription_created"
+	BillingSubscriptionUpdatedEvent  MicroserviceEvent = "billing.subscription_updated"
+	BillingSubscriptionRenewedEvent  MicroserviceEvent = "billing.subscription_renewed"
+	BillingSubscriptionCanceledEvent MicroserviceEvent = "billing.subscription_canceled"
+	BillingSubscriptionExpiredEvent  MicroserviceEvent = "billing.subscription_expired"
 )
 
 func MicroserviceEventValues() []MicroserviceEvent {
@@ -73,6 +84,17 @@ func MicroserviceEventValues() []MicroserviceEvent {
 		SocialNewUserEvent,
 		SocialUnblockChatEvent,
 		SocialUpdatedUserEvent,
+
+		// Billing events
+		BillingPaymentCreatedEvent,
+		BillingPaymentSucceededEvent,
+		BillingPaymentFailedEvent,
+		BillingPaymentRefundedEvent,
+		BillingSubscriptionCreatedEvent,
+		BillingSubscriptionUpdatedEvent,
+		BillingSubscriptionRenewedEvent,
+		BillingSubscriptionCanceledEvent,
+		BillingSubscriptionExpiredEvent,
 	}
 }
 
@@ -496,4 +518,143 @@ type AuditPublishedPayload struct {
 
 func (AuditPublishedPayload) Type() MicroserviceEvent {
 	return AuditPublishedEvent
+}
+
+// ======================================================================================================
+// BILLING PAYLOADS - Payment and subscription domain events (No Stripe leakage - only internal IDs)
+// ======================================================================================================
+
+// BillingPaymentCreatedPayload is the payload for billing.payment.created event.
+type BillingPaymentCreatedPayload struct {
+	PaymentID  string            `json:"paymentId"`
+	UserID     string            `json:"userId"`
+	Amount     int64             `json:"amount"`
+	Currency   string            `json:"currency"`
+	Status     string            `json:"status"` // "pending" | "processing"
+	Metadata   map[string]string `json:"metadata"`
+	OccurredAt string            `json:"occurredAt"`
+}
+
+func (BillingPaymentCreatedPayload) Type() MicroserviceEvent {
+	return BillingPaymentCreatedEvent
+}
+
+// BillingPaymentSucceededPayload is the payload for billing.payment.succeeded event.
+type BillingPaymentSucceededPayload struct {
+	PaymentID  string            `json:"paymentId"`
+	UserID     string            `json:"userId"`
+	Amount     int64             `json:"amount"`
+	Currency   string            `json:"currency"`
+	Metadata   map[string]string `json:"metadata"`
+	OccurredAt string            `json:"occurredAt"`
+}
+
+func (BillingPaymentSucceededPayload) Type() MicroserviceEvent {
+	return BillingPaymentSucceededEvent
+}
+
+// BillingPaymentFailedPayload is the payload for billing.payment.failed event.
+type BillingPaymentFailedPayload struct {
+	PaymentID     string            `json:"paymentId"`
+	UserID        string            `json:"userId"`
+	Amount        int64             `json:"amount"`
+	Currency      string            `json:"currency"`
+	FailureReason *string           `json:"failureReason,omitempty"`
+	Metadata      map[string]string `json:"metadata"`
+	OccurredAt    string            `json:"occurredAt"`
+}
+
+func (BillingPaymentFailedPayload) Type() MicroserviceEvent {
+	return BillingPaymentFailedEvent
+}
+
+// BillingPaymentRefundedPayload is the payload for billing.payment.refunded event.
+type BillingPaymentRefundedPayload struct {
+	PaymentID      string            `json:"paymentId"`
+	UserID         string            `json:"userId"`
+	Amount         int64             `json:"amount"`
+	RefundedAmount int64             `json:"refundedAmount"`
+	Currency       string            `json:"currency"`
+	Metadata       map[string]string `json:"metadata"`
+	OccurredAt     string            `json:"occurredAt"`
+}
+
+func (BillingPaymentRefundedPayload) Type() MicroserviceEvent {
+	return BillingPaymentRefundedEvent
+}
+
+// BillingSubscriptionCreatedPayload is the payload for billing.subscription.created event.
+type BillingSubscriptionCreatedPayload struct {
+	SubscriptionID string `json:"subscriptionId"`
+	UserID         string `json:"userId"`
+	PlanID         string `json:"planId"`
+	PlanSlug       string `json:"planSlug"`
+	Status         string `json:"status"` // "pending" | "active" | "trialing"
+	PeriodStart    string `json:"periodStart"`
+	PeriodEnd      string `json:"periodEnd"`
+	OccurredAt     string `json:"occurredAt"`
+}
+
+func (BillingSubscriptionCreatedPayload) Type() MicroserviceEvent {
+	return BillingSubscriptionCreatedEvent
+}
+
+// BillingSubscriptionUpdatedPayload is the payload for billing.subscription.updated event.
+type BillingSubscriptionUpdatedPayload struct {
+	SubscriptionID    string `json:"subscriptionId"`
+	UserID            string `json:"userId"`
+	PlanID            string `json:"planId"`
+	PlanSlug          string `json:"planSlug"`
+	Status            string `json:"status"` // "active" | "past_due" | "unpaid" | "paused" | "trialing"
+	CancelAtPeriodEnd bool   `json:"cancelAtPeriodEnd"`
+	PeriodStart       string `json:"periodStart"`
+	PeriodEnd         string `json:"periodEnd"`
+	OccurredAt        string `json:"occurredAt"`
+}
+
+func (BillingSubscriptionUpdatedPayload) Type() MicroserviceEvent {
+	return BillingSubscriptionUpdatedEvent
+}
+
+// BillingSubscriptionRenewedPayload is the payload for billing.subscription.renewed event.
+type BillingSubscriptionRenewedPayload struct {
+	SubscriptionID string `json:"subscriptionId"`
+	UserID         string `json:"userId"`
+	PlanID         string `json:"planId"`
+	PlanSlug       string `json:"planSlug"`
+	PeriodStart    string `json:"periodStart"`
+	PeriodEnd      string `json:"periodEnd"`
+	OccurredAt     string `json:"occurredAt"`
+}
+
+func (BillingSubscriptionRenewedPayload) Type() MicroserviceEvent {
+	return BillingSubscriptionRenewedEvent
+}
+
+// BillingSubscriptionCanceledPayload is the payload for billing.subscription.canceled event.
+type BillingSubscriptionCanceledPayload struct {
+	SubscriptionID string `json:"subscriptionId"`
+	UserID         string `json:"userId"`
+	PlanID         string `json:"planId"`
+	PlanSlug       string `json:"planSlug"`
+	CanceledAt     string `json:"canceledAt"`
+	OccurredAt     string `json:"occurredAt"`
+}
+
+func (BillingSubscriptionCanceledPayload) Type() MicroserviceEvent {
+	return BillingSubscriptionCanceledEvent
+}
+
+// BillingSubscriptionExpiredPayload is the payload for billing.subscription.expired event.
+type BillingSubscriptionExpiredPayload struct {
+	SubscriptionID string `json:"subscriptionId"`
+	UserID         string `json:"userId"`
+	PlanID         string `json:"planId"`
+	PlanSlug       string `json:"planSlug"`
+	ExpiredAt      string `json:"expiredAt"`
+	OccurredAt     string `json:"occurredAt"`
+}
+
+func (BillingSubscriptionExpiredPayload) Type() MicroserviceEvent {
+	return BillingSubscriptionExpiredEvent
 }
