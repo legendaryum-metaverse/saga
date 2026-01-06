@@ -41,15 +41,15 @@ const (
 	SocialUpdatedUserEvent                                   MicroserviceEvent = "social.updated_user"
 
 	// Billing events - Payment and subscription domain events (No Stripe leakage).
-	BillingPaymentCreatedEvent       MicroserviceEvent = "billing.payment.created"
-	BillingPaymentSucceededEvent     MicroserviceEvent = "billing.payment.succeeded"
-	BillingPaymentFailedEvent        MicroserviceEvent = "billing.payment.failed"
-	BillingPaymentRefundedEvent      MicroserviceEvent = "billing.payment.refunded"
-	BillingSubscriptionCreatedEvent  MicroserviceEvent = "billing.subscription.created"
-	BillingSubscriptionUpdatedEvent  MicroserviceEvent = "billing.subscription.updated"
-	BillingSubscriptionRenewedEvent  MicroserviceEvent = "billing.subscription.renewed"
-	BillingSubscriptionCanceledEvent MicroserviceEvent = "billing.subscription.canceled"
-	BillingSubscriptionExpiredEvent  MicroserviceEvent = "billing.subscription.expired"
+	BillingPaymentCreatedEvent       MicroserviceEvent = "billing.payment_created"
+	BillingPaymentSucceededEvent     MicroserviceEvent = "billing.payment_succeeded"
+	BillingPaymentFailedEvent        MicroserviceEvent = "billing.payment_failed"
+	BillingPaymentRefundedEvent      MicroserviceEvent = "billing.payment_refunded"
+	BillingSubscriptionCreatedEvent  MicroserviceEvent = "billing.subscription_created"
+	BillingSubscriptionUpdatedEvent  MicroserviceEvent = "billing.subscription_updated"
+	BillingSubscriptionRenewedEvent  MicroserviceEvent = "billing.subscription_renewed"
+	BillingSubscriptionCanceledEvent MicroserviceEvent = "billing.subscription_canceled"
+	BillingSubscriptionExpiredEvent  MicroserviceEvent = "billing.subscription_expired"
 )
 
 func MicroserviceEventValues() []MicroserviceEvent {
