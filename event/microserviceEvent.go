@@ -50,6 +50,17 @@ const (
 	BillingSubscriptionRenewedEvent  MicroserviceEvent = "billing.subscription_renewed"
 	BillingSubscriptionCanceledEvent MicroserviceEvent = "billing.subscription_canceled"
 	BillingSubscriptionExpiredEvent  MicroserviceEvent = "billing.subscription_expired"
+
+	// Legend Events - Event and registration domain events.
+	LegendEventsNewEventCreatedEvent      MicroserviceEvent = "legend_events.new_event_created"
+	LegendEventsEventStartedEvent         MicroserviceEvent = "legend_events.event_started"
+	LegendEventsEventEndedEvent           MicroserviceEvent = "legend_events.event_ended"
+	LegendEventsPlayerRegisteredEvent     MicroserviceEvent = "legend_events.player_registered"
+	LegendEventsPlayerJoinedWaitlistEvent MicroserviceEvent = "legend_events.player_joined_waitlist"
+	LegendEventsScoreSubmittedEvent       MicroserviceEvent = "legend_events.score_submitted"
+	LegendEventsEventsFinishedEvent       MicroserviceEvent = "legend_events.events_finished"
+	LegendEventsIntermediateRewardEvent   MicroserviceEvent = "legend_events.intermediate_reward"
+	LegendEventsParticipationRewardEvent  MicroserviceEvent = "legend_events.participation_reward"
 )
 
 func MicroserviceEventValues() []MicroserviceEvent {
@@ -95,6 +106,17 @@ func MicroserviceEventValues() []MicroserviceEvent {
 		BillingSubscriptionRenewedEvent,
 		BillingSubscriptionCanceledEvent,
 		BillingSubscriptionExpiredEvent,
+
+		// Legend Events
+		LegendEventsNewEventCreatedEvent,
+		LegendEventsEventStartedEvent,
+		LegendEventsEventEndedEvent,
+		LegendEventsPlayerRegisteredEvent,
+		LegendEventsPlayerJoinedWaitlistEvent,
+		LegendEventsScoreSubmittedEvent,
+		LegendEventsEventsFinishedEvent,
+		LegendEventsIntermediateRewardEvent,
+		LegendEventsParticipationRewardEvent,
 	}
 }
 
@@ -657,4 +679,147 @@ type BillingSubscriptionExpiredPayload struct {
 
 func (BillingSubscriptionExpiredPayload) Type() MicroserviceEvent {
 	return BillingSubscriptionExpiredEvent
+}
+
+// ======================================================================================================
+// LEGEND EVENTS PAYLOADS - Event and registration domain events
+// ======================================================================================================
+
+// LegendEventsNewEventCreatedPayload is the payload for legend_events.new_event_created event.
+type LegendEventsNewEventCreatedPayload struct {
+	EventID            int                 `json:"eventId"`
+	Title              string              `json:"title"`
+	Description        string              `json:"description"`
+	AuthorEmail        string              `json:"authorEmail"`
+	RewardType         *string             `json:"rewardType,omitempty"`
+	StartDate          string              `json:"startDate"`
+	EndDate            string              `json:"endDate"`
+	MaxPlayers         *int                `json:"maxPlayers,omitempty"`
+	TicketPriceUsd     *float32            `json:"ticketPriceUsd,omitempty"`
+	IsFreeTournament   bool                `json:"isFreeTournament"`
+	NotificationConfig *NotificationConfig `json:"notificationConfig,omitempty"`
+}
+
+func (LegendEventsNewEventCreatedPayload) Type() MicroserviceEvent {
+	return LegendEventsNewEventCreatedEvent
+}
+
+// LegendEventsEventStartedPayload is the payload for legend_events.event_started event.
+type LegendEventsEventStartedPayload struct {
+	EventID   int    `json:"eventId"`
+	Title     string `json:"title"`
+	StartedAt string `json:"startedAt"`
+}
+
+func (LegendEventsEventStartedPayload) Type() MicroserviceEvent {
+	return LegendEventsEventStartedEvent
+}
+
+// LegendEventsEventEndedPayload is the payload for legend_events.event_ended event.
+type LegendEventsEventEndedPayload struct {
+	EventID           int    `json:"eventId"`
+	Title             string `json:"title"`
+	EndedAt           string `json:"endedAt"`
+	TotalParticipants int    `json:"totalParticipants"`
+}
+
+func (LegendEventsEventEndedPayload) Type() MicroserviceEvent {
+	return LegendEventsEventEndedEvent
+}
+
+// LegendEventsPlayerRegisteredPayload is the payload for legend_events.player_registered event.
+type LegendEventsPlayerRegisteredPayload struct {
+	EventID      int      `json:"eventId"`
+	UserID       string   `json:"userId"`
+	PaymentID    *string  `json:"paymentId,omitempty"`
+	AmountPaid   *float32 `json:"amountPaid,omitempty"`
+	IsFree       bool     `json:"isFree"`
+	RegisteredAt string   `json:"registeredAt"`
+}
+
+func (LegendEventsPlayerRegisteredPayload) Type() MicroserviceEvent {
+	return LegendEventsPlayerRegisteredEvent
+}
+
+// LegendEventsPlayerJoinedWaitlistPayload is the payload for legend_events.player_joined_waitlist event.
+type LegendEventsPlayerJoinedWaitlistPayload struct {
+	EventID  int    `json:"eventId"`
+	UserID   string `json:"userId"`
+	Position int    `json:"position"`
+	JoinedAt string `json:"joinedAt"`
+}
+
+func (LegendEventsPlayerJoinedWaitlistPayload) Type() MicroserviceEvent {
+	return LegendEventsPlayerJoinedWaitlistEvent
+}
+
+// LegendEventsScoreSubmittedPayload is the payload for legend_events.score_submitted event.
+type LegendEventsScoreSubmittedPayload struct {
+	EventID     int     `json:"eventId"`
+	UserID      string  `json:"userId"`
+	Score       float64 `json:"score"`
+	TotalScore  float64 `json:"totalScore"`
+	MatchID     *string `json:"matchId,omitempty"`
+	SubmittedAt string  `json:"submittedAt"`
+}
+
+func (LegendEventsScoreSubmittedPayload) Type() MicroserviceEvent {
+	return LegendEventsScoreSubmittedEvent
+}
+
+// CompletedEvent represents a completed event with its winners.
+type CompletedEvent struct {
+	EventID            int            `json:"eventId"`
+	Title              string         `json:"title"`
+	Description        string         `json:"description"`
+	AuthorEmail        string         `json:"authorEmail"`
+	EndsAt             string         `json:"endsAt"`
+	Reward             *string        `json:"reward,omitempty"`
+	RewardType         *string        `json:"rewardType,omitempty"`
+	Winners            []EventWinner  `json:"winners"`
+	NotificationConfig map[string]any `json:"notificationConfig,omitempty"`
+}
+
+// EventWinner represents a winner in an event.
+type EventWinner struct {
+	UserID   string  `json:"userId"`
+	Position int     `json:"position"`
+	Score    float64 `json:"score"`
+}
+
+// LegendEventsEventsFinishedPayload is the payload for legend_events.events_finished event.
+type LegendEventsEventsFinishedPayload struct {
+	CompletedEvents []CompletedEvent `json:"completedEvents"`
+}
+
+func (LegendEventsEventsFinishedPayload) Type() MicroserviceEvent {
+	return LegendEventsEventsFinishedEvent
+}
+
+// LegendEventsIntermediateRewardPayload is the payload for legend_events.intermediate_reward event.
+type LegendEventsIntermediateRewardPayload struct {
+	UserID                 string                 `json:"userId"`
+	EventID                int                    `json:"eventId"`
+	IntermediateRewardType string                 `json:"intermediateRewardType"`
+	RewardConfig           map[string]interface{} `json:"rewardConfig"`
+	TemplateName           string                 `json:"templateName"`
+	TemplateData           map[string]interface{} `json:"templateData"`
+}
+
+func (LegendEventsIntermediateRewardPayload) Type() MicroserviceEvent {
+	return LegendEventsIntermediateRewardEvent
+}
+
+// LegendEventsParticipationRewardPayload is the payload for legend_events.participation_reward event.
+type LegendEventsParticipationRewardPayload struct {
+	UserID                  string                 `json:"userId"`
+	EventID                 int                    `json:"eventId"`
+	ParticipationRewardType string                 `json:"participationRewardType"`
+	RewardConfig            map[string]interface{} `json:"rewardConfig"`
+	TemplateName            string                 `json:"templateName"`
+	TemplateData            map[string]interface{} `json:"templateData"`
+}
+
+func (LegendEventsParticipationRewardPayload) Type() MicroserviceEvent {
+	return LegendEventsParticipationRewardEvent
 }
