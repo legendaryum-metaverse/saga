@@ -12,6 +12,7 @@ func (m AvailableMicroservices) IsValid() bool {
 		Auth,
 		Billing,
 		Blockchain,
+		Events,
 		Missions,
 		Rankings,
 		SendEmail, Showcase, Social, Storage:
@@ -50,6 +51,10 @@ const (
 
 const (
 	Rankings AvailableMicroservices = "rankings"
+)
+
+const (
+	Events AvailableMicroservices = "legend-events"
 )
 
 const (
