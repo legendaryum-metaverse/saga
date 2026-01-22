@@ -225,7 +225,7 @@ func (LegendMissionsMissionFinishedEventPayload) Type() MicroserviceEvent {
 
 type RankingWinners struct {
 	UserID string `json:"userId"`
-	Reward int    `json:"reward"`
+	Reward string `json:"reward"`
 }
 
 type CompletedRanking struct {
