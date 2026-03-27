@@ -30,6 +30,10 @@ const (
 	LegendMissionsSendEmailNftMissionCompletedEvent          MicroserviceEvent = "legend_missions.send_email_nft_mission_completed"
 	LegendRankingsRankingsFinishedEvent                      MicroserviceEvent = "legend_rankings.rankings_finished"
 	LegendRankingsNewRankingCreatedEvent                     MicroserviceEvent = "legend_rankings.new_ranking_created"
+	LegendRankingsRankingSubmittedForReviewEvent             MicroserviceEvent = "legend_rankings.ranking_submitted_for_review"
+	LegendRankingsRankingApprovedEvent                       MicroserviceEvent = "legend_rankings.ranking_approved"
+	LegendRankingsRankingRejectedEvent                       MicroserviceEvent = "legend_rankings.ranking_rejected"
+	LegendRankingsRankingActivatedEvent                      MicroserviceEvent = "legend_rankings.ranking_activated"
 	LegendRankingsIntermediateRewardEvent                    MicroserviceEvent = "legend_rankings.intermediate_reward"
 	LegendRankingsParticipationRewardEvent                   MicroserviceEvent = "legend_rankings.participation_reward"
 	LegendShowcaseProductVirtualDeletedEvent                 MicroserviceEvent = "legend_showcase.product_virtual_deleted"
@@ -86,6 +90,10 @@ func MicroserviceEventValues() []MicroserviceEvent {
 		LegendMissionsSendEmailNftMissionCompletedEvent,
 		LegendRankingsRankingsFinishedEvent,
 		LegendRankingsNewRankingCreatedEvent,
+		LegendRankingsRankingSubmittedForReviewEvent,
+		LegendRankingsRankingApprovedEvent,
+		LegendRankingsRankingRejectedEvent,
+		LegendRankingsRankingActivatedEvent,
 		LegendRankingsIntermediateRewardEvent,
 		LegendRankingsParticipationRewardEvent,
 		LegendShowcaseProductVirtualDeletedEvent,
@@ -315,6 +323,50 @@ type NotificationConfig struct {
 
 func (LegendRankingsNewRankingCreatedEventPayload) Type() MicroserviceEvent {
 	return LegendRankingsNewRankingCreatedEvent
+}
+
+type LegendRankingsRankingSubmittedForReviewEventPayload struct {
+	RankingID   int    `json:"rankingId"`
+	Title       string `json:"title"`
+	AuthorEmail string `json:"authorEmail"`
+	CreatedAt   string `json:"createdAt"`
+}
+
+func (LegendRankingsRankingSubmittedForReviewEventPayload) Type() MicroserviceEvent {
+	return LegendRankingsRankingSubmittedForReviewEvent
+}
+
+type LegendRankingsRankingApprovedEventPayload struct {
+	RankingID   int    `json:"rankingId"`
+	Title       string `json:"title"`
+	AuthorEmail string `json:"authorEmail"`
+	StartAt     string `json:"startAt"`
+}
+
+func (LegendRankingsRankingApprovedEventPayload) Type() MicroserviceEvent {
+	return LegendRankingsRankingApprovedEvent
+}
+
+type LegendRankingsRankingRejectedEventPayload struct {
+	RankingID   int    `json:"rankingId"`
+	Title       string `json:"title"`
+	AuthorEmail string `json:"authorEmail"`
+	Reasons     string `json:"reasons"`
+}
+
+func (LegendRankingsRankingRejectedEventPayload) Type() MicroserviceEvent {
+	return LegendRankingsRankingRejectedEvent
+}
+
+type LegendRankingsRankingActivatedEventPayload struct {
+	RankingID   int    `json:"rankingId"`
+	Title       string `json:"title"`
+	AuthorEmail string `json:"authorEmail"`
+	StartAt     string `json:"startAt"`
+}
+
+func (LegendRankingsRankingActivatedEventPayload) Type() MicroserviceEvent {
+	return LegendRankingsRankingActivatedEvent
 }
 
 // LegendRankingsIntermediateRewardEventPayload is the payload for the legend_rankings.intermediate_reward event.
