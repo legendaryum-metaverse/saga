@@ -15,6 +15,7 @@ func (m AvailableMicroservices) IsValid() bool {
 		Events,
 		Missions,
 		Rankings,
+		LegendGameAnalytics,
 		SendEmail, Showcase, Social, Storage:
 		return true
 	}
@@ -82,4 +83,8 @@ const (
 
 const (
 	Billing AvailableMicroservices = "billing"
+)
+
+const (
+	LegendGameAnalytics AvailableMicroservices = "legend-game-analytics"
 )
