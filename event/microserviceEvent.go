@@ -43,6 +43,9 @@ const (
 	SocialNewUserEvent                                       MicroserviceEvent = "social.new_user"
 	SocialUnblockChatEvent                                   MicroserviceEvent = "social.unblock_chat"
 	SocialUpdatedUserEvent                                   MicroserviceEvent = "social.updated_user"
+	SocialCountryCreatedEvent                                MicroserviceEvent = "social.country_created"
+	SocialCountryUpdatedEvent                                MicroserviceEvent = "social.country_updated"
+	SocialCountryDeletedEvent                                MicroserviceEvent = "social.country_deleted"
 
 	// Billing events - Payment and subscription domain events (No Stripe leakage).
 	BillingPaymentCreatedEvent       MicroserviceEvent = "billing.payment_created"
@@ -103,6 +106,9 @@ func MicroserviceEventValues() []MicroserviceEvent {
 		SocialNewUserEvent,
 		SocialUnblockChatEvent,
 		SocialUpdatedUserEvent,
+		SocialCountryCreatedEvent,
+		SocialCountryUpdatedEvent,
+		SocialCountryDeletedEvent,
 
 		// Billing events
 		BillingPaymentCreatedEvent,
@@ -510,6 +516,37 @@ type SocialUpdatedUserPayload struct {
 
 func (SocialUpdatedUserPayload) Type() MicroserviceEvent {
 	return SocialUpdatedUserEvent
+}
+
+// SocialCountryCreatedPayload is the payload for the social.country_created event.
+type SocialCountryCreatedPayload struct {
+	Code      string `json:"code"`
+	Name      string `json:"name"`
+	IsEnabled bool   `json:"isEnabled"`
+}
+
+func (SocialCountryCreatedPayload) Type() MicroserviceEvent {
+	return SocialCountryCreatedEvent
+}
+
+// SocialCountryUpdatedPayload is the payload for the social.country_updated event.
+type SocialCountryUpdatedPayload struct {
+	Code      string `json:"code"`
+	Name      string `json:"name"`
+	IsEnabled bool   `json:"isEnabled"`
+}
+
+func (SocialCountryUpdatedPayload) Type() MicroserviceEvent {
+	return SocialCountryUpdatedEvent
+}
+
+// SocialCountryDeletedPayload is the payload for the social.country_deleted event.
+type SocialCountryDeletedPayload struct {
+	Code string `json:"code"`
+}
+
+func (SocialCountryDeletedPayload) Type() MicroserviceEvent {
+	return SocialCountryDeletedEvent
 }
 
 // ********** AUDIT PAYLOADS ************** //
