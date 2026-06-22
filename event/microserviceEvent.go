@@ -25,9 +25,11 @@ const (
 	LegendMissionsNewMissionCreatedEvent                     MicroserviceEvent = "legend_missions.new_mission_created"
 	LegendMissionsOngoingMissionEvent                        MicroserviceEvent = "legend_missions.ongoing_mission"
 	LegendMissionsMissionFinishedEvent                       MicroserviceEvent = "legend_missions.mission_finished"
-	LegendMissionsSendEmailCryptoMissionCompletedEvent       MicroserviceEvent = "legend_missions.send_email_crypto_mission_completed"
+	LegendMissionsMissionApprovedEvent                       MicroserviceEvent = "legend_missions.mission_approved"
+	LegendMissionsMissionRejectedEvent                       MicroserviceEvent = "legend_missions.mission_rejected"
+	LegendMissionsMissionActivatedEvent                      MicroserviceEvent = "legend_missions.mission_activated"
 	LegendMissionsSendEmailCodeExchangeMissionCompletedEvent MicroserviceEvent = "legend_missions.send_email_code_exchange_mission_completed"
-	LegendMissionsSendEmailNftMissionCompletedEvent          MicroserviceEvent = "legend_missions.send_email_nft_mission_completed"
+	LegendMissionsSendEmailGiftCardMissionCompletedEvent     MicroserviceEvent = "legend_missions.send_email_gift_card_mission_completed"
 	LegendRankingsRankingsFinishedEvent                      MicroserviceEvent = "legend_rankings.rankings_finished"
 	LegendRankingsNewRankingCreatedEvent                     MicroserviceEvent = "legend_rankings.new_ranking_created"
 	LegendRankingsRankingSubmittedForReviewEvent             MicroserviceEvent = "legend_rankings.ranking_submitted_for_review"
@@ -88,9 +90,11 @@ func MicroserviceEventValues() []MicroserviceEvent {
 		LegendMissionsNewMissionCreatedEvent,
 		LegendMissionsOngoingMissionEvent,
 		LegendMissionsMissionFinishedEvent,
-		LegendMissionsSendEmailCryptoMissionCompletedEvent,
+		LegendMissionsMissionApprovedEvent,
+		LegendMissionsMissionRejectedEvent,
 		LegendMissionsSendEmailCodeExchangeMissionCompletedEvent,
-		LegendMissionsSendEmailNftMissionCompletedEvent,
+		LegendMissionsMissionActivatedEvent,
+		LegendMissionsSendEmailGiftCardMissionCompletedEvent,
 		LegendRankingsRankingsFinishedEvent,
 		LegendRankingsNewRankingCreatedEvent,
 		LegendRankingsRankingSubmittedForReviewEvent,
@@ -196,22 +200,61 @@ func (AuthNewUserPayload) Type() MicroserviceEvent {
 
 // LegendMissionsNewMissionCreatedEventPayload is the payload for the legend_missions.new_mission_created.
 type LegendMissionsNewMissionCreatedEventPayload struct {
-	Title                    string              `json:"title"`
-	Author                   string              `json:"author"`
-	AuthorEmail              string              `json:"authorEmail"`
-	Reward                   int                 `json:"reward"`
-	StartDate                string              `json:"startDate"`
-	EndDate                  string              `json:"endDate"`
-	MaxPlayersClaimingReward int                 `json:"maxPlayersClaimingReward"`
-	TimeToReward             int                 `json:"timeToReward"`
-	NotificationConfig       *NotificationConfig `json:"notificationConfig,omitempty"`
+	MissionID   int    `json:"missionId"`
+	Title       string `json:"title"`
+	Author      string `json:"author"`
+	AuthorEmail string `json:"authorEmail"`
+	RewardKind  string `json:"rewardKind"`
+	StartDate   string `json:"startDate"`
+	EndDate     string `json:"endDate"`
 }
 
 func (LegendMissionsNewMissionCreatedEventPayload) Type() MicroserviceEvent {
 	return LegendMissionsNewMissionCreatedEvent
 }
 
-// LegendMissionsOngoingMissionEventPayload is the payload for the legend_missions.ongoin_mission.
+// LegendMissionsMissionApprovedEventPayload is the payload for the legend_missions.mission_approved event.
+type LegendMissionsMissionApprovedEventPayload struct {
+	MissionID   int    `json:"missionId"`
+	Title       string `json:"title"`
+	AuthorEmail string `json:"authorEmail"`
+	StartDate   string `json:"startDate"`
+}
+
+func (LegendMissionsMissionApprovedEventPayload) Type() MicroserviceEvent {
+	return LegendMissionsMissionApprovedEvent
+}
+
+// LegendMissionsMissionRejectedEventPayload is the payload for the legend_missions.mission_rejected event.
+type LegendMissionsMissionRejectedEventPayload struct {
+	MissionID   int    `json:"missionId"`
+	Title       string `json:"title"`
+	AuthorEmail string `json:"authorEmail"`
+	AdminNotes  string `json:"adminNotes"`
+}
+
+func (LegendMissionsMissionRejectedEventPayload) Type() MicroserviceEvent {
+	return LegendMissionsMissionRejectedEvent
+}
+
+// LegendMissionsMissionActivatedEventPayload is the payload for the legend_missions.mission_activated event.
+// Emitted by the finalize ticker when an approved mission reaches its start_date and becomes active.
+// Consumed by legend-send-email to notify the mission author and admin team that the mission is now live.
+type LegendMissionsMissionActivatedEventPayload struct {
+	Title       string `json:"title"`
+	Author      string `json:"author"`
+	AuthorEmail string `json:"authorEmail"`
+	StartDate   string `json:"startDate"`
+	EndDate     string `json:"endDate"`
+}
+
+func (LegendMissionsMissionActivatedEventPayload) Type() MicroserviceEvent {
+	return LegendMissionsMissionActivatedEvent
+}
+
+// LegendMissionsOngoingMissionEventPayload is the payload for the legend_missions.ongoing_mission.
+// Used internally by legend-missions WebSocket flow: tracks a user actively playing a mission.
+// The RedisKey encodes "{missionId}:{userId}" and is used to check/update player progress.
 type LegendMissionsOngoingMissionEventPayload struct {
 	RedisKey string `json:"redisKey"`
 }
@@ -228,9 +271,19 @@ type MissionFinishedParticipant struct {
 }
 
 // LegendMissionsMissionFinishedEventPayload is the payload for the legend_missions.mission_finished event.
+// Emitted by the finalize ticker when an active mission reaches its end_date.
+// Participants contains users who completed the mission (for final-report emails).
+// Aggregate stat fields are optional — zero values mean not available.
 type LegendMissionsMissionFinishedEventPayload struct {
-	MissionTitle string                       `json:"missionTitle"`
-	Participants []MissionFinishedParticipant `json:"participants"`
+	MissionTitle           string                       `json:"missionTitle"`
+	Participants           []MissionFinishedParticipant `json:"participants"`
+	Author                 string                       `json:"author,omitempty"`
+	AuthorEmail            string                       `json:"authorEmail,omitempty"`
+	TotalSeats             int                          `json:"totalSeats,omitempty"`
+	RegisteredParticipants int                          `json:"registeredParticipants,omitempty"`
+	RewardKind             string                       `json:"rewardKind,omitempty"`
+	StartDate              string                       `json:"startDate,omitempty"`
+	EndDate                string                       `json:"endDate,omitempty"`
 }
 
 func (LegendMissionsMissionFinishedEventPayload) Type() MicroserviceEvent {
@@ -261,41 +314,34 @@ type CompletedRanking struct {
 	NotificationConfig map[string]any `json:"notificationConfig,omitempty"`
 }
 
-// LegendMissionsSendEmailCryptoMissionCompletedEventPayload is the payload for the legend_missions.send_email_crypto_mission_completed event.
-type LegendMissionsSendEmailCryptoMissionCompletedEventPayload struct {
-	UserID            string `json:"userId"`
-	MissionTitle      string `json:"missionTitle"`
-	Reward            string `json:"reward"`
-	BlockchainNetwork string `json:"blockchainNetwork"`
-	CryptoAsset       string `json:"cryptoAsset"`
-}
-
-func (LegendMissionsSendEmailCryptoMissionCompletedEventPayload) Type() MicroserviceEvent {
-	return LegendMissionsSendEmailCryptoMissionCompletedEvent
-}
-
 // LegendMissionsSendEmailCodeExchangeMissionCompletedEventPayload is the payload for the legend_missions.send_email_code_exchange_mission_completed event.
 type LegendMissionsSendEmailCodeExchangeMissionCompletedEventPayload struct {
-	UserID          string `json:"userId"`
-	MissionTitle    string `json:"missionTitle"`
-	CodeValue       string `json:"codeValue"`
-	CodeDescription string `json:"codeDescription"`
+	UserID             string `json:"userId"`
+	MissionTitle       string `json:"missionTitle"`
+	CodeValue          string `json:"codeValue"`
+	CodeDescription    string `json:"codeDescription"`
+	EcommerceRedeemUrl string `json:"ecommerceRedeemUrl,omitempty"`
+	MapsRedeemUrl      string `json:"mapsRedeemUrl,omitempty"`
+	TemplateName       string `json:"templateName,omitempty"`
 }
 
 func (LegendMissionsSendEmailCodeExchangeMissionCompletedEventPayload) Type() MicroserviceEvent {
 	return LegendMissionsSendEmailCodeExchangeMissionCompletedEvent
 }
 
-// LegendMissionsSendEmailNftMissionCompletedEventPayload is the payload for the legend_missions.send_email_nft_mission_completed event.
-type LegendMissionsSendEmailNftMissionCompletedEventPayload struct {
+// LegendMissionsSendEmailGiftCardMissionCompletedEventPayload is the payload for the legend_missions.send_email_gift_card_mission_completed event.
+type LegendMissionsSendEmailGiftCardMissionCompletedEventPayload struct {
 	UserID             string `json:"userId"`
 	MissionTitle       string `json:"missionTitle"`
-	NftContractAddress string `json:"nftContractAddress"`
-	NftTokenID         string `json:"nftTokenId"`
+	Description        string `json:"description"`
+	FileKey            string `json:"fileKey"`
+	EcommerceRedeemUrl string `json:"ecommerceRedeemUrl,omitempty"`
+	MapsRedeemUrl      string `json:"mapsRedeemUrl,omitempty"`
+	TemplateName       string `json:"templateName,omitempty"`
 }
 
-func (LegendMissionsSendEmailNftMissionCompletedEventPayload) Type() MicroserviceEvent {
-	return LegendMissionsSendEmailNftMissionCompletedEvent
+func (LegendMissionsSendEmailGiftCardMissionCompletedEventPayload) Type() MicroserviceEvent {
+	return LegendMissionsSendEmailGiftCardMissionCompletedEvent
 }
 
 // LegendRankingsRankingsFinishedEventPayload is the payload for the legend_rankings.rankings_finished.
