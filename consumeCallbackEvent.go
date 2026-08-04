@@ -1,6 +1,7 @@
 package saga
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -16,6 +17,12 @@ import (
 type EventHandler struct {
 	Channel *EventsConsumeChannel  `json:"channel"`
 	Payload map[string]interface{} `json:"payload"`
+	// OperationID is the SIPLEI operation the event belongs to. Empty when the
+	// publisher did not set it, which is expected during the migration window.
+	OperationID string `json:"operationId"`
+	// Ctx carries OperationID. Pass it to PublishEventWithContext or to a gRPC
+	// call and the operation propagates without per-service code.
+	Ctx context.Context `json:"-"`
 }
 
 func ParsePayload[T any](handlerPayload map[string]interface{}, data *T) *T {
@@ -98,6 +105,12 @@ func (t *Transactional) eventCallback(msg *amqp.Delivery, emitter *Emitter[Event
 		log.Printf("Warning: Message is missing MessageId, generating a new UUID v7 for event_id")
 		eventID = uuid.Must(uuid.NewV7()).String()
 	}
+	operationID := operationFromHeaders(msg.Headers)
+	if operationID == "" {
+		reportMissingOperation(string(t.Microservice), eventType)
+	}
+	operationCtx := WithOperation(context.Background(), operationID)
+
 	// Emit audit.received event automatically when event is received (before processing)
 	timestamp := uint64(time.Now().UnixMilli())
 
@@ -111,7 +124,7 @@ func (t *Transactional) eventCallback(msg *amqp.Delivery, emitter *Emitter[Event
 	}
 	go func() {
 		// Emit the audit.received event (don't fail the main flow if audit fails)
-		if auditErr := PublishAuditEvent(&auditReceivedPayload); auditErr != nil {
+		if auditErr := PublishAuditEventWithContext(operationCtx, &auditReceivedPayload); auditErr != nil {
 			log.Printf("Failed to emit audit.received event: %v", auditErr)
 		}
 	}()
@@ -126,11 +139,14 @@ func (t *Transactional) eventCallback(msg *amqp.Delivery, emitter *Emitter[Event
 		eventType:             eventType,
 		publisherMicroservice: publisherMicroservice,
 		eventID:               eventID,
+		operationID:           operationID,
 	}
 
 	emitter.Emit(eventKey[0], EventHandler{
-		Payload: eventPayload,
-		Channel: responseChannel,
+		Payload:     eventPayload,
+		Channel:     responseChannel,
+		OperationID: operationID,
+		Ctx:         operationCtx,
 	})
 }
 

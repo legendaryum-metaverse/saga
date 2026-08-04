@@ -1,6 +1,7 @@
 package saga
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 
@@ -12,6 +13,11 @@ type CommandHandler struct {
 	Channel *MicroserviceConsumeChannel `json:"channel"`
 	Payload map[string]interface{}      `json:"payload"`
 	SagaID  int                         `json:"sagaId"`
+	// OperationID is the SIPLEI operation the saga step belongs to. Empty when
+	// the publisher did not set it, expected during the migration window.
+	OperationID string `json:"operationId"`
+	// Ctx carries OperationID for downstream publishes and gRPC calls.
+	Ctx context.Context `json:"-"`
 }
 
 func (t *Transactional) sagaCommandCallback(msg *amqp.Delivery, e *Emitter[CommandHandler, micro.StepCommand], queueName string) {
@@ -32,8 +38,11 @@ func (t *Transactional) sagaCommandCallback(msg *amqp.Delivery, e *Emitter[Comma
 		return
 	}
 
+	operationID := operationFromHeaders(msg.Headers)
+
 	responseChannel := &MicroserviceConsumeChannel{
-		step: currentStep,
+		step:        currentStep,
+		operationID: operationID,
 		ConsumeChannel: &ConsumeChannel{
 			channel:   t.sagaChannel,
 			msg:       msg,
@@ -41,9 +50,15 @@ func (t *Transactional) sagaCommandCallback(msg *amqp.Delivery, e *Emitter[Comma
 		},
 	}
 
+	if operationID == "" {
+		reportMissingOperation(string(t.Microservice), string(currentStep.Command))
+	}
+
 	e.Emit(currentStep.Command, CommandHandler{
-		Channel: responseChannel,
-		Payload: currentStep.PreviousPayload,
-		SagaID:  currentStep.SagaID,
+		Channel:     responseChannel,
+		Payload:     currentStep.PreviousPayload,
+		SagaID:      currentStep.SagaID,
+		OperationID: operationID,
+		Ctx:         WithOperation(context.Background(), operationID),
 	})
 }

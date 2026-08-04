@@ -56,6 +56,12 @@ func getSendChannel() (*amqp.Channel, error) {
 }
 
 func PublishEvent(payload event.PayloadEvent) error {
+	return PublishEventWithContext(context.Background(), payload)
+}
+
+// PublishEventWithContext publishes an event propagating the operation carried
+// by ctx as an AMQP header, so consumers resolve it without extra work.
+func PublishEventWithContext(ctx context.Context, payload event.PayloadEvent) error {
 	channel, err := getSendChannel()
 	if err != nil {
 		return fmt.Errorf("error getting send channel: %w", err)
@@ -78,16 +84,17 @@ func PublishEvent(payload event.PayloadEvent) error {
 	for k, v := range headerEvent {
 		headersArgs[k] = v
 	}
+	headersArgs = applyOperationHeader(ctx, headersArgs)
 
 	body, err := json.Marshal(payload)
 	if err != nil {
 		return err
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	publishCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	err = channel.PublishWithContext(
-		ctx,
+		publishCtx,
 		string(MatchingExchange),
 		"",
 		false, // mandatory
@@ -111,9 +118,12 @@ func PublishEvent(payload event.PayloadEvent) error {
 		PublishedAt:           timestamp,
 		EventID:               eventID,
 	}
+	// The goroutine outlives the caller's context, so the operation is captured
+	// into a detached context before spawning it.
+	auditCtx := detachOperation(ctx)
 	// Emit audit.published event (fire-and-forget - never fail the main flow)
 	go func() {
-		if auditErr := PublishAuditEvent(&auditPayload); auditErr != nil {
+		if auditErr := PublishAuditEventWithContext(auditCtx, &auditPayload); auditErr != nil {
 			log.Printf("Failed to emit audit.published event: %v", auditErr)
 		}
 	}()

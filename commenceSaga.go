@@ -1,6 +1,9 @@
 package saga
 
-import "fmt"
+import (
+	"context"
+	"fmt"
+)
 
 const (
 	CommenceSagaQueue Queue = "commence_saga"
@@ -57,6 +60,11 @@ type commenceSaga struct {
 }
 
 func CommenceSaga(payload CommencePayload) error {
+	return CommenceSagaWithContext(context.Background(), payload)
+}
+
+// CommenceSagaWithContext starts a saga propagating the operation carried by ctx.
+func CommenceSagaWithContext(ctx context.Context, payload CommencePayload) error {
 	channel, err := getSendChannel()
 	if err != nil {
 		return fmt.Errorf("error getting send channel: %w", err)
@@ -65,7 +73,7 @@ func CommenceSaga(payload CommencePayload) error {
 	// Para que este micro pueda realizar pasos del saga y realizar commence_saga ops las queue's deben existir, no es responsabilidad
 	// de los micros crear estos recursos, el micro "transactional" debe crear estos recursos -> "queue.CommenceSaga" en commenceSagaListener
 	// y "queue.ReplyToSaga" en startGlobalSagaStepListener
-	err = send(channel, string(CommenceSagaQueue), commenceSaga{
+	err = send(ctx, channel, string(CommenceSagaQueue), commenceSaga{
 		Title:   title,
 		Payload: payload,
 	})
