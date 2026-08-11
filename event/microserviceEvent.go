@@ -22,6 +22,7 @@ const (
 	AuthDeletedUserEvent                                     MicroserviceEvent = "auth.deleted_user"
 	AuthLogoutUserEvent                                      MicroserviceEvent = "auth.logout_user"
 	AuthNewUserEvent                                         MicroserviceEvent = "auth.new_user"
+	AuthOperationCreatedEvent                                MicroserviceEvent = "auth.operation_created"
 	LegendMissionsNewMissionCreatedEvent                     MicroserviceEvent = "legend_missions.new_mission_created"
 	LegendMissionsOngoingMissionEvent                        MicroserviceEvent = "legend_missions.ongoing_mission"
 	LegendMissionsMissionFinishedEvent                       MicroserviceEvent = "legend_missions.mission_finished"
@@ -87,6 +88,7 @@ func MicroserviceEventValues() []MicroserviceEvent {
 		AuthDeletedUserEvent,
 		AuthLogoutUserEvent,
 		AuthNewUserEvent,
+		AuthOperationCreatedEvent,
 		LegendMissionsNewMissionCreatedEvent,
 		LegendMissionsOngoingMissionEvent,
 		LegendMissionsMissionFinishedEvent,
@@ -196,6 +198,20 @@ type AuthNewUserPayload struct {
 
 func (AuthNewUserPayload) Type() MicroserviceEvent {
 	return AuthNewUserEvent
+}
+
+// AuthOperationCreatedPayload is the payload for the auth.operation_created
+// event. identity_mode is immutable once an operation exists (auth enforces
+// this), so consumers only ever need this one, creation-time event to build a
+// local {operation_id -> identity_mode} projection — there is no
+// corresponding "updated" event for this field.
+type AuthOperationCreatedPayload struct {
+	OperationID  string `json:"operationId"`
+	IdentityMode string `json:"identityMode"`
+}
+
+func (AuthOperationCreatedPayload) Type() MicroserviceEvent {
+	return AuthOperationCreatedEvent
 }
 
 // LegendMissionsNewMissionCreatedEventPayload is the payload for the legend_missions.new_mission_created.
