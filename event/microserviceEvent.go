@@ -61,6 +61,9 @@ const (
 	BillingSubscriptionCanceledEvent MicroserviceEvent = "billing.subscription_canceled"
 	BillingSubscriptionExpiredEvent  MicroserviceEvent = "billing.subscription_expired"
 
+	// Platform events - Level 1 entitlements (an operation pays SIPLEI).
+	PlatformOperationFeaturesChangedEvent MicroserviceEvent = "platform.operation_features_changed"
+
 	// Legend Events - Event and registration domain events.
 	LegendEventsNewEventCreatedEvent      MicroserviceEvent = "legend_events.new_event_created"
 	LegendEventsEventStartedEvent         MicroserviceEvent = "legend_events.event_started"
@@ -126,6 +129,9 @@ func MicroserviceEventValues() []MicroserviceEvent {
 		BillingSubscriptionRenewedEvent,
 		BillingSubscriptionCanceledEvent,
 		BillingSubscriptionExpiredEvent,
+
+		// Platform events
+		PlatformOperationFeaturesChangedEvent,
 
 		// Legend Events
 		LegendEventsNewEventCreatedEvent,
@@ -212,6 +218,20 @@ type AuthOperationCreatedPayload struct {
 
 func (AuthOperationCreatedPayload) Type() MicroserviceEvent {
 	return AuthOperationCreatedEvent
+}
+
+// PlatformOperationFeaturesChangedPayload is the payload for the
+// platform.operation_features_changed event.
+//
+// An invalidation signal, not a snapshot: a consumer refetches the effective
+// feature set from legend-billing rather than trust a payload that could
+// drift from the feature schema that lives there.
+type PlatformOperationFeaturesChangedPayload struct {
+	OperationID string `json:"operationId"`
+}
+
+func (PlatformOperationFeaturesChangedPayload) Type() MicroserviceEvent {
+	return PlatformOperationFeaturesChangedEvent
 }
 
 // LegendMissionsNewMissionCreatedEventPayload is the payload for the legend_missions.new_mission_created.
