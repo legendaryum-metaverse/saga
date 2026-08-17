@@ -11,7 +11,8 @@ type (
 
 type MicroserviceConsumeChannel struct {
 	*ConsumeChannel
-	step SagaStep
+	step        SagaStep
+	operationID string
 }
 
 type NextStepPayload = map[string]interface{}

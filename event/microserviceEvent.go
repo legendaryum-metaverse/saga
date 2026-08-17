@@ -22,6 +22,7 @@ const (
 	AuthDeletedUserEvent                                     MicroserviceEvent = "auth.deleted_user"
 	AuthLogoutUserEvent                                      MicroserviceEvent = "auth.logout_user"
 	AuthNewUserEvent                                         MicroserviceEvent = "auth.new_user"
+	AuthOperationCreatedEvent                                MicroserviceEvent = "auth.operation_created"
 	LegendMissionsNewMissionCreatedEvent                     MicroserviceEvent = "legend_missions.new_mission_created"
 	LegendMissionsOngoingMissionEvent                        MicroserviceEvent = "legend_missions.ongoing_mission"
 	LegendMissionsMissionFinishedEvent                       MicroserviceEvent = "legend_missions.mission_finished"
@@ -60,6 +61,9 @@ const (
 	BillingSubscriptionCanceledEvent MicroserviceEvent = "billing.subscription_canceled"
 	BillingSubscriptionExpiredEvent  MicroserviceEvent = "billing.subscription_expired"
 
+	// Platform events - Level 1 entitlements (an operation pays SIPLEI).
+	PlatformOperationFeaturesChangedEvent MicroserviceEvent = "platform.operation_features_changed"
+
 	// Legend Events - Event and registration domain events.
 	LegendEventsNewEventCreatedEvent      MicroserviceEvent = "legend_events.new_event_created"
 	LegendEventsEventStartedEvent         MicroserviceEvent = "legend_events.event_started"
@@ -87,6 +91,7 @@ func MicroserviceEventValues() []MicroserviceEvent {
 		AuthDeletedUserEvent,
 		AuthLogoutUserEvent,
 		AuthNewUserEvent,
+		AuthOperationCreatedEvent,
 		LegendMissionsNewMissionCreatedEvent,
 		LegendMissionsOngoingMissionEvent,
 		LegendMissionsMissionFinishedEvent,
@@ -124,6 +129,9 @@ func MicroserviceEventValues() []MicroserviceEvent {
 		BillingSubscriptionRenewedEvent,
 		BillingSubscriptionCanceledEvent,
 		BillingSubscriptionExpiredEvent,
+
+		// Platform events
+		PlatformOperationFeaturesChangedEvent,
 
 		// Legend Events
 		LegendEventsNewEventCreatedEvent,
@@ -196,6 +204,34 @@ type AuthNewUserPayload struct {
 
 func (AuthNewUserPayload) Type() MicroserviceEvent {
 	return AuthNewUserEvent
+}
+
+// AuthOperationCreatedPayload is the payload for the auth.operation_created
+// event. identity_mode is immutable once an operation exists (auth enforces
+// this), so consumers only ever need this one, creation-time event to build a
+// local {operation_id -> identity_mode} projection — there is no
+// corresponding "updated" event for this field.
+type AuthOperationCreatedPayload struct {
+	OperationID  string `json:"operationId"`
+	IdentityMode string `json:"identityMode"`
+}
+
+func (AuthOperationCreatedPayload) Type() MicroserviceEvent {
+	return AuthOperationCreatedEvent
+}
+
+// PlatformOperationFeaturesChangedPayload is the payload for the
+// platform.operation_features_changed event.
+//
+// An invalidation signal, not a snapshot: a consumer refetches the effective
+// feature set from legend-billing rather than trust a payload that could
+// drift from the feature schema that lives there.
+type PlatformOperationFeaturesChangedPayload struct {
+	OperationID string `json:"operationId"`
+}
+
+func (PlatformOperationFeaturesChangedPayload) Type() MicroserviceEvent {
+	return PlatformOperationFeaturesChangedEvent
 }
 
 // LegendMissionsNewMissionCreatedEventPayload is the payload for the legend_missions.new_mission_created.

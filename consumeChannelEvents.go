@@ -1,6 +1,7 @@
 package saga
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"time"
@@ -14,6 +15,11 @@ type EventsConsumeChannel struct {
 	eventType             string
 	publisherMicroservice string
 	eventID               string
+	operationID           string
+}
+
+func (m *EventsConsumeChannel) operationContext() context.Context {
+	return WithOperation(context.Background(), m.operationID)
 }
 
 func (m *EventsConsumeChannel) AckMessage() {
@@ -33,9 +39,10 @@ func (m *EventsConsumeChannel) AckMessage() {
 		QueueName:             m.queueName,
 		EventID:               m.eventID,
 	}
+	auditCtx := m.operationContext()
 	go func() {
 		// Emit the audit event using the direct exchange method
-		if auditErr := PublishAuditEvent(&auditPayload); auditErr != nil {
+		if auditErr := PublishAuditEventWithContext(auditCtx, &auditPayload); auditErr != nil {
 			// Log the error but don't fail the ack operation
 			log.Printf("Failed to emit audit.processed event: %v", auditErr)
 		}
@@ -59,9 +66,10 @@ func (m *EventsConsumeChannel) NackWithDelay(delay time.Duration, maxRetries int
 		RetryCount:            &rc,
 		EventID:               m.eventID,
 	}
+	auditCtx := m.operationContext()
 	go func() {
 		// Emit the audit event (don't fail if audit fails)
-		if auditErr := PublishAuditEvent(&auditPayload); auditErr != nil {
+		if auditErr := PublishAuditEventWithContext(auditCtx, &auditPayload); auditErr != nil {
 			log.Printf("Failed to emit audit.dead_letter event: %v", auditErr)
 		}
 	}()
@@ -87,9 +95,10 @@ func (m *EventsConsumeChannel) NackWithFibonacciStrategy(maxOccurrence, maxRetri
 		EventID:               m.eventID,
 	}
 
+	auditCtx := m.operationContext()
 	go func() {
 		// Emit the audit event (don't fail if audit fails)
-		if auditErr := PublishAuditEvent(&auditPayload); auditErr != nil {
+		if auditErr := PublishAuditEventWithContext(auditCtx, &auditPayload); auditErr != nil {
 			log.Printf("Failed to emit audit.dead_letter event: %v", auditErr)
 		}
 	}()
