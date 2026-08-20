@@ -782,10 +782,15 @@ type BillingSubscriptionCreatedPayload struct {
 	UserID         string `json:"userId"`
 	PlanID         string `json:"planId"`
 	PlanSlug       string `json:"planSlug"`
-	Status         string `json:"status"` // "pending" | "active" | "trialing"
-	PeriodStart    string `json:"periodStart"`
-	PeriodEnd      string `json:"periodEnd"`
-	OccurredAt     string `json:"occurredAt"`
+	// Features is the plan's real, per-client feature set (e.g. "rankings.macro_metrics",
+	// "rankings.max_content_per_month=3") — the replacement for PlanSlug-based tier lookups.
+	// Consumers should still fetch fresh from the source of truth rather than trust this
+	// payload for anything that isn't allowed to go briefly stale.
+	Features    []string `json:"features"`
+	Status      string   `json:"status"` // "pending" | "active" | "trialing"
+	PeriodStart string   `json:"periodStart"`
+	PeriodEnd   string   `json:"periodEnd"`
+	OccurredAt  string   `json:"occurredAt"`
 }
 
 func (BillingSubscriptionCreatedPayload) Type() MicroserviceEvent {
@@ -794,15 +799,17 @@ func (BillingSubscriptionCreatedPayload) Type() MicroserviceEvent {
 
 // BillingSubscriptionUpdatedPayload is the payload for billing.subscription.updated event.
 type BillingSubscriptionUpdatedPayload struct {
-	SubscriptionID    string `json:"subscriptionId"`
-	UserID            string `json:"userId"`
-	PlanID            string `json:"planId"`
-	PlanSlug          string `json:"planSlug"`
-	Status            string `json:"status"` // "active" | "past_due" | "unpaid" | "paused" | "trialing"
-	CancelAtPeriodEnd bool   `json:"cancelAtPeriodEnd"`
-	PeriodStart       string `json:"periodStart"`
-	PeriodEnd         string `json:"periodEnd"`
-	OccurredAt        string `json:"occurredAt"`
+	SubscriptionID string `json:"subscriptionId"`
+	UserID         string `json:"userId"`
+	PlanID         string `json:"planId"`
+	PlanSlug       string `json:"planSlug"`
+	// Features is the plan's real, per-client feature set — see BillingSubscriptionCreatedPayload.
+	Features          []string `json:"features"`
+	Status            string   `json:"status"` // "active" | "past_due" | "unpaid" | "paused" | "trialing"
+	CancelAtPeriodEnd bool     `json:"cancelAtPeriodEnd"`
+	PeriodStart       string   `json:"periodStart"`
+	PeriodEnd         string   `json:"periodEnd"`
+	OccurredAt        string   `json:"occurredAt"`
 }
 
 func (BillingSubscriptionUpdatedPayload) Type() MicroserviceEvent {
@@ -815,9 +822,11 @@ type BillingSubscriptionRenewedPayload struct {
 	UserID         string `json:"userId"`
 	PlanID         string `json:"planId"`
 	PlanSlug       string `json:"planSlug"`
-	PeriodStart    string `json:"periodStart"`
-	PeriodEnd      string `json:"periodEnd"`
-	OccurredAt     string `json:"occurredAt"`
+	// Features is the plan's real, per-client feature set — see BillingSubscriptionCreatedPayload.
+	Features    []string `json:"features"`
+	PeriodStart string   `json:"periodStart"`
+	PeriodEnd   string   `json:"periodEnd"`
+	OccurredAt  string   `json:"occurredAt"`
 }
 
 func (BillingSubscriptionRenewedPayload) Type() MicroserviceEvent {
