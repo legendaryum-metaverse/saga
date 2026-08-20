@@ -32,6 +32,7 @@ const (
 	LegendMissionsSendEmailCodeExchangeMissionCompletedEvent MicroserviceEvent = "legend_missions.send_email_code_exchange_mission_completed"
 	LegendMissionsSendEmailGiftCardMissionCompletedEvent     MicroserviceEvent = "legend_missions.send_email_gift_card_mission_completed"
 	LegendRankingsRankingsFinishedEvent                      MicroserviceEvent = "legend_rankings.rankings_finished"
+	LegendRankingsBillableParticipantRecordedEvent           MicroserviceEvent = "legend_rankings.billable_participant_recorded"
 	LegendRankingsNewRankingCreatedEvent                     MicroserviceEvent = "legend_rankings.new_ranking_created"
 	LegendRankingsRankingSubmittedForReviewEvent             MicroserviceEvent = "legend_rankings.ranking_submitted_for_review"
 	LegendRankingsRankingApprovedEvent                       MicroserviceEvent = "legend_rankings.ranking_approved"
@@ -101,6 +102,7 @@ func MicroserviceEventValues() []MicroserviceEvent {
 		LegendMissionsMissionActivatedEvent,
 		LegendMissionsSendEmailGiftCardMissionCompletedEvent,
 		LegendRankingsRankingsFinishedEvent,
+		LegendRankingsBillableParticipantRecordedEvent,
 		LegendRankingsNewRankingCreatedEvent,
 		LegendRankingsRankingSubmittedForReviewEvent,
 		LegendRankingsRankingApprovedEvent,
@@ -387,6 +389,23 @@ type LegendRankingsRankingsFinishedEventPayload struct {
 
 func (LegendRankingsRankingsFinishedEventPayload) Type() MicroserviceEvent {
 	return LegendRankingsRankingsFinishedEvent
+}
+
+// LegendRankingsBillableParticipantRecordedEventPayload is the payload for
+// legend_rankings.billable_participant_recorded — a distinct player's first
+// participation in a ranking (the billable unit; the same player playing 50
+// times counts once). Invalidation signal, not a snapshot: consumers
+// re-fetch the count they need rather than trust a total baked into the
+// event.
+type LegendRankingsBillableParticipantRecordedEventPayload struct {
+	OperationID string `json:"operationId"`
+	SourceType  string `json:"sourceType"`
+	SourceID    string `json:"sourceId"`
+	OccurredAt  string `json:"occurredAt"`
+}
+
+func (LegendRankingsBillableParticipantRecordedEventPayload) Type() MicroserviceEvent {
+	return LegendRankingsBillableParticipantRecordedEvent
 }
 
 // LegendRankingsNewRankingCreatedEventPayload is the payload for the legend_rankings.new_ranking_created event.
