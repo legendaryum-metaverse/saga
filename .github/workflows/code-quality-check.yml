@@ -14,7 +14,7 @@ defaults:
 
 jobs:
   lint:
-    timeout-minutes: 2
+    timeout-minutes: 3
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -32,7 +32,7 @@ jobs:
         uses: golangci/golangci-lint-action@v8
         with:
           version: latest
-          args: --verbose --config=.golangci-gin.yml --timeout 2m --fix
+          args: --verbose --config=.golangci-gin.yml --timeout 3m --fix
       - name: gofmt
         run: |
           make format

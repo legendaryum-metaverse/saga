@@ -32,6 +32,7 @@ const (
 	LegendMissionsSendEmailCodeExchangeMissionCompletedEvent MicroserviceEvent = "legend_missions.send_email_code_exchange_mission_completed"
 	LegendMissionsSendEmailGiftCardMissionCompletedEvent     MicroserviceEvent = "legend_missions.send_email_gift_card_mission_completed"
 	LegendRankingsRankingsFinishedEvent                      MicroserviceEvent = "legend_rankings.rankings_finished"
+	LegendRankingsBillableParticipantRecordedEvent           MicroserviceEvent = "legend_rankings.billable_participant_recorded"
 	LegendRankingsNewRankingCreatedEvent                     MicroserviceEvent = "legend_rankings.new_ranking_created"
 	LegendRankingsRankingSubmittedForReviewEvent             MicroserviceEvent = "legend_rankings.ranking_submitted_for_review"
 	LegendRankingsRankingApprovedEvent                       MicroserviceEvent = "legend_rankings.ranking_approved"
@@ -101,6 +102,7 @@ func MicroserviceEventValues() []MicroserviceEvent {
 		LegendMissionsMissionActivatedEvent,
 		LegendMissionsSendEmailGiftCardMissionCompletedEvent,
 		LegendRankingsRankingsFinishedEvent,
+		LegendRankingsBillableParticipantRecordedEvent,
 		LegendRankingsNewRankingCreatedEvent,
 		LegendRankingsRankingSubmittedForReviewEvent,
 		LegendRankingsRankingApprovedEvent,
@@ -387,6 +389,27 @@ type LegendRankingsRankingsFinishedEventPayload struct {
 
 func (LegendRankingsRankingsFinishedEventPayload) Type() MicroserviceEvent {
 	return LegendRankingsRankingsFinishedEvent
+}
+
+// LegendRankingsBillableParticipantRecordedEventPayload is the payload for
+// legend_rankings.billable_participant_recorded — a distinct player's first
+// participation in a ranking (the billable unit; the same player playing 50
+// times counts once). Invalidation signal, not a snapshot: consumers
+// re-fetch the count they need rather than trust a total baked into the
+// event.
+type LegendRankingsBillableParticipantRecordedEventPayload struct {
+	OperationID string `json:"operationId"`
+	SourceType  string `json:"sourceType"`
+	SourceID    string `json:"sourceId"`
+	// Needed so consumers can dedupe on (OperationID, SourceType, SourceID,
+	// UserRef) - the same composite key billable_participants uses - and
+	// stay correct under RabbitMQ redelivery instead of double-counting.
+	UserRef    string `json:"userRef"`
+	OccurredAt string `json:"occurredAt"`
+}
+
+func (LegendRankingsBillableParticipantRecordedEventPayload) Type() MicroserviceEvent {
+	return LegendRankingsBillableParticipantRecordedEvent
 }
 
 // LegendRankingsNewRankingCreatedEventPayload is the payload for the legend_rankings.new_ranking_created event.
@@ -782,10 +805,15 @@ type BillingSubscriptionCreatedPayload struct {
 	UserID         string `json:"userId"`
 	PlanID         string `json:"planId"`
 	PlanSlug       string `json:"planSlug"`
-	Status         string `json:"status"` // "pending" | "active" | "trialing"
-	PeriodStart    string `json:"periodStart"`
-	PeriodEnd      string `json:"periodEnd"`
-	OccurredAt     string `json:"occurredAt"`
+	// Features is the plan's real, per-client feature set (e.g. "rankings.macro_metrics",
+	// "rankings.max_content_per_month=3") — the replacement for PlanSlug-based tier lookups.
+	// Consumers should still fetch fresh from the source of truth rather than trust this
+	// payload for anything that isn't allowed to go briefly stale.
+	Features    []string `json:"features"`
+	Status      string   `json:"status"` // "pending" | "active" | "trialing"
+	PeriodStart string   `json:"periodStart"`
+	PeriodEnd   string   `json:"periodEnd"`
+	OccurredAt  string   `json:"occurredAt"`
 }
 
 func (BillingSubscriptionCreatedPayload) Type() MicroserviceEvent {
@@ -794,15 +822,17 @@ func (BillingSubscriptionCreatedPayload) Type() MicroserviceEvent {
 
 // BillingSubscriptionUpdatedPayload is the payload for billing.subscription.updated event.
 type BillingSubscriptionUpdatedPayload struct {
-	SubscriptionID    string `json:"subscriptionId"`
-	UserID            string `json:"userId"`
-	PlanID            string `json:"planId"`
-	PlanSlug          string `json:"planSlug"`
-	Status            string `json:"status"` // "active" | "past_due" | "unpaid" | "paused" | "trialing"
-	CancelAtPeriodEnd bool   `json:"cancelAtPeriodEnd"`
-	PeriodStart       string `json:"periodStart"`
-	PeriodEnd         string `json:"periodEnd"`
-	OccurredAt        string `json:"occurredAt"`
+	SubscriptionID string `json:"subscriptionId"`
+	UserID         string `json:"userId"`
+	PlanID         string `json:"planId"`
+	PlanSlug       string `json:"planSlug"`
+	// Features is the plan's real, per-client feature set — see BillingSubscriptionCreatedPayload.
+	Features          []string `json:"features"`
+	Status            string   `json:"status"` // "active" | "past_due" | "unpaid" | "paused" | "trialing"
+	CancelAtPeriodEnd bool     `json:"cancelAtPeriodEnd"`
+	PeriodStart       string   `json:"periodStart"`
+	PeriodEnd         string   `json:"periodEnd"`
+	OccurredAt        string   `json:"occurredAt"`
 }
 
 func (BillingSubscriptionUpdatedPayload) Type() MicroserviceEvent {
@@ -815,9 +845,11 @@ type BillingSubscriptionRenewedPayload struct {
 	UserID         string `json:"userId"`
 	PlanID         string `json:"planId"`
 	PlanSlug       string `json:"planSlug"`
-	PeriodStart    string `json:"periodStart"`
-	PeriodEnd      string `json:"periodEnd"`
-	OccurredAt     string `json:"occurredAt"`
+	// Features is the plan's real, per-client feature set — see BillingSubscriptionCreatedPayload.
+	Features    []string `json:"features"`
+	PeriodStart string   `json:"periodStart"`
+	PeriodEnd   string   `json:"periodEnd"`
+	OccurredAt  string   `json:"occurredAt"`
 }
 
 func (BillingSubscriptionRenewedPayload) Type() MicroserviceEvent {
