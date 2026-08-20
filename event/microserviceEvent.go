@@ -401,7 +401,11 @@ type LegendRankingsBillableParticipantRecordedEventPayload struct {
 	OperationID string `json:"operationId"`
 	SourceType  string `json:"sourceType"`
 	SourceID    string `json:"sourceId"`
-	OccurredAt  string `json:"occurredAt"`
+	// Needed so consumers can dedupe on (OperationID, SourceType, SourceID,
+	// UserRef) - the same composite key billable_participants uses - and
+	// stay correct under RabbitMQ redelivery instead of double-counting.
+	UserRef    string `json:"userRef"`
+	OccurredAt string `json:"occurredAt"`
 }
 
 func (LegendRankingsBillableParticipantRecordedEventPayload) Type() MicroserviceEvent {
