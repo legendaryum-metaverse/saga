@@ -23,6 +23,7 @@ const (
 	AuthLogoutUserEvent                                      MicroserviceEvent = "auth.logout_user"
 	AuthNewUserEvent                                         MicroserviceEvent = "auth.new_user"
 	AuthOperationCreatedEvent                                MicroserviceEvent = "auth.operation_created"
+	AuthOperationSnapshotEvent                               MicroserviceEvent = "auth.operation_snapshot"
 	LegendMissionsNewMissionCreatedEvent                     MicroserviceEvent = "legend_missions.new_mission_created"
 	LegendMissionsOngoingMissionEvent                        MicroserviceEvent = "legend_missions.ongoing_mission"
 	LegendMissionsMissionFinishedEvent                       MicroserviceEvent = "legend_missions.mission_finished"
@@ -93,6 +94,7 @@ func MicroserviceEventValues() []MicroserviceEvent {
 		AuthLogoutUserEvent,
 		AuthNewUserEvent,
 		AuthOperationCreatedEvent,
+		AuthOperationSnapshotEvent,
 		LegendMissionsNewMissionCreatedEvent,
 		LegendMissionsOngoingMissionEvent,
 		LegendMissionsMissionFinishedEvent,
@@ -220,6 +222,40 @@ type AuthOperationCreatedPayload struct {
 
 func (AuthOperationCreatedPayload) Type() MicroserviceEvent {
 	return AuthOperationCreatedEvent
+}
+
+// AuthOperationSnapshotPayload is the payload for the auth.operation_snapshot
+// event: the full current state of an operation, published on creation and on
+// every update.
+//
+// It is a snapshot, not a diff, and applying it is idempotent: a consumer
+// keeping a local operations catalog overwrites its row wholesale. UpdatedAt
+// is what makes that safe under RabbitMQ redelivery and out-of-order arrival —
+// a snapshot older than the row already stored is discarded.
+//
+// OrganizationSlug and ClientType belong to the organization, not the
+// operation, and are denormalized here so a consumer does not need a second
+// round trip to render or group by them.
+//
+// This event carries only what a cross-operation catalog needs. Fiscal and
+// network identity (tax id, fiscal address, postal code, IP allowlist) stay
+// out on purpose: this is broadcast to every subscribed microservice, and
+// widening it would spread data that no consumer of this event needs.
+type AuthOperationSnapshotPayload struct {
+	OperationID      string `json:"operationId"`
+	OrganizationID   string `json:"organizationId"`
+	OrganizationSlug string `json:"organizationSlug"`
+	ClientType       string `json:"clientType"`
+	LegalName        string `json:"legalName"`
+	CountryCode      string `json:"countryCode"`
+	Currency         string `json:"currency"`
+	IdentityMode     string `json:"identityMode"`
+	Status           string `json:"status"`
+	UpdatedAt        string `json:"updatedAt"`
+}
+
+func (AuthOperationSnapshotPayload) Type() MicroserviceEvent {
+	return AuthOperationSnapshotEvent
 }
 
 // PlatformOperationFeaturesChangedPayload is the payload for the
