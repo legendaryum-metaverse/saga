@@ -57,6 +57,7 @@ const (
 	BillingPaymentSucceededEvent     MicroserviceEvent = "billing.payment_succeeded"
 	BillingPaymentFailedEvent        MicroserviceEvent = "billing.payment_failed"
 	BillingPaymentRefundedEvent      MicroserviceEvent = "billing.payment_refunded"
+	BillingInvoiceChargeCreatedEvent MicroserviceEvent = "billing.invoice_charge_created"
 	BillingSubscriptionCreatedEvent  MicroserviceEvent = "billing.subscription_created"
 	BillingSubscriptionUpdatedEvent  MicroserviceEvent = "billing.subscription_updated"
 	BillingSubscriptionRenewedEvent  MicroserviceEvent = "billing.subscription_renewed"
@@ -128,6 +129,7 @@ func MicroserviceEventValues() []MicroserviceEvent {
 		BillingPaymentSucceededEvent,
 		BillingPaymentFailedEvent,
 		BillingPaymentRefundedEvent,
+		BillingInvoiceChargeCreatedEvent,
 		BillingSubscriptionCreatedEvent,
 		BillingSubscriptionUpdatedEvent,
 		BillingSubscriptionRenewedEvent,
@@ -803,6 +805,20 @@ type BillingPaymentSucceededPayload struct {
 
 func (BillingPaymentSucceededPayload) Type() MicroserviceEvent {
 	return BillingPaymentSucceededEvent
+}
+
+// BillingInvoiceChargeCreatedPayload is the payload for billing.invoice_charge_created event.
+type BillingInvoiceChargeCreatedPayload struct {
+	ChargeID   string            `json:"chargeId"`
+	UserID     string            `json:"userId"`
+	Amount     int64             `json:"amount"`
+	Currency   string            `json:"currency"`
+	Metadata   map[string]string `json:"metadata"`
+	OccurredAt string            `json:"occurredAt"`
+}
+
+func (BillingInvoiceChargeCreatedPayload) Type() MicroserviceEvent {
+	return BillingInvoiceChargeCreatedEvent
 }
 
 // BillingPaymentFailedPayload is the payload for billing.payment.failed event.
